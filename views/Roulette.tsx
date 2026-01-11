@@ -1,15 +1,11 @@
+"use client";
+
 import React, { useState, useRef } from 'react';
-import { UserProfile } from '../types';
 import { ROULETTE_ITEMS } from '../constants';
-import { useTranslation } from '../App';
+import { useGame } from '../context/GameContext';
 
-interface Props {
-  user: UserProfile;
-  setUser: (u: UserProfile) => void;
-}
-
-const Roulette: React.FC<Props> = ({ user, setUser }) => {
-  const { t } = useTranslation();
+const Roulette: React.FC = () => {
+  const { user, setUser, t } = useGame();
   const [spinning, setSpinning] = useState(false);
   const [win, setWin] = useState<any>(null);
   const [rotation, setRotation] = useState(0);
@@ -17,7 +13,7 @@ const Roulette: React.FC<Props> = ({ user, setUser }) => {
 
   const spin = () => {
     if (user.tickets <= 0 || spinning) return;
-    
+
     setSpinning(true);
     setWin(null);
 
@@ -34,32 +30,32 @@ const Roulette: React.FC<Props> = ({ user, setUser }) => {
     }
 
     const selected = ROULETTE_ITEMS[selectedIndex];
-    
+
     // 2. Calculate rotation
     const segmentAngle = 18; // 360 / 20 segments
     const extraRotations = 7 + Math.floor(Math.random() * 5); // 7 to 12 full spins
-    
+
     // We want the selected index to end up at the TOP (0 degrees)
     // The index 0 is at 0 degrees. Index 1 is at 18 degrees, etc.
     // To bring index `i` to the top, we rotate by -(i * 18)
     const targetAngle = extraRotations * 360 - (selectedIndex * segmentAngle);
-    
+
     setRotation(prev => targetAngle + (prev % 360));
 
     // 3. Award prize after animation
     setTimeout(() => {
       const updatedUser = { ...user, tickets: user.tickets - 1 };
       if (selected.type === 'TON') updatedUser.balance += selected.value;
-      
+
       // Fix: UserProfile interface uses ownedWeapons, not ownedCars, and the correct type from RouletteResult is 'WEAPON'
       if (selected.type === 'WEAPON') {
         updatedUser.ownedWeapons = [...user.ownedWeapons, selected.value];
       }
-      
+
       setUser(updatedUser);
       setWin(selected);
       setSpinning(false);
-    }, 4000); 
+    }, 4000);
   };
 
   return (
@@ -74,9 +70,9 @@ const Roulette: React.FC<Props> = ({ user, setUser }) => {
         <div className="absolute top-4 z-30 w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-t-[30px] border-t-yellow-500 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]"></div>
 
         {/* Wheel Container */}
-        <div 
+        <div
           ref={wheelRef}
-          style={{ 
+          style={{
             transform: `rotate(${rotation}deg)`,
             transition: spinning ? 'transform 4s cubic-bezier(0.15, 0, 0.15, 1)' : 'none'
           }}
@@ -91,7 +87,7 @@ const Roulette: React.FC<Props> = ({ user, setUser }) => {
               const y1 = 50 + 50 * Math.sin((Math.PI * (startAngle - 90)) / 180);
               const x2 = 50 + 50 * Math.cos((Math.PI * (endAngle - 90)) / 180);
               const y2 = 50 + 50 * Math.sin((Math.PI * (endAngle - 90)) / 180);
-              
+
               // Color logic
               let color = i % 2 === 0 ? '#1a1a1a' : '#7f1d1d';
               if (item.value >= 0.05) color = '#eaaf08'; // Jackpot color
@@ -122,7 +118,7 @@ const Roulette: React.FC<Props> = ({ user, setUser }) => {
                 </g>
               );
             })}
-            
+
             {/* Edge Lights/Dots */}
             {Array.from({ length: 20 }).map((_, i) => (
               <circle
@@ -134,14 +130,14 @@ const Roulette: React.FC<Props> = ({ user, setUser }) => {
               />
             ))}
           </svg>
-          
+
           {/* Inner Decorative Hub */}
           <div className="absolute inset-0 m-auto w-14 h-14 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-900 border-4 border-zinc-800 flex items-center justify-center shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] z-10">
-             <img 
-               src="https://i.ibb.co/JFB1dy5G/logo-cartel-wars-removebg-preview.png" 
-               className="w-10 drop-shadow-lg" 
-               alt="Logo"
-             />
+            <img
+              src="https://i.ibb.co/JFB1dy5G/logo-cartel-wars-removebg-preview.png"
+              className="w-10 drop-shadow-lg"
+              alt="Logo"
+            />
           </div>
         </div>
       </div>
@@ -152,15 +148,14 @@ const Roulette: React.FC<Props> = ({ user, setUser }) => {
           <span className="text-red-500 font-marker text-xl">{user.tickets}</span>
           <span className="text-lg">🎟️</span>
         </div>
-        
-        <button 
+
+        <button
           onClick={spin}
           disabled={spinning || user.tickets <= 0}
-          className={`w-full py-4 rounded-xl font-marker text-xl uppercase tracking-widest transition-all shadow-xl ${
-            user.tickets > 0 && !spinning 
-              ? 'bg-gradient-to-r from-yellow-600 to-yellow-500 text-black hover:brightness-110 active:scale-95 gold-glow' 
+          className={`w-full py-4 rounded-xl font-marker text-xl uppercase tracking-widest transition-all shadow-xl ${user.tickets > 0 && !spinning
+              ? 'bg-gradient-to-r from-yellow-600 to-yellow-500 text-black hover:brightness-110 active:scale-95 gold-glow'
               : 'bg-zinc-800 text-zinc-600 cursor-not-allowed border border-zinc-700'
-          }`}
+            }`}
         >
           {spinning ? 'GIRANDO...' : `${t.spinFor}`}
         </button>
@@ -185,9 +180,9 @@ const Roulette: React.FC<Props> = ({ user, setUser }) => {
         <p className="text-[9px] text-zinc-600 uppercase font-bold mb-2 text-center">Tabla de Premios Disponibles</p>
         <div className="grid grid-cols-5 gap-1">
           {Array.from(new Set(ROULETTE_ITEMS.map(i => i.label))).slice(0, 10).map((label, idx) => (
-             <div key={idx} className="bg-zinc-900/50 p-1 text-[7px] text-center border border-zinc-800 rounded text-zinc-400 font-medium">
-               {label}
-             </div>
+            <div key={idx} className="bg-zinc-900/50 p-1 text-[7px] text-center border border-zinc-800 rounded text-zinc-400 font-medium">
+              {label}
+            </div>
           ))}
         </div>
       </div>
