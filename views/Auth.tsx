@@ -83,6 +83,7 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
 
   // Función para verificar si el usuario ya existe (Auto-Login)
   const handleVerify = async (tgUser: any) => {
+    setIsLoading(true);
     try {
       const res = await fetch('/api/auth', {
         method: 'POST',
@@ -105,6 +106,8 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
       }
     } catch (err) {
       console.error("Auto-login check failed", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
