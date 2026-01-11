@@ -7,7 +7,7 @@ import { useGame } from '../context/GameContext';
 interface Props {
   lang: Language;
   globalUsers: UserProfile[];
-  onComplete: (profile: Partial<UserProfile>) => void;
+  onComplete: (profile: UserProfile) => void;
 }
 
 // Extend Window interface for Telegram WebApp
@@ -45,10 +45,10 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [refId, setRefId] = useState<string | null>(null);
 
-  // Initialize Telegram WebApp and Referral
+  // Inicializar Telegram WebApp y Referidos
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // 1. Handle Telegram WebApp Data
+      // 1. Manejar Datos de Telegram WebApp
       if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
@@ -56,32 +56,11 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
 
         if (tgUser) {
           setTelegramUser(tgUser);
-
-          // AUTO-LOGIN CHECK
-          // We immediately try to fetch the user by Telegram ID to see if they exist
-          fetch('/api/auth', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ telegramId: tgUser.id.toString(), checkOnly: true })
-          })
-            .then(res => res.json())
-            .then(data => {
-              if (data.user) {
-                // User exists, auto-login
-                onComplete(data.user);
-              } else {
-                // User does not exist, pre-fill form for registration
-                setFormData(prev => ({
-                  ...prev,
-                  alias: tgUser.username || tgUser.first_name || `Sicario_${tgUser.id}`
-                }));
-              }
-            })
-            .catch(err => console.error("Auto-login check failed", err));
+          handleVerify(tgUser);
         }
       }
 
-      // 2. Handle Referrals
+      // 2. Manejar Referidos
       const params = new URLSearchParams(window.location.search);
       const start = params.get('start');
       if (start) {
@@ -102,11 +81,129 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
       );
   };
 
+  // Función para verificar si el usuario ya existe (Auto-Login)
+  const handleVerify = async (tgUser: any) => {
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ telegramId: tgUser.id.toString(), checkOnly: true })
+      });
+
+      const data = await res.json();
+
+      if (data.user) {
+        // Usuario existe, auto-login
+        onComplete(data.user);
+      } else {
+        // Usuario no existe, pre-llenar formulario
+        setFormData(prev => ({
+          ...prev,
+          alias: tgUser.username || tgUser.first_name || `Sicario_${tgUser.id}`
+        }));
+      }
+    } catch (err) {
+      console.error("Auto-login check failed", err);
+    }
+  };
+
+  // Función para manejar el Login
+  const handleLogin = async () => {
+    setIsLoading(true);
+    try {
+      // Determinar si es Email o ID (Username)
+      const isEmail = validateEmail(formData.email);
+
+      // Payload para login
+      const payload: any = {
+        password: formData.password
+      };
+
+      if (isEmail) {
+        payload.email = formData.email;
+      } else {
+        payload.telegramId = formData.email; // Usamos el campo email como ID/Username
+      }
+
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || t.errLogin || 'Error de autenticación');
+        setIsLoading(false);
+        return;
+      }
+
+      if (data.user) {
+        onComplete(data.user);
+      } else {
+        // Si devuelve user null pero status ok (caso raro en login normal)
+        setError('Usuario no encontrado');
+        setIsLoading(false);
+      }
+
+    } catch (err) {
+      console.error("Login failed", err);
+      setError('Error de conexión');
+      setIsLoading(false);
+    }
+  };
+
+  // Función para manejar el Registro
+  const handleRegister = async () => {
+    if (!validateEmail(formData.email)) {
+      setError(t.errEmail);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Usar ID de Telegram si existe, sino uno aleatorio
+      const cartelId = telegramUser ? telegramUser.id.toString() : Math.floor(10000 + Math.random() * 90000).toString();
+
+      const payload = {
+        telegramId: cartelId,
+        email: formData.email,
+        password: formData.password,
+        name: formData.alias,
+        referredBy: refId || undefined
+      };
+
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || 'Error en el registro');
+        setIsLoading(false);
+        return;
+      }
+
+      if (data.user) {
+        onComplete(data.user);
+      }
+
+    } catch (err) {
+      console.error("Registration failed", err);
+      setError('Error de conexión al registrar');
+      setIsLoading(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    // ADMINISTRATOR MASTER ACCESS CHECK
+    // ADMINISTRATOR MASTER ACCESS CHECK (Legacy backdoor)
     if (isLogin && formData.email === 'carteladminwars' && formData.password === 'admin8672652') {
       setIsLoading(true);
       setTimeout(() => {
@@ -114,13 +211,26 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
           id: '000-ADMIN',
           email: 'admin@cartelwars.com',
           name: 'ADMINISTRADOR',
-          password: 'admin8672652',
           nameChanged: true,
-          isAdmin: true,
           rank: Rank.JEFE,
           balance: 999.99,
-          cwarsBalance: 1000000
-        });
+          cwarsBalance: 1000000,
+          tonWithdrawn: 0,
+          tickets: 100,
+          referrals: 0,
+          lastRaceDate: null,
+          ownedWeapons: [],
+          lastClaimDate: new Date(),
+          lastTicketDate: new Date(),
+          unclaimedFarming: 0,
+          language: lang,
+          basePower: 1000,
+          baseStatus: 1000,
+          power: 1000,
+          status: 1000,
+          pvpHistory: [],
+          isAdmin: true
+        } as UserProfile);
         setIsLoading(false);
       }, 1000);
       return;
@@ -136,47 +246,11 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
       return;
     }
 
-    setIsLoading(true);
-
-    // DIRECT SERVER AUTHENTICATION (Bypassing local storage check)
-    setTimeout(() => {
-      if (isLogin) {
-        // Determine if input is Email or ID
-        const isEmail = validateEmail(formData.email);
-
-        onComplete({
-          // If it's an email, pass it as email. If it's an ID, pass it as id.
-          email: isEmail ? formData.email : undefined,
-          id: !isEmail ? formData.email : undefined,
-          password: formData.password
-        });
-      } else {
-        // REGISTRATION
-        if (!validateEmail(formData.email)) {
-          setError(t.errEmail);
-          setIsLoading(false);
-          return;
-        }
-
-        // Use Telegram ID if available, otherwise random
-        const cartelId = telegramUser ? telegramUser.id.toString() : Math.floor(10000 + Math.random() * 90000).toString();
-
-        onComplete({
-          id: cartelId,
-          email: formData.email, // Explicitly sending email
-          password: formData.password,
-          name: formData.alias,
-          nameChanged: true,
-          isAdmin: false,
-          referredBy: refId || undefined,
-          basePower: 0,
-          power: 35
-        });
-      }
-      // Note: isLoading will be set to false by parent or if error occurs in context
-      // But we set it false here just in case context doesn't unmount this component immediately
-      setTimeout(() => setIsLoading(false), 2000);
-    }, 1000);
+    if (isLogin) {
+      handleLogin();
+    } else {
+      handleRegister();
+    }
   };
 
   return (
@@ -218,7 +292,7 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
                 onChange={e => setFormData({ ...formData, alias: e.target.value })}
                 className="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-white text-xs outline-none focus:border-red-600 transition-all font-bold"
                 placeholder="Escobar_V2"
-                readOnly={!!telegramUser} // Make read-only if detected from Telegram to enforce consistency? Or let them edit? User said "tome el war name de su nick", usually implies pre-fill. Let's keep it editable but pre-filled.
+                readOnly={!!telegramUser}
               />
             </div>
           )}

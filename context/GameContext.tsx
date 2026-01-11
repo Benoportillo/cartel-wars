@@ -23,7 +23,7 @@ interface GameContextType {
     showAuth: boolean;
     setShowAuth: (show: boolean) => void;
     handleIntroComplete: (lang: Language) => void;
-    handleAuthComplete: (profile: Partial<UserProfile>) => void;
+    handleAuthComplete: (profile: UserProfile) => void;
     handleGuideFinish: () => void;
 }
 
@@ -222,48 +222,9 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     };
 
-    const handleAuthComplete = async (profile: Partial<UserProfile>) => {
-        try {
-            const res = await fetch('/api/auth', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: profile.email,
-                    password: profile.password,
-                    name: profile.name,
-                    telegramId: profile.id, // Using 'id' as telegramId from Auth component
-                    referredBy: profile.referredBy
-                })
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                alert(data.error || 'Authentication failed');
-                return;
-            }
-
-            // Merge API user data with local state structure if needed
-            // Ensure ID matches MongoDB _id or Telegram ID as preferred
-            const apiUser = data.user;
-
-            // Map MongoDB _id to id for frontend compatibility if needed, 
-            // but we are using telegramId as primary ID in frontend logic mostly.
-            // Let's keep using the ID returned by API (which should be the one we sent or created)
-
-            const fullProfile = {
-                ...user,
-                ...apiUser,
-                id: apiUser.telegramId || apiUser._id, // Prefer Telegram ID
-                hasSeenGuide: apiUser.hasSeenGuide ?? false
-            };
-
-            setUser(fullProfile as UserProfile);
-            setShowAuth(false);
-        } catch (error) {
-            console.error('Auth Error:', error);
-            alert('Connection error. Please try again.');
-        }
+    const handleAuthComplete = (profile: UserProfile) => {
+        setUser(profile);
+        setShowAuth(false);
     };
 
     const handleGuideFinish = () => {

@@ -25,30 +25,9 @@ export async function POST(req: Request) {
             if (body.checkOnly) {
                 return NextResponse.json({ user: null });
             }
-            // Registration logic
 
-            // Handle referral
-            if (referredBy) {
-                const recruiter = await User.findOne({ telegramId: referredBy });
-                if (recruiter) {
-                    recruiter.referrals += 1;
-                    await recruiter.save();
-                }
-            }
-
-            const newUser = new User({
-                telegramId: telegramId || Math.floor(100000000 + Math.random() * 900000000).toString(), // Fallback if not from TG
-                email,
-                password,
-                name,
-                referredBy,
-                ...INITIAL_USER, // Spread initial stats
-                power: 35, // Ensure base power
-                ownedWeapons: INITIAL_USER.ownedWeapons
-            });
-
-            await newUser.save();
-            return NextResponse.json({ user: newUser });
+            // User not found and not checkOnly -> Login failed
+            return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
     } catch (error: any) {
         console.error('Auth API Error:', error);
