@@ -260,9 +260,17 @@ const Dashboard: React.FC = () => {
           <span className="text-6xl">📣</span>
         </div>
 
-        <div className="mb-4">
-          <h2 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] mb-1">{t.referralSystemTitle}</h2>
-          <p className="text-[9px] text-zinc-500 uppercase font-bold max-w-[80%] leading-relaxed">{t.referralDescription}</p>
+        <div className="mb-4 flex justify-between items-start">
+          <div>
+            <h2 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] mb-1">{t.referralSystemTitle}</h2>
+            <p className="text-[9px] text-zinc-500 uppercase font-bold max-w-[90%] leading-relaxed">{t.referralDescription}</p>
+          </div>
+          <button
+            onClick={() => alert(`📢 PLAN DE COMISIONES DEL CARTEL\n\nGanarás comisiones por cada depósito de tus reclutas hasta 3 niveles de profundidad:\n\n🥇 Nivel 1 (Directos): 10%\n🥈 Nivel 2 (Nietos): 5%\n🥉 Nivel 3 (Bisnietos): 1%\n\n¡Construye tu imperio piramidal y cobra de por vida! 💰`)}
+            className="bg-zinc-800 text-yellow-500 p-2 rounded-full hover:bg-zinc-700 hover:scale-110 transition-all shadow-lg"
+          >
+            📣
+          </button>
         </div>
 
         <div className="space-y-3">
