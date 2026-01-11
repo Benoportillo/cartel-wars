@@ -93,8 +93,9 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
       const data = await res.json();
 
       if (data.user) {
-        // Usuario existe, auto-login
-        onComplete(data.user);
+        // Usuario existe, auto-login. Asegurar que ID esté mapeado.
+        const profile = { ...data.user, id: data.user.telegramId || data.user._id };
+        onComplete(profile);
       } else {
         // Usuario no existe, pre-llenar formulario
         setFormData(prev => ({
@@ -140,7 +141,8 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
       }
 
       if (data.user) {
-        onComplete(data.user);
+        const profile = { ...data.user, id: data.user.telegramId || data.user._id };
+        onComplete(profile);
       } else {
         // Si devuelve user null pero status ok (caso raro en login normal)
         setError('Usuario no encontrado');
@@ -189,7 +191,8 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
       }
 
       if (data.user) {
-        onComplete(data.user);
+        const profile = { ...data.user, id: data.user.telegramId || data.user._id };
+        onComplete(profile);
       }
 
     } catch (err) {
