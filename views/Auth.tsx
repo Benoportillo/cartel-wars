@@ -138,63 +138,45 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
 
     setIsLoading(true);
 
+    // DIRECT SERVER AUTHENTICATION (Bypassing local storage check)
     setTimeout(() => {
       if (isLogin) {
-        const existingUser = globalUsers.find(u =>
-          (u.email.toLowerCase() === formData.email.toLowerCase() || u.id === formData.email) &&
-          u.password === formData.password
-        );
+        // Determine if input is Email or ID
+        const isEmail = validateEmail(formData.email);
 
-        if (existingUser) {
-          onComplete(existingUser);
-        } else {
-          setError(lang === 'es' ? "Credenciales inválidas." : "Invalid credentials.");
-        }
+        onComplete({
+          // If it's an email, pass it as email. If it's an ID, pass it as id.
+          email: isEmail ? formData.email : undefined,
+          id: !isEmail ? formData.email : undefined,
+          password: formData.password
+        });
       } else {
+        // REGISTRATION
         if (!validateEmail(formData.email)) {
           setError(t.errEmail);
           setIsLoading(false);
           return;
         }
 
-        const emailTaken = globalUsers.some(u => u.email.toLowerCase() === formData.email.toLowerCase());
-        if (emailTaken) {
-          setError(lang === 'es' ? "Ya existe. Inicia sesión." : "Exists. Login instead.");
-        } else {
-          // Use Telegram ID if available, otherwise random
-          const cartelId = telegramUser ? telegramUser.id.toString() : Math.floor(10000 + Math.random() * 90000).toString();
+        // Use Telegram ID if available, otherwise random
+        const cartelId = telegramUser ? telegramUser.id.toString() : Math.floor(10000 + Math.random() * 90000).toString();
 
-          // Logic for recruitment: update recruiter's referral count
-          if (refId) {
-            const recruiterIndex = globalUsers.findIndex(u => u.id === refId);
-            if (recruiterIndex >= 0) {
-              const nextGlobal = [...globalUsers];
-              nextGlobal[recruiterIndex] = {
-                ...nextGlobal[recruiterIndex],
-                referrals: (nextGlobal[recruiterIndex].referrals || 0) + 1
-              };
-              if (typeof window !== 'undefined') {
-                localStorage.setItem('cartel_global_users', JSON.stringify(nextGlobal));
-                localStorage.removeItem('cartel_pending_ref');
-              }
-            }
-          }
-
-          onComplete({
-            id: cartelId,
-            email: formData.email,
-            password: formData.password,
-            name: formData.alias,
-            nameChanged: true,
-            isAdmin: false,
-            referredBy: refId || undefined,
-            basePower: 0, // Ensure 35 power from butterfly knife
-            power: 35
-          });
-        }
+        onComplete({
+          id: cartelId,
+          email: formData.email, // Explicitly sending email
+          password: formData.password,
+          name: formData.alias,
+          nameChanged: true,
+          isAdmin: false,
+          referredBy: refId || undefined,
+          basePower: 0,
+          power: 35
+        });
       }
-      setIsLoading(false);
-    }, 1200);
+      // Note: isLoading will be set to false by parent or if error occurs in context
+      // But we set it false here just in case context doesn't unmount this component immediately
+      setTimeout(() => setIsLoading(false), 2000);
+    }, 1000);
   };
 
   return (
