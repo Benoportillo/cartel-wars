@@ -65,8 +65,8 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     // Load from LocalStorage on mount
     useEffect(() => {
-        const savedIntro = localStorage.getItem('cartel_intro_seen');
-        setShowIntro(!savedIntro);
+        // ALWAYS SHOW INTRO ON LOAD
+        setShowIntro(true);
 
         const savedSettings = localStorage.getItem('cartel_settings');
         if (savedSettings) setSettings(JSON.parse(savedSettings));
@@ -86,10 +86,8 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 baseStatus: parsed.baseStatus ?? 0,
                 hasSeenGuide: parsed.hasSeenGuide ?? true
             });
-        } else {
-            // If no user and intro seen, show auth
-            if (savedIntro) setShowAuth(true);
         }
+        // We don't set showAuth here anymore, it will be handled after intro skip/complete
 
         const savedGlobal = localStorage.getItem('cartel_global_users');
         if (savedGlobal) setGlobalUsers(JSON.parse(savedGlobal));
@@ -213,7 +211,15 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         localStorage.setItem('cartel_intro_seen', 'true');
         setUser({ ...user, language: lang });
         setShowIntro(false);
-        setShowAuth(true);
+
+        // Check if user is already logged in (has ID)
+        if (user.id) {
+            // User is registered/logged in, go to dashboard (hide auth)
+            setShowAuth(false);
+        } else {
+            // User not logged in, show auth/registration
+            setShowAuth(true);
+        }
     };
 
     const handleAuthComplete = async (profile: Partial<UserProfile>) => {
