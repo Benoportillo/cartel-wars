@@ -98,6 +98,48 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setIsLoaded(true);
     }, []);
 
+    // Telegram Auth Check
+    useEffect(() => {
+        const checkTelegramAuth = async () => {
+            if (typeof window === 'undefined') return;
+
+            // @ts-ignore
+            const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+
+            if (tgUser && tgUser.id) {
+                console.log("Checking Telegram User:", tgUser.id);
+                try {
+                    const res = await fetch('/api/auth', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ telegramId: tgUser.id.toString(), checkOnly: true })
+                    });
+
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.user) {
+                            console.log("User found in DB, auto-login:", data.user);
+                            setUser(data.user);
+                            setShowAuth(false);
+                        } else {
+                            console.log("User not found in DB, forcing registration");
+                            // User not in DB, force registration even if localStorage had something
+                            if (localStorage.getItem('cartel_user')) {
+                                localStorage.removeItem('cartel_user');
+                                setUserState(INITIAL_USER);
+                            }
+                            setShowAuth(true);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Telegram Auth Check Failed:", err);
+                }
+            }
+        };
+
+        checkTelegramAuth();
+    }, []);
+
     // Persist effects
     useEffect(() => {
         if (isLoaded) localStorage.setItem('cartel_settings', JSON.stringify(settings));

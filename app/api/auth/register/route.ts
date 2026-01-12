@@ -27,12 +27,35 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'User already exists' }, { status: 409 });
         }
 
-        // Handle referral
+        // Handle Multi-Level Referral System
         if (referredBy) {
-            const recruiter = await User.findOne({ telegramId: referredBy });
-            if (recruiter) {
-                recruiter.referrals += 1;
-                await recruiter.save();
+            // Level 1: Direct Recruiter
+            const recruiterL1 = await User.findOne({ telegramId: referredBy });
+            if (recruiterL1) {
+                recruiterL1.referrals += 1;
+                if (!recruiterL1.referralStats) recruiterL1.referralStats = { level1Count: 0, level2Count: 0, level3Count: 0, level1Earnings: 0, level2Earnings: 0, level3Earnings: 0 };
+                recruiterL1.referralStats.level1Count += 1;
+                await recruiterL1.save();
+
+                // Level 2: Recruiter of Recruiter
+                if (recruiterL1.referredBy) {
+                    const recruiterL2 = await User.findOne({ telegramId: recruiterL1.referredBy });
+                    if (recruiterL2) {
+                        if (!recruiterL2.referralStats) recruiterL2.referralStats = { level1Count: 0, level2Count: 0, level3Count: 0, level1Earnings: 0, level2Earnings: 0, level3Earnings: 0 };
+                        recruiterL2.referralStats.level2Count += 1;
+                        await recruiterL2.save();
+
+                        // Level 3: Recruiter of Recruiter of Recruiter
+                        if (recruiterL2.referredBy) {
+                            const recruiterL3 = await User.findOne({ telegramId: recruiterL2.referredBy });
+                            if (recruiterL3) {
+                                if (!recruiterL3.referralStats) recruiterL3.referralStats = { level1Count: 0, level2Count: 0, level3Count: 0, level1Earnings: 0, level2Earnings: 0, level3Earnings: 0 };
+                                recruiterL3.referralStats.level3Count += 1;
+                                await recruiterL3.save();
+                            }
+                        }
+                    }
+                }
             }
         }
 

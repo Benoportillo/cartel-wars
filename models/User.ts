@@ -12,6 +12,14 @@ export interface IUser extends Document {
     tickets: number;
     referrals: number;
     referredBy?: string;
+    referralStats?: {
+        level1Count: number;
+        level2Count: number;
+        level3Count: number;
+        level1Earnings: number;
+        level2Earnings: number;
+        level3Earnings: number;
+    };
     basePower: number;
     baseStatus: number;
     ownedWeapons: any[]; // Define stricter schema if needed
@@ -35,6 +43,14 @@ const UserSchema: Schema = new Schema({
     basePower: { type: Number, default: 0 },
     baseStatus: { type: Number, default: 0 },
     ownedWeapons: { type: Array, default: [] },
+    referralStats: {
+        level1Count: { type: Number, default: 0 },
+        level2Count: { type: Number, default: 0 },
+        level3Count: { type: Number, default: 0 },
+        level1Earnings: { type: Number, default: 0 },
+        level2Earnings: { type: Number, default: 0 },
+        level3Earnings: { type: Number, default: 0 }
+    },
     isBanned: { type: Boolean, default: false },
     isAdmin: { type: Boolean, default: false },
     lastLogin: { type: Date, default: Date.now },
