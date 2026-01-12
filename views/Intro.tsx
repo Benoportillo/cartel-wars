@@ -1,3 +1,4 @@
+'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
 import { Language } from '../types';
@@ -56,7 +57,7 @@ const Intro: React.FC<Props> = ({ onEnter }) => {
       let i = 0;
       const fullText = narrative[selectedLang][step];
       setDisplayText("");
-      
+
       const interval = setInterval(() => {
         setDisplayText(fullText.slice(0, i + 1));
         i++;
@@ -77,7 +78,7 @@ const Intro: React.FC<Props> = ({ onEnter }) => {
   }, [langStep, selectedLang, step]);
 
   const isFinalScene = step === (selectedLang ? narrative[selectedLang].length - 1 : 0);
-  
+
   // SOLUCIÓN AL CRASH: Asegurar que 't' siempre tenga un valor válido
   const t = selectedLang ? (translations[selectedLang] || translations.en) : translations.en;
 
@@ -87,7 +88,7 @@ const Intro: React.FC<Props> = ({ onEnter }) => {
 
     // Special words to highlight per language
     const getWords = (l: Language) => {
-      switch(l) {
+      switch (l) {
         case 'es': return { silver: 'Plata', or: 'o', lead: 'Plomo' };
         case 'ru': return { silver: 'Серебро', or: 'или', lead: 'свинец' };
         case 'ar': return { silver: 'الفضة', or: 'أو', lead: 'الرصاص' };
@@ -100,12 +101,12 @@ const Intro: React.FC<Props> = ({ onEnter }) => {
 
     const regex = new RegExp(`(${silverWord}|${orWord}|${leadWord}|${cwarsWord})`, 'g');
     const parts = text.split(regex);
-    
+
     return parts.map((part, index) => {
       if (part === cwarsWord) {
         return <span key={index} className="text-red-600 drop-shadow-[0_0_10px_rgba(220,38,38,0.5)]">{part}</span>;
       }
-      
+
       if (isFinalScene) {
         if (part === silverWord || part === leadWord) {
           return <span key={index} className="text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]">{part}</span>;
@@ -122,44 +123,44 @@ const Intro: React.FC<Props> = ({ onEnter }) => {
     return (
       <div className={`fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center transition-all duration-1000 ${isFading ? 'opacity-0 scale-110 blur-xl' : 'opacity-100 scale-100'}`}>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-900/20 via-black to-black"></div>
-        
+
         <div className="relative z-10 flex flex-col items-center gap-16 w-full max-w-md px-10">
-           <div className="relative">
-              <div className="absolute inset-0 bg-red-600 blur-[60px] opacity-20 animate-pulse"></div>
-              <img 
-                src="https://i.ibb.co/JFB1dy5G/logo-cartel-wars-removebg-preview.png" 
-                alt="Logo" 
-                className="w-56 drop-shadow-[0_0_20px_rgba(220,38,38,0.3)]"
-              />
-           </div>
-            
-            <div className="space-y-6 w-full">
-              <div className="flex flex-col items-center gap-2 mb-8">
-                <p className="text-zinc-500 text-[10px] uppercase font-black tracking-[0.4em] text-center">SELECCIONA TU IDIOMA</p>
-                <div className="h-[1px] w-24 bg-gradient-to-r from-transparent via-red-900 to-transparent"></div>
-              </div>
-              
-              <div className="grid grid-cols-1 gap-4">
-                {[
-                  { id: 'en', label: 'English' },
-                  { id: 'es', label: 'Español' },
-                  { id: 'ru', label: 'Русский' },
-                  { id: 'ar', label: 'العربية' }
-                ].map((l) => (
-                  <button 
-                    key={l.id}
-                    onClick={() => handleLanguageSelect(l.id as Language)}
-                    className="group relative py-5 bg-zinc-950/80 border border-zinc-800/50 hover:border-red-600 transition-all rounded-sm overflow-hidden shadow-2xl"
-                  >
-                    <span className="relative z-10 font-bold uppercase tracking-[0.2em] text-zinc-400 group-hover:text-red-500 transition-colors">
-                      {l.label}
-                    </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-red-600/0 via-red-600/5 to-red-600/0 opacity-0 group-hover:opacity-10 transition-opacity"></div>
-                    <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-red-600 scale-y-0 group-hover:scale-y-100 transition-transform origin-bottom duration-500"></div>
-                  </button>
-                ))}
-              </div>
+          <div className="relative">
+            <div className="absolute inset-0 bg-red-600 blur-[60px] opacity-20 animate-pulse"></div>
+            <img
+              src="https://i.ibb.co/JFB1dy5G/logo-cartel-wars-removebg-preview.png"
+              alt="Logo"
+              className="w-56 drop-shadow-[0_0_20px_rgba(220,38,38,0.3)]"
+            />
+          </div>
+
+          <div className="space-y-6 w-full">
+            <div className="flex flex-col items-center gap-2 mb-8">
+              <p className="text-zinc-500 text-[10px] uppercase font-black tracking-[0.4em] text-center">SELECCIONA TU IDIOMA</p>
+              <div className="h-[1px] w-24 bg-gradient-to-r from-transparent via-red-900 to-transparent"></div>
             </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              {[
+                { id: 'en', label: 'English' },
+                { id: 'es', label: 'Español' },
+                { id: 'ru', label: 'Русский' },
+                { id: 'ar', label: 'العربية' }
+              ].map((l) => (
+                <button
+                  key={l.id}
+                  onClick={() => handleLanguageSelect(l.id as Language)}
+                  className="group relative py-5 bg-zinc-950/80 border border-zinc-800/50 hover:border-red-600 transition-all rounded-sm overflow-hidden shadow-2xl"
+                >
+                  <span className="relative z-10 font-bold uppercase tracking-[0.2em] text-zinc-400 group-hover:text-red-500 transition-colors">
+                    {l.label}
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-red-600/0 via-red-600/5 to-red-600/0 opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                  <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-red-600 scale-y-0 group-hover:scale-y-100 transition-transform origin-bottom duration-500"></div>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -170,9 +171,9 @@ const Intro: React.FC<Props> = ({ onEnter }) => {
   return (
     <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center overflow-hidden select-none">
       <div className="absolute inset-0 bg-black"></div>
-      
+
       {/* Skip button */}
-      <button 
+      <button
         onClick={() => selectedLang && onEnter(selectedLang)}
         className="absolute top-8 right-8 z-[110] px-4 py-2 border border-zinc-800 bg-black/50 text-[10px] text-zinc-500 uppercase font-black tracking-widest hover:text-white hover:border-white transition-all rounded"
       >
@@ -190,8 +191,8 @@ const Intro: React.FC<Props> = ({ onEnter }) => {
       {/* Narrative Text */}
       <div className="absolute inset-0 flex items-center justify-center z-20 px-10 pointer-events-none">
         <div className={`max-w-4xl w-full text-center transition-all duration-1000 ${showButton ? 'scale-90 opacity-30 blur-sm -translate-y-20' : 'scale-100 opacity-100'}`}>
-          <p 
-            className={`font-marker text-3xl md:text-6xl tracking-tight italic transition-all duration-1000 leading-tight ${isFinalScene ? 'text-zinc-200' : 'text-zinc-200'} ${isRtl ? 'font-sans font-black' : ''}`} 
+          <p
+            className={`font-marker text-3xl md:text-6xl tracking-tight italic transition-all duration-1000 leading-tight ${isFinalScene ? 'text-zinc-200' : 'text-zinc-200'} ${isRtl ? 'font-sans font-black' : ''}`}
             dir={isRtl ? 'rtl' : 'ltr'}
           >
             {renderStyledText(displayText)}
@@ -204,41 +205,41 @@ const Intro: React.FC<Props> = ({ onEnter }) => {
 
       {/* UI Overlay: Logo and Button */}
       <div className="relative z-30 w-full h-full flex flex-col items-center justify-between py-12 px-8">
-        
+
         {/* Top Logo */}
         <div className={`transition-all duration-[2000ms] transform ${isFinalScene || showButton ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10 pointer-events-none'}`}>
-          <img 
-            src="https://i.ibb.co/JFB1dy5G/logo-cartel-wars-removebg-preview.png" 
-            alt="Cartel Wars Logo" 
+          <img
+            src="https://i.ibb.co/JFB1dy5G/logo-cartel-wars-removebg-preview.png"
+            alt="Cartel Wars Logo"
             className="w-48 md:w-64 h-auto drop-shadow-[0_0_30px_rgba(0,0,0,0.8)] filter grayscale-[0.3]"
           />
         </div>
 
         {/* Bottom Button Section */}
         <div className={`flex flex-col items-center gap-10 transition-all duration-1000 transform ${showButton ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
-          <button 
+          <button
             onClick={() => selectedLang && onEnter(selectedLang)}
             className="group relative px-24 py-6 overflow-hidden rounded-sm border-x border-red-900/30 bg-zinc-950 transition-all hover:border-red-600 hover:scale-105 active:scale-95 shadow-[0_30px_60px_rgba(0,0,0,1)]"
           >
             <div className="absolute inset-0 bg-red-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
             <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-red-600/40 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700"></div>
             <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-red-600/40 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700"></div>
-            
+
             <span className={`relative z-10 font-marker text-2xl md:text-4xl text-zinc-400 group-hover:text-red-600 transition-all tracking-[0.3em] uppercase ${isRtl ? 'font-sans font-black' : ''}`}>
               {selectedLang === 'ar' ? 'ابدأ الحرب' : (selectedLang === 'es' ? 'INICIAR GUERRA' : (selectedLang === 'ru' ? 'ВСТУПИТЬ В БОЙ' : 'ENTER THE WAR'))}
             </span>
           </button>
-          
+
           <div className="flex flex-col items-center gap-4">
             <p className={`text-[11px] uppercase font-black tracking-[0.5em] animate-pulse ${isRtl ? 'font-sans' : ''}`}>
-              <span className="text-white">{selectedLang === 'es' ? 'PLATA' : (selectedLang === 'ru' ? 'СЕРЕБРО' : (selectedLang === 'ar' ? 'الفضة' : 'SILVER'))}</span> 
-              <span className="text-red-600 mx-2">{selectedLang === 'es' ? 'O' : (selectedLang === 'ru' ? 'ИЛИ' : (selectedLang === 'ar' ? 'أو' : 'OR'))}</span> 
+              <span className="text-white">{selectedLang === 'es' ? 'PLATA' : (selectedLang === 'ru' ? 'СЕРЕБРО' : (selectedLang === 'ar' ? 'الفضة' : 'SILVER'))}</span>
+              <span className="text-red-600 mx-2">{selectedLang === 'es' ? 'O' : (selectedLang === 'ru' ? 'ИЛИ' : (selectedLang === 'ar' ? 'أو' : 'OR'))}</span>
               <span className="text-white">{selectedLang === 'es' ? 'PLOMO' : (selectedLang === 'ru' ? 'СВИНЕЦ' : (selectedLang === 'ar' ? 'الرصاص' : 'LEAD'))}</span>
             </p>
             <div className="flex gap-2">
-               <div className="w-1 h-1 bg-red-900 rounded-full"></div>
-               <div className="w-1 h-1 bg-red-900 rounded-full opacity-50"></div>
-               <div className="w-1 h-1 bg-red-900 rounded-full opacity-20"></div>
+              <div className="w-1 h-1 bg-red-900 rounded-full"></div>
+              <div className="w-1 h-1 bg-red-900 rounded-full opacity-50"></div>
+              <div className="w-1 h-1 bg-red-900 rounded-full opacity-20"></div>
             </div>
           </div>
         </div>
