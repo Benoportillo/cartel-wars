@@ -16,21 +16,21 @@ export interface Weapon {
   category: string;
   level: number;
   price: number;
-  protectionRate: number; 
-  firepower: number;     
+  protectionRate: number;
+  firepower: number;
   statusBonus: number;
   isLimited?: boolean;
   image: string;
   description: string;
-  skinImages?: Record<string, string>; 
+  skinImages?: Record<string, string>;
 }
 
 export interface WeaponInstance {
   weaponId: string;
-  caliberLevel: number;   
-  magazineLevel: number;  
-  accessoryLevel: number; 
-  skin: string;          
+  caliberLevel: number;
+  magazineLevel: number;
+  accessoryLevel: number;
+  skin: string;
 }
 
 export interface GangMember {
@@ -38,7 +38,7 @@ export interface GangMember {
   rank: Rank;
   joinedAt: Date;
   paidFee: number;
-  warPowerContribution?: number; 
+  warPowerContribution?: number;
 }
 
 export interface CartelWar {
@@ -49,7 +49,7 @@ export interface CartelWar {
   endTime: number;
   attackerPower: number;
   defenderPower: number;
-  participants: Record<string, number>; 
+  participants: Record<string, number>;
   isProcessed: boolean;
 }
 
@@ -96,6 +96,7 @@ export interface PremiumMission {
   reward: number;
   maxUsers: number;
   completedUserIds: string[];
+  ownerId?: string;
 }
 
 export interface GlobalSettings {
@@ -114,13 +115,13 @@ export interface UserProfile {
   nameChanged: boolean;
   rank: Rank;
   balance: number;
-  cwarsBalance: number; 
+  cwarsBalance: number;
   tonWithdrawn: number;
   tickets: number;
   referrals: number;
   referredBy?: string; // ID of the user who recruited this hitman
   lastRaceDate: Date | null;
-  ownedWeapons: WeaponInstance[]; 
+  ownedWeapons: WeaponInstance[];
   lastClaimDate: Date;
   lastTicketDate: Date;
   unclaimedFarming: number;
