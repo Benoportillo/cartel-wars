@@ -4,20 +4,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { UserProfile, Rank, Weapon, WeaponInstance, GlobalSettings, Transaction } from '../types';
 import { WEAPONS } from '../constants';
 import { getMafiaFlavor } from '../geminiService';
-import { useTranslation } from '../context/GameContext';
-
-interface Props {
-  user: UserProfile;
-  setUser: (u: UserProfile) => void;
-  settings: GlobalSettings;
-  onLogout: () => void;
-}
+import { useGame, useTranslation } from '../context/GameContext';
 
 const CARTEL_WALLET = "UQAYp__Liik27w09kXZbIze8WFUpw1U3DQE2p5azzjCuZM4L";
 const BOT_LINK = "https://t.me/CartelWar_bot";
 
-const Dashboard: React.FC<Props> = ({ user, setUser, settings, onLogout }) => {
-  const { t, lang } = useTranslation();
+const Dashboard: React.FC = () => {
+  const { user, setUser, settings, logout: onLogout, t, lang } = useGame();
   const [flavor, setFlavor] = useState("...");
   const [activeTab, setActiveTab] = useState<'garage' | 'street' | 'swap'>('garage');
   const [newName, setNewName] = useState("");

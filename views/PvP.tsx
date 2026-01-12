@@ -4,16 +4,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { UserProfile, Weapon, Rank, BattleRecord, GlobalSettings, PremiumMission } from '../types';
 import { WEAPONS } from '../constants';
 import { getMafiaFlavor } from '../geminiService';
-import { useTranslation } from '../context/GameContext';
+import { useGame, useTranslation } from '../context/GameContext';
 import { useRouter } from 'next/navigation';
-
-interface Props {
-  user: UserProfile;
-  setUser: (u: UserProfile) => void;
-  globalUsers: UserProfile[];
-  settings: GlobalSettings;
-  setSettings: (s: GlobalSettings) => void;
-}
 
 const MISSION_TIERS = [
   { users: 500, price: 0.8 },
@@ -22,8 +14,8 @@ const MISSION_TIERS = [
   { users: 5000, price: 6.0 },
 ];
 
-const PvP: React.FC<Props> = ({ user, setUser, globalUsers, settings, setSettings }) => {
-  const { t, lang } = useTranslation();
+const PvP: React.FC = () => {
+  const { user, setUser, globalUsers, settings, setSettings, t, lang } = useGame();
   const router = useRouter();
   const [mode, setMode] = useState<'pvp' | 'ai' | 'premium'>('pvp');
   const [premiumView, setPremiumView] = useState<'explore' | 'history'>('explore');

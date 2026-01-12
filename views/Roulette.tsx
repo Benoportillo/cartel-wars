@@ -3,15 +3,10 @@
 import React, { useState, useRef } from 'react';
 import { UserProfile } from '../types';
 import { ROULETTE_ITEMS } from '../constants';
-import { useTranslation } from '../context/GameContext';
+import { useGame, useTranslation } from '../context/GameContext';
 
-interface Props {
-  user: UserProfile;
-  setUser: (u: UserProfile) => void;
-}
-
-const Roulette: React.FC<Props> = ({ user, setUser }) => {
-  const { t } = useTranslation();
+const Roulette: React.FC = () => {
+  const { user, setUser, t } = useGame();
   const [spinning, setSpinning] = useState(false);
   const [win, setWin] = useState<any>(null);
   const [rotation, setRotation] = useState(0);
@@ -159,8 +154,8 @@ const Roulette: React.FC<Props> = ({ user, setUser }) => {
           onClick={spin}
           disabled={spinning || user.tickets <= 0}
           className={`w-full py-4 rounded-xl font-marker text-xl uppercase tracking-widest transition-all shadow-xl ${user.tickets > 0 && !spinning
-              ? 'bg-gradient-to-r from-yellow-600 to-yellow-500 text-black hover:brightness-110 active:scale-95 gold-glow'
-              : 'bg-zinc-800 text-zinc-600 cursor-not-allowed border border-zinc-700'
+            ? 'bg-gradient-to-r from-yellow-600 to-yellow-500 text-black hover:brightness-110 active:scale-95 gold-glow'
+            : 'bg-zinc-800 text-zinc-600 cursor-not-allowed border border-zinc-700'
             }`}
         >
           {spinning ? 'GIRANDO...' : `${t.spinFor}`}

@@ -2,20 +2,20 @@
 
 import React, { useState, useRef } from 'react';
 import { UserProfile, Transaction, GlobalSettings, Rank, PremiumMission } from '../types';
-import { useTranslation } from '../context/GameContext';
+import { useGame, useTranslation } from '../context/GameContext';
 
-interface Props {
-  user: UserProfile;
-  users: UserProfile[];
-  setUsers: (u: UserProfile[]) => void;
-  transactions: Transaction[];
-  setTransactions: (t: Transaction[]) => void;
-  settings: GlobalSettings;
-  setSettings: (s: GlobalSettings) => void;
-}
+const Admin: React.FC = () => {
+  const {
+    user,
+    globalUsers: users,
+    setGlobalUsers: setUsers,
+    transactions,
+    setTransactions,
+    settings,
+    setSettings,
+    t
+  } = useGame();
 
-const Admin: React.FC<Props> = ({ user, users, setUsers, transactions, setTransactions, settings, setSettings }) => {
-  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'users' | 'deposits' | 'withdrawals' | 'settings' | 'premium'>('users');
   const [searchTerm, setSearchTerm] = useState('');
   const [balanceInputs, setBalanceInputs] = useState<Record<string, string>>({});

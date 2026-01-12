@@ -3,15 +3,10 @@
 import React, { useState } from 'react';
 import { UserProfile, Weapon, Rank, WeaponInstance } from '../types';
 import { WEAPONS } from '../constants';
-import { useTranslation } from '../context/GameContext';
+import { useGame, useTranslation } from '../context/GameContext';
 
-interface Props {
-    user: UserProfile;
-    setUser: (u: UserProfile) => void;
-}
-
-const Garage: React.FC<Props> = ({ user, setUser }) => {
-    const { t } = useTranslation();
+const Garage: React.FC = () => {
+    const { user, setUser, t } = useGame();
     const [selectedWeaponIdx, setSelectedWeaponIdx] = useState(0);
 
     const upgradeWeapon = (type: 'caliber' | 'magazine' | 'accessory') => {

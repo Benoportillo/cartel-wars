@@ -2,15 +2,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { UserProfile, Gang, Rank, GangMember, CartelWar } from '../types';
-import { useTranslation } from '../context/GameContext';
+import { useGame, useTranslation } from '../context/GameContext';
 
-interface Props {
-  user: UserProfile;
-  setUser: (u: UserProfile) => void;
-}
-
-const Syndicate: React.FC<Props> = ({ user, setUser }) => {
-  const { t } = useTranslation();
+const Syndicate: React.FC = () => {
+  const { user, setUser, t } = useGame();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [activeAdminTab, setActiveAdminTab] = useState<'members' | 'pending' | 'settings' | 'wars'>('pending');
   const [isEditingLink, setIsEditingLink] = useState(false);
@@ -331,10 +326,10 @@ const Syndicate: React.FC<Props> = ({ user, setUser }) => {
                     onClick={() => handleApplyToGang(g)}
                     disabled={user.balance < g.entryFee || !!user.appliedGangId || !!user.myGangId || !!user.joinedGangId}
                     className={`px-5 py-2.5 rounded-xl font-marker text-[9px] uppercase tracking-widest transition-all ${user.appliedGangId === g.id
-                        ? 'bg-yellow-600/20 text-yellow-500 border border-yellow-600 cursor-not-allowed animate-pulse'
-                        : user.balance < g.entryFee
-                          ? 'bg-zinc-900 text-zinc-700 opacity-50 cursor-not-allowed'
-                          : 'bg-red-700 text-white hover:bg-red-600 shadow-lg'
+                      ? 'bg-yellow-600/20 text-yellow-500 border border-yellow-600 cursor-not-allowed animate-pulse'
+                      : user.balance < g.entryFee
+                        ? 'bg-zinc-900 text-zinc-700 opacity-50 cursor-not-allowed'
+                        : 'bg-red-700 text-white hover:bg-red-600 shadow-lg'
                       }`}
                   >
                     {user.appliedGangId === g.id ? 'PENDING' : t.joinGang}
