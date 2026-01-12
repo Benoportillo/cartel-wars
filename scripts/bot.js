@@ -7,6 +7,10 @@ const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 const WEB_APP_URL = 'https://cartel-wars.onrender.com';
 
 bot.start((ctx) => {
+    const payload = ctx.startPayload || (ctx.message && ctx.message.text && ctx.message.text.split(' ')[1]);
+    // Si hay payload (ref code), lo agregamos a la URL
+    const appUrl = payload ? `${WEB_APP_URL}?start=${payload}` : WEB_APP_URL;
+
     ctx.replyWithMarkdownV2(
         `🚬 *CARTEL WARS: PLATA O PLOMO* 💀\n\n` +
         `El *$CWARS* es la única moneda que importa aquí\\. Para sobrevivir, vas a necesitar más que suerte: ¡vas a necesitar *fuego*\\! 🔥🔫\n\n` +
@@ -15,7 +19,7 @@ bot.start((ctx) => {
         `🔹 *Ruleta:* 🎰 Gira el tambor\\.\\.\\. ¿Premio o plomo? ☠️\n\n` +
         `*"Bienvenido al infierno\\.\\.\\. ¿Plata o Plomo?"* ⚡️`,
         Markup.inlineKeyboard([
-            [Markup.button.webApp('🔫 ENTRAR AL BARRIO', WEB_APP_URL)]
+            [Markup.button.webApp('🔫 ENTRAR AL BARRIO', appUrl)]
         ])
     );
 });

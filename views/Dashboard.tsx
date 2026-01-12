@@ -7,7 +7,7 @@ import { getMafiaFlavor } from '../geminiService';
 import { useGame } from '../context/GameContext';
 
 const CARTEL_WALLET = "UQAYp__Liik27w09kXZbIze8WFUpw1U3DQE2p5azzjCuZM4L";
-const BOT_LINK = "https://t.me/cartelwarsbot";
+const BOT_LINK = "https://t.me/CartelWar_bot";
 
 const Dashboard: React.FC = () => {
   const { user, setUser, settings, t, lang } = useGame();

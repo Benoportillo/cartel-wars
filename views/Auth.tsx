@@ -24,6 +24,7 @@ declare global {
             username?: string;
             language_code?: string;
           };
+          start_param?: string;
         };
         ready: () => void;
         expand: () => void;
@@ -62,7 +63,9 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
 
       // 2. Manejar Referidos
       const params = new URLSearchParams(window.location.search);
-      const start = params.get('start');
+      // Prioridad: 1. URL param (del bot script), 2. Telegram start_param (nativo), 3. LocalStorage
+      const start = params.get('start') || window.Telegram?.WebApp?.initDataUnsafe?.start_param;
+
       if (start) {
         setRefId(start);
         localStorage.setItem('cartel_pending_ref', start);
