@@ -4,7 +4,7 @@ const { Telegraf, Markup } = require('telegraf');
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 
 // 2. URL de tu proyecto en Render
-const WEB_APP_URL = 'https://cartel-wars.onrender.com';
+const WEB_APP_URL = 'https://cartel-wars.onrender.com/';
 
 bot.start((ctx) => {
     const payload = ctx.startPayload || (ctx.message && ctx.message.text && ctx.message.text.split(' ')[1]);

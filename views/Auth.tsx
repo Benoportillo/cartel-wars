@@ -63,15 +63,16 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
 
       // 2. Manejar Referidos
       const params = new URLSearchParams(window.location.search);
-      // Prioridad: 1. URL param (del bot script), 2. Telegram start_param (nativo), 3. LocalStorage
-      const start = params.get('start') || window.Telegram?.WebApp?.initDataUnsafe?.start_param;
+      // Prioridad: 1. URL param 'start', 2. URL param 'startapp', 3. Telegram start_param (nativo), 4. LocalStorage
+      const start = params.get('start') || params.get('startapp') || window.Telegram?.WebApp?.initDataUnsafe?.start_param;
 
-      if (start) {
+      if (start && start !== 'undefined') {
+        console.log("Referral ID detected:", start);
         setRefId(start);
         localStorage.setItem('cartel_pending_ref', start);
       } else {
         const saved = localStorage.getItem('cartel_pending_ref');
-        if (saved) setRefId(saved);
+        if (saved && saved !== 'undefined') setRefId(saved);
       }
     }
   }, []);
@@ -357,6 +358,13 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
 
       <div className="absolute bottom-4 text-[7px] text-zinc-800 font-black uppercase tracking-[0.5em] pointer-events-none">
         Property of the Cartel Intelligence Agency
+      </div>
+
+      {/* DEBUG INFO - REMOVE IN PRODUCTION */}
+      <div className="absolute top-0 left-0 p-2 text-[8px] text-zinc-600 bg-black/80 pointer-events-none z-50 text-left max-w-full break-all">
+        <p>REF: {refId || 'NONE'}</p>
+        <p>FULL_URL: {typeof window !== 'undefined' ? window.location.href : ''}</p>
+        <p>TG_START: {typeof window !== 'undefined' ? window.Telegram?.WebApp?.initDataUnsafe?.start_param : ''}</p>
       </div>
     </div>
   );
