@@ -140,6 +140,14 @@ export interface UserProfile {
   lastMissionDate?: string;
   completedMissions?: string[];
   hasSeenGuide?: boolean;
+  referralStats?: {
+    level1Count: number;
+    level2Count: number;
+    level3Count: number;
+    level1Earnings: number;
+    level2Earnings: number;
+    level3Earnings: number;
+  };
 }
 
 export interface RouletteResult {

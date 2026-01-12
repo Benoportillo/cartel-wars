@@ -23,6 +23,7 @@ const Dashboard: React.FC = () => {
   const [depositTxid, setDepositTxid] = useState("");
   const [isCopied, setIsCopied] = useState(false);
   const [isLinkCopied, setIsLinkCopied] = useState(false);
+  const [showReferralInfo, setShowReferralInfo] = useState(false);
 
   // Swap State
   const [swapAmount, setSwapAmount] = useState(100);
@@ -255,14 +256,23 @@ const Dashboard: React.FC = () => {
       </section>
 
       {/* REFERRAL SYSTEM SECTION */}
+      {/* REFERRAL SYSTEM SECTION */}
       <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl relative overflow-hidden group">
         <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
           <span className="text-6xl">📣</span>
         </div>
 
         <div className="mb-4">
-          <h2 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] mb-1">{t.referralSystemTitle}</h2>
-          <p className="text-[9px] text-zinc-500 uppercase font-bold max-w-[80%] leading-relaxed">{t.referralDescription}</p>
+          <div className="flex items-center gap-2 mb-1">
+            <h2 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em]">{t.referralSystemTitle}</h2>
+            <button
+              onClick={() => setShowReferralInfo(true)}
+              className="w-4 h-4 rounded-full bg-zinc-800 text-zinc-400 flex items-center justify-center text-[8px] hover:bg-zinc-700 hover:text-white transition-colors border border-zinc-700"
+            >
+              ?
+            </button>
+          </div>
+          <p className="text-[9px] text-zinc-500 uppercase font-bold max-w-[90%] leading-relaxed">{t.referralDescription}</p>
         </div>
 
         <div className="space-y-3">
@@ -287,18 +297,59 @@ const Dashboard: React.FC = () => {
           </button>
         </div>
 
-        <div className="flex gap-4 mt-6 pt-4 border-t border-zinc-800">
-          <div className="flex-1 text-center">
-            <p className="text-[8px] text-zinc-600 font-black uppercase">{t.referrals}</p>
-            <p className="text-xl font-marker text-white">{user.referrals}</p>
+        <div className="grid grid-cols-3 gap-2 mt-6 pt-4 border-t border-zinc-800">
+          <div className="text-center">
+            <p className="text-[7px] text-zinc-600 font-black uppercase">Nivel 1 (7%)</p>
+            <p className="text-sm font-marker text-white">{user.referralStats?.level1Count || 0}</p>
+            <p className="text-[8px] text-yellow-600 font-bold">{(user.referralStats?.level1Earnings || 0).toFixed(2)} TON</p>
           </div>
-          <div className="w-px h-8 bg-zinc-800 self-center"></div>
-          <div className="flex-1 text-center">
-            <p className="text-[8px] text-zinc-600 font-black uppercase">Bonus Recogido</p>
-            <p className="text-xl font-marker text-yellow-600">0.00 TON</p>
+          <div className="text-center border-l border-zinc-800">
+            <p className="text-[7px] text-zinc-600 font-black uppercase">Nivel 2 (2%)</p>
+            <p className="text-sm font-marker text-white">{user.referralStats?.level2Count || 0}</p>
+            <p className="text-[8px] text-yellow-600 font-bold">{(user.referralStats?.level2Earnings || 0).toFixed(2)} TON</p>
+          </div>
+          <div className="text-center border-l border-zinc-800">
+            <p className="text-[7px] text-zinc-600 font-black uppercase">Nivel 3 (1%)</p>
+            <p className="text-sm font-marker text-white">{user.referralStats?.level3Count || 0}</p>
+            <p className="text-[8px] text-yellow-600 font-bold">{(user.referralStats?.level3Earnings || 0).toFixed(2)} TON</p>
           </div>
         </div>
       </section>
+
+      {/* Referral Info Modal */}
+      {showReferralInfo && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md" onClick={() => setShowReferralInfo(false)}>
+          <div className="bg-zinc-900 border border-zinc-800 w-full max-w-sm rounded-2xl p-6 shadow-2xl relative animate-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
+            <h3 className="text-xl font-marker text-white text-center uppercase mb-4">Comisiones de Red</h3>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 bg-black/40 p-3 rounded-xl border border-zinc-800">
+                <div className="w-10 h-10 rounded-full bg-red-900/20 flex items-center justify-center text-red-500 font-black text-lg border border-red-900/30">7%</div>
+                <div>
+                  <p className="text-white font-bold text-sm uppercase">Nivel 1</p>
+                  <p className="text-[10px] text-zinc-500">Tus reclutas directos.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 bg-black/40 p-3 rounded-xl border border-zinc-800">
+                <div className="w-10 h-10 rounded-full bg-yellow-900/20 flex items-center justify-center text-yellow-500 font-black text-lg border border-yellow-900/30">2%</div>
+                <div>
+                  <p className="text-white font-bold text-sm uppercase">Nivel 2</p>
+                  <p className="text-[10px] text-zinc-500">Reclutas de tus reclutas.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 bg-black/40 p-3 rounded-xl border border-zinc-800">
+                <div className="w-10 h-10 rounded-full bg-blue-900/20 flex items-center justify-center text-blue-500 font-black text-lg border border-blue-900/30">1%</div>
+                <div>
+                  <p className="text-white font-bold text-sm uppercase">Nivel 3</p>
+                  <p className="text-[10px] text-zinc-500">La red extendida.</p>
+                </div>
+              </div>
+            </div>
+            <button onClick={() => setShowReferralInfo(false)} className="w-full mt-6 py-3 bg-zinc-800 text-white rounded-xl font-marker text-sm uppercase hover:bg-zinc-700 transition-all">
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="flex bg-zinc-900 p-1 rounded-2xl border border-zinc-800/50 shadow-inner">
         <button onClick={() => setActiveTab('garage')} className={`flex-1 py-3 rounded-xl font-marker text-[10px] tracking-widest transition-all ${activeTab === 'garage' ? 'bg-red-600 text-white shadow-lg' : 'text-zinc-500'}`}>{t.myGarage}</button>
