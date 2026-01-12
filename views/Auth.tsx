@@ -1,75 +1,36 @@
-"use client";
 
 import React, { useState, useEffect } from 'react';
 import { UserProfile, Language, Rank } from '../types';
-import { useGame } from '../context/GameContext';
+import { useTranslation } from '../App';
 
 interface Props {
   lang: Language;
   globalUsers: UserProfile[];
-  onComplete: (profile: UserProfile) => void;
-}
-
-// Extend Window interface for Telegram WebApp
-declare global {
-  interface Window {
-    Telegram: {
-      WebApp: {
-        initData: string;
-        initDataUnsafe: {
-          user?: {
-            id: number;
-            first_name: string;
-            last_name?: string;
-            username?: string;
-            language_code?: string;
-          };
-        };
-        ready: () => void;
-        expand: () => void;
-      };
-    };
-  }
+  onComplete: (profile: Partial<UserProfile>) => void;
 }
 
 const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
-  const { t } = useGame();
+  const { t } = useTranslation();
   const [isLogin, setIsLogin] = useState(false);
   const [formData, setFormData] = useState({
     alias: '',
     email: '',
     password: ''
   });
-  const [telegramUser, setTelegramUser] = useState<any>(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [refId, setRefId] = useState<string | null>(null);
 
-  // Inicializar Telegram WebApp y Referidos
+  // Catch referral ID from URL in a simulated way or via standard session
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // 1. Manejar Datos de Telegram WebApp
-      if (window.Telegram?.WebApp) {
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
-        const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
-
-        if (tgUser) {
-          setTelegramUser(tgUser);
-          handleVerify(tgUser);
-        }
-      }
-
-      // 2. Manejar Referidos
-      const params = new URLSearchParams(window.location.search);
-      const start = params.get('start');
-      if (start) {
+    const params = new URLSearchParams(window.location.search);
+    const start = params.get('start');
+    if (start) {
         setRefId(start);
         localStorage.setItem('cartel_pending_ref', start);
-      } else {
+    } else {
         const saved = localStorage.getItem('cartel_pending_ref');
         if (saved) setRefId(saved);
-      }
     }
   }, []);
 
@@ -81,135 +42,11 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
       );
   };
 
-  // Función para verificar si el usuario ya existe (Auto-Login)
-  const handleVerify = async (tgUser: any) => {
-    setIsLoading(true);
-    try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ telegramId: tgUser.id.toString(), checkOnly: true })
-      });
-
-      const data = await res.json();
-
-      if (data.user) {
-        // Usuario existe, auto-login. Asegurar que ID esté mapeado.
-        const profile = { ...data.user, id: data.user.telegramId || data.user._id };
-        onComplete(profile);
-      } else {
-        // Usuario no existe, pre-llenar formulario
-        setFormData(prev => ({
-          ...prev,
-          alias: tgUser.username || tgUser.first_name || `Sicario_${tgUser.id}`
-        }));
-      }
-    } catch (err) {
-      console.error("Auto-login check failed", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Función para manejar el Login
-  const handleLogin = async () => {
-    setIsLoading(true);
-    try {
-      // Determinar si es Email o ID (Username)
-      const isEmail = validateEmail(formData.email);
-
-      // Payload para login
-      const payload: any = {
-        password: formData.password
-      };
-
-      if (isEmail) {
-        payload.email = formData.email;
-      } else {
-        payload.telegramId = formData.email; // Usamos el campo email como ID/Username
-      }
-
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || t.errLogin || 'Error de autenticación');
-        setIsLoading(false);
-        return;
-      }
-
-      if (data.user) {
-        const profile = { ...data.user, id: data.user.telegramId || data.user._id };
-        onComplete(profile);
-      } else {
-        // Si devuelve user null pero status ok (caso raro en login normal)
-        setError('Usuario no encontrado');
-        setIsLoading(false);
-      }
-
-    } catch (err) {
-      console.error("Login failed", err);
-      setError('Error de conexión');
-      setIsLoading(false);
-    }
-  };
-
-  // Función para manejar el Registro
-  const handleRegister = async () => {
-    if (!validateEmail(formData.email)) {
-      setError(t.errEmail);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // Usar ID de Telegram si existe, sino uno aleatorio
-      const cartelId = telegramUser ? telegramUser.id.toString() : Math.floor(10000 + Math.random() * 90000).toString();
-
-      const payload = {
-        telegramId: cartelId,
-        email: formData.email,
-        password: formData.password,
-        name: formData.alias,
-        referredBy: refId || undefined
-      };
-
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || 'Error en el registro');
-        setIsLoading(false);
-        return;
-      }
-
-      if (data.user) {
-        const profile = { ...data.user, id: data.user.telegramId || data.user._id };
-        onComplete(profile);
-      }
-
-    } catch (err) {
-      console.error("Registration failed", err);
-      setError('Error de conexión al registrar');
-      setIsLoading(false);
-    }
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    // ADMINISTRATOR MASTER ACCESS CHECK (Legacy backdoor)
+    // ADMINISTRATOR MASTER ACCESS CHECK
     if (isLogin && formData.email === 'carteladminwars' && formData.password === 'admin8672652') {
       setIsLoading(true);
       setTimeout(() => {
@@ -217,26 +54,13 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
           id: '000-ADMIN',
           email: 'admin@cartelwars.com',
           name: 'ADMINISTRADOR',
+          password: 'admin8672652',
           nameChanged: true,
+          isAdmin: true,
           rank: Rank.JEFE,
           balance: 999.99,
-          cwarsBalance: 1000000,
-          tonWithdrawn: 0,
-          tickets: 100,
-          referrals: 0,
-          lastRaceDate: null,
-          ownedWeapons: [],
-          lastClaimDate: new Date(),
-          lastTicketDate: new Date(),
-          unclaimedFarming: 0,
-          language: lang,
-          basePower: 1000,
-          baseStatus: 1000,
-          power: 1000,
-          status: 1000,
-          pvpHistory: [],
-          isAdmin: true
-        } as UserProfile);
+          cwarsBalance: 1000000
+        });
         setIsLoading(false);
       }, 1000);
       return;
@@ -252,11 +76,62 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
       return;
     }
 
-    if (isLogin) {
-      handleLogin();
-    } else {
-      handleRegister();
-    }
+    setIsLoading(true);
+    
+    setTimeout(() => {
+      if (isLogin) {
+        const existingUser = globalUsers.find(u => 
+          (u.email.toLowerCase() === formData.email.toLowerCase() || u.id === formData.email) && 
+          u.password === formData.password
+        );
+
+        if (existingUser) {
+          onComplete(existingUser);
+        } else {
+          setError(lang === 'es' ? "Credenciales inválidas." : "Invalid credentials.");
+        }
+      } else {
+        if (!validateEmail(formData.email)) {
+            setError(t.errEmail);
+            setIsLoading(false);
+            return;
+        }
+
+        const emailTaken = globalUsers.some(u => u.email.toLowerCase() === formData.email.toLowerCase());
+        if (emailTaken) {
+            setError(lang === 'es' ? "Ya existe. Inicia sesión." : "Exists. Login instead.");
+        } else {
+            const cartelId = Math.floor(10000 + Math.random() * 90000).toString();
+            
+            // Logic for recruitment: update recruiter's referral count
+            if (refId) {
+                const recruiterIndex = globalUsers.findIndex(u => u.id === refId);
+                if (recruiterIndex >= 0) {
+                    const nextGlobal = [...globalUsers];
+                    nextGlobal[recruiterIndex] = { 
+                        ...nextGlobal[recruiterIndex], 
+                        referrals: (nextGlobal[recruiterIndex].referrals || 0) + 1 
+                    };
+                    localStorage.setItem('cartel_global_users', JSON.stringify(nextGlobal));
+                    localStorage.removeItem('cartel_pending_ref');
+                }
+            }
+
+            onComplete({
+              id: cartelId,
+              email: formData.email,
+              password: formData.password,
+              name: formData.alias,
+              nameChanged: true,
+              isAdmin: false,
+              referredBy: refId || undefined,
+              basePower: 0, // Ensure 35 power from butterfly knife
+              power: 35
+            });
+        }
+      }
+      setIsLoading(false);
+    }, 1200);
   };
 
   return (
@@ -266,22 +141,15 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
 
       <div className="relative z-10 w-full max-w-sm space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <div className="text-center">
-          <img
-            src="https://i.ibb.co/JFB1dy5G/logo-cartel-wars-removebg-preview.png"
-            alt="Logo"
+          <img 
+            src="https://i.ibb.co/JFB1dy5G/logo-cartel-wars-removebg-preview.png" 
+            alt="Logo" 
             className="w-32 mx-auto drop-shadow-[0_0_15px_rgba(220,38,38,0.3)] mb-2"
           />
           <h2 className="font-marker text-2xl text-white tracking-widest uppercase italic">
             {isLogin ? t.authLogin : t.authWelcome}
           </h2>
           <div className="h-[1px] w-16 bg-red-600 mx-auto mt-1"></div>
-
-          {telegramUser && (
-            <p className="text-[9px] text-blue-400 font-black uppercase tracking-widest mt-2 animate-pulse">
-              DETECTADO: {telegramUser.first_name} (ID: {telegramUser.id})
-            </p>
-          )}
-
           {refId && !isLogin && (
             <p className="text-[8px] text-yellow-600 font-black uppercase tracking-widest mt-2 animate-pulse">INVITADO POR SICARIO #{refId}</p>
           )}
@@ -291,24 +159,23 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
           {!isLogin && (
             <div className="space-y-1">
               <label className="text-[9px] text-zinc-500 font-black uppercase tracking-widest ml-1">{t.aliasLabel}</label>
-              <input
-                type="text"
+              <input 
+                type="text" 
                 maxLength={15}
                 value={formData.alias}
-                onChange={e => setFormData({ ...formData, alias: e.target.value })}
+                onChange={e => setFormData({...formData, alias: e.target.value})}
                 className="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-white text-xs outline-none focus:border-red-600 transition-all font-bold"
                 placeholder="Escobar_V2"
-                readOnly={!!telegramUser}
               />
             </div>
           )}
 
           <div className="space-y-1">
             <label className="text-[9px] text-zinc-500 font-black uppercase tracking-widest ml-1">{isLogin ? "Usuario / ID" : t.emailLabel}</label>
-            <input
-              type="text"
+            <input 
+              type="text" 
               value={formData.email}
-              onChange={e => setFormData({ ...formData, email: e.target.value })}
+              onChange={e => setFormData({...formData, email: e.target.value})}
               className="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-white text-xs outline-none focus:border-red-600 transition-all font-bold"
               placeholder={isLogin ? "Usuario / Email" : "agente@cartel.com"}
             />
@@ -316,10 +183,10 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
 
           <div className="space-y-1">
             <label className="text-[9px] text-zinc-500 font-black uppercase tracking-widest ml-1">{t.passLabel}</label>
-            <input
-              type="password"
+            <input 
+              type="password" 
               value={formData.password}
-              onChange={e => setFormData({ ...formData, password: e.target.value })}
+              onChange={e => setFormData({...formData, password: e.target.value})}
               className="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-white text-xs outline-none focus:border-red-600 transition-all font-bold tracking-widest"
               placeholder="••••••"
             />
@@ -331,8 +198,8 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
             </div>
           )}
 
-          <button
-            type="submit"
+          <button 
+            type="submit" 
             disabled={isLoading}
             className="w-full py-4 bg-red-700 hover:bg-red-600 text-white rounded-xl font-marker text-lg uppercase tracking-widest transition-all shadow-[0_5px_15px_rgba(220,38,38,0.2)] active:scale-95 flex items-center justify-center"
           >
@@ -343,7 +210,7 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
         </form>
 
         <div className="text-center pt-2">
-          <button
+          <button 
             onClick={() => { setIsLogin(!isLogin); setError(''); }}
             className="px-4 py-2 text-[10px] text-zinc-500 hover:text-white uppercase font-black tracking-widest transition-colors bg-white/5 rounded-full border border-white/5"
           >
@@ -351,7 +218,7 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
           </button>
         </div>
       </div>
-
+      
       <div className="absolute bottom-4 text-[7px] text-zinc-800 font-black uppercase tracking-[0.5em] pointer-events-none">
         Property of the Cartel Intelligence Agency
       </div>
