@@ -35,7 +35,7 @@ const Dashboard: React.FC = () => {
 
   const lastFetchedRank = useRef<Rank | null>(null);
 
-  const referralLink = `${BOT_LINK}?start=${user.id}`;
+  const referralLink = `${BOT_LINK}?start=${user.telegramId || user.id}`;
 
   useEffect(() => {
     if (lastFetchedRank.current !== user.rank) {

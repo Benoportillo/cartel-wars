@@ -127,6 +127,7 @@ export const ROULETTE_ITEMS: RouletteResult[] = [
 
 export const INITIAL_USER: any = {
   id: '',
+  telegramId: '',
   email: '',
   name: 'Gatillero_7',
   nameChanged: false,
@@ -142,7 +143,7 @@ export const INITIAL_USER: any = {
   lastTicketDate: new Date(),
   unclaimedFarming: 0,
   basePower: 0, // Ajustado a 0 para que el total inicial sea solo el del arma (35)
-  baseStatus: 0,  
+  baseStatus: 0,
   power: 35, // Representación visual inicial
   status: 5,
   pvpHistory: [],

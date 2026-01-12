@@ -109,6 +109,7 @@ export interface GlobalSettings {
 
 export interface UserProfile {
   id: string;
+  telegramId?: string;
   email: string;
   password?: string;
   name: string;
