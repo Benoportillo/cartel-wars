@@ -75,18 +75,6 @@ export interface BattleRecord {
   timestamp: number;
 }
 
-export interface Transaction {
-  id: string;
-  userId: string;
-  userName: string;
-  type: 'deposit' | 'withdrawal';
-  amount: number;
-  currency: 'TON' | 'CWARS';
-  txid: string;
-  status: 'pending' | 'approved' | 'rejected';
-  timestamp: number;
-}
-
 export interface PremiumMission {
   id: string;
   title: string;
@@ -96,6 +84,7 @@ export interface PremiumMission {
   reward: number;
   maxUsers: number;
   completedUserIds: string[];
+  ownerId?: string; // Nuevo: ID del usuario que creó la misión
 }
 
 export interface GlobalSettings {
@@ -104,6 +93,19 @@ export interface GlobalSettings {
   maintenanceMode: boolean;
   premiumMissions: PremiumMission[];
   referralCommissionPercent: number; // Nuevo: Porcentaje configurable
+}
+
+// Transaction interface for tracking financial operations
+export interface Transaction {
+  id: string;
+  userId: string;
+  userName: string;
+  type: 'deposit' | 'withdrawal';
+  amount: number;
+  currency: string;
+  txid: string;
+  status: 'pending' | 'approved' | 'rejected';
+  timestamp: number;
 }
 
 export interface UserProfile {
