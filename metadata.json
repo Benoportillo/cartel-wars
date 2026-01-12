@@ -1,0 +1,8 @@
+{
+  "name": "Copy of Copy of Cartel Wars: Plata o Plomo",
+  "description": "A high-stakes mafia-themed empire builder on the TON network. Manage your fleet, engage in street races, and dominate the underworld.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
