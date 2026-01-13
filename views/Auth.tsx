@@ -39,7 +39,8 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
   const [formData, setFormData] = useState({
     alias: '',
     email: '',
-    password: ''
+    password: '',
+    referralCode: ''
   });
   const [telegramUser, setTelegramUser] = useState<any>(null);
   const [error, setError] = useState('');
@@ -63,16 +64,33 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
 
       // 2. Manejar Referidos
       const params = new URLSearchParams(window.location.search);
-      // Prioridad: 1. URL param 'start', 2. URL param 'startapp', 3. Telegram start_param (nativo), 4. LocalStorage
-      const start = params.get('start') || params.get('startapp') || window.Telegram?.WebApp?.initDataUnsafe?.start_param;
+      const hashParams = new URLSearchParams(window.location.hash.slice(1)); // Remove #
 
-      if (start && start !== 'undefined') {
+      // Prioridad: 
+      // 1. URL param 'start'
+      // 2. URL param 'startapp'
+      // 3. URL param 'tgWebAppStartParam'
+      // 4. Hash param 'start' (por si acaso)
+      // 5. Telegram start_param (nativo)
+      // 6. LocalStorage
+
+      const start = params.get('start') ||
+        params.get('startapp') ||
+        params.get('tgWebAppStartParam') ||
+        hashParams.get('start') ||
+        window.Telegram?.WebApp?.initDataUnsafe?.start_param;
+
+      if (start && start !== 'undefined' && start !== 'null') {
         console.log("Referral ID detected:", start);
         setRefId(start);
+        setFormData(prev => ({ ...prev, referralCode: start }));
         localStorage.setItem('cartel_pending_ref', start);
       } else {
         const saved = localStorage.getItem('cartel_pending_ref');
-        if (saved && saved !== 'undefined') setRefId(saved);
+        if (saved && saved !== 'undefined' && saved !== 'null') {
+          setRefId(saved);
+          setFormData(prev => ({ ...prev, referralCode: saved }));
+        }
       }
     }
   }, []);
@@ -180,7 +198,7 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
         email: formData.email,
         password: formData.password,
         name: formData.alias,
-        referredBy: refId || undefined
+        referredBy: formData.referralCode || refId || undefined
       };
 
       const res = await fetch('/api/auth/register', {
@@ -307,6 +325,19 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
             </div>
           )}
 
+          {!isLogin && (
+            <div className="space-y-1">
+              <label className="text-[9px] text-zinc-500 font-black uppercase tracking-widest ml-1">Código de Referido (Opcional)</label>
+              <input
+                type="text"
+                value={formData.referralCode}
+                onChange={e => setFormData({ ...formData, referralCode: e.target.value })}
+                className="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-white text-xs outline-none focus:border-red-600 transition-all font-bold"
+                placeholder="ID del Padrino"
+              />
+            </div>
+          )}
+
           <div className="space-y-1">
             <label className="text-[9px] text-zinc-500 font-black uppercase tracking-widest ml-1">{isLogin ? "Usuario / ID" : t.emailLabel}</label>
             <input
@@ -363,7 +394,7 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
       {/* DEBUG INFO - REMOVE IN PRODUCTION */}
       <div className="absolute top-0 left-0 p-2 text-[8px] text-zinc-600 bg-black/80 pointer-events-none z-50 text-left max-w-full break-all">
         <p>REF: {refId || 'NONE'}</p>
-        <p>FULL_URL: {typeof window !== 'undefined' ? window.location.href : ''}</p>
+        <p>URL_PARAMS: {typeof window !== 'undefined' ? window.location.search : ''}</p>
         <p>TG_START: {typeof window !== 'undefined' ? window.Telegram?.WebApp?.initDataUnsafe?.start_param : ''}</p>
       </div>
     </div>

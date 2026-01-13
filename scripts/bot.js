@@ -7,9 +7,13 @@ const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 const WEB_APP_URL = 'https://cartel-wars.onrender.com/';
 
 bot.start((ctx) => {
-    const payload = ctx.startPayload || (ctx.message && ctx.message.text && ctx.message.text.split(' ')[1]);
-    // Si hay payload (ref code), lo agregamos a la URL
-    const appUrl = payload ? `${WEB_APP_URL}?start=${payload}` : WEB_APP_URL;
+    const payload = ctx.startPayload || (ctx.message && ctx.message.text && ctx.message.text.split(' ')[1]) || '';
+    console.log("Payload recibido:", payload);
+
+    // Si hay payload (ref code), lo agregamos a la URL como start y startapp
+    // Aseguramos que la URL base no tenga slash final duplicado
+    const baseUrl = WEB_APP_URL.endsWith('/') ? WEB_APP_URL.slice(0, -1) : WEB_APP_URL;
+    const appUrl = payload ? `${baseUrl}/?start=${payload}&startapp=${payload}` : baseUrl;
 
     ctx.replyWithMarkdownV2(
         `🚬 *CARTEL WARS: PLATA O PLOMO* 💀\n\n` +
