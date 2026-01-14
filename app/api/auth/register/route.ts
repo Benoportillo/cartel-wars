@@ -13,6 +13,10 @@ export async function POST(req: Request) {
 
         const { email, password, telegramId, name, referredBy } = body;
 
+        if (referredBy) {
+            console.log(`🔍 Processing referral: New User ${telegramId} referred by ${referredBy}`);
+        }
+
         // Strict validation
         if (!email || email.trim() === '') {
             return NextResponse.json({ error: 'Email is required and cannot be empty' }, { status: 400 });

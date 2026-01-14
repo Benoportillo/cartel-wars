@@ -13,7 +13,13 @@ bot.start((ctx) => {
     // Si hay payload (ref code), lo agregamos a la URL como start y startapp
     // Aseguramos que la URL base no tenga slash final duplicado
     const baseUrl = WEB_APP_URL.endsWith('/') ? WEB_APP_URL.slice(0, -1) : WEB_APP_URL;
-    const appUrl = payload ? `${baseUrl}/?start=${payload}&startapp=${payload}` : baseUrl;
+
+    // Construimos la URL con ambos métodos para asegurar compatibilidad
+    // 1. Query Params (para lectura directa en navegador)
+    // 2. startapp (para Telegram Mini App standard)
+    const appUrl = payload
+        ? `${baseUrl}?start=${payload}&startapp=${payload}&tgWebAppStartParam=${payload}`
+        : baseUrl;
 
     ctx.replyWithMarkdownV2(
         `🚬 *CARTEL WARS: PLATA O PLOMO* 💀\n\n` +

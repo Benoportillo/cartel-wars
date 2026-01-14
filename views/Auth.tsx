@@ -48,50 +48,70 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
   const [refId, setRefId] = useState<string | null>(null);
 
   // Inicializar Telegram WebApp y Referidos
+  // Inicializar Telegram WebApp y Referidos
   useEffect(() => {
+    // Función para extraer parámetros de la URL
+    const getUrlParam = (name: string) => {
+      if (typeof window === 'undefined') return null;
+      const params = new URLSearchParams(window.location.search);
+      const hashParams = new URLSearchParams(window.location.hash.slice(1));
+      return params.get(name) || hashParams.get(name);
+    };
+
+    // Función principal de detección
+    const detectReferral = () => {
+      let ref = '';
+
+      // 1. Intentar desde Telegram WebApp (La fuente más confiable)
+      if (window.Telegram?.WebApp?.initDataUnsafe?.start_param) {
+        ref = window.Telegram.WebApp.initDataUnsafe.start_param;
+        console.log("📍 Ref detectado via Telegram start_param:", ref);
+      }
+
+      // 2. Intentar desde URL Params (Fallback)
+      if (!ref) {
+        ref = getUrlParam('start') ||
+          getUrlParam('startapp') ||
+          getUrlParam('tgWebAppStartParam') ||
+          '';
+        if (ref) console.log("📍 Ref detectado via URL:", ref);
+      }
+
+      // 3. Validar y Guardar
+      if (ref && ref !== 'undefined' && ref !== 'null') {
+        console.log("✅ REFERIDO CONFIRMADO:", ref);
+        setRefId(ref);
+        setFormData(prev => ({ ...prev, referralCode: ref }));
+        localStorage.setItem('cartel_pending_ref', ref);
+      } else {
+        // 4. Recuperar de LocalStorage si no hay nuevo
+        const saved = localStorage.getItem('cartel_pending_ref');
+        if (saved) {
+          console.log("💾 Ref recuperado de memoria:", saved);
+          setRefId(saved);
+          setFormData(prev => ({ ...prev, referralCode: saved }));
+        }
+      }
+    };
+
     if (typeof window !== 'undefined') {
-      // 1. Manejar Datos de Telegram WebApp
+      // Inicializar Telegram
       if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
-        const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
 
+        const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
         if (tgUser) {
           setTelegramUser(tgUser);
           handleVerify(tgUser);
         }
       }
 
-      // 2. Manejar Referidos
-      const params = new URLSearchParams(window.location.search);
-      const hashParams = new URLSearchParams(window.location.hash.slice(1)); // Remove #
+      // Ejecutar detección inmediatamente
+      detectReferral();
 
-      // Prioridad: 
-      // 1. URL param 'start'
-      // 2. URL param 'startapp'
-      // 3. URL param 'tgWebAppStartParam'
-      // 4. Hash param 'start' (por si acaso)
-      // 5. Telegram start_param (nativo)
-      // 6. LocalStorage
-
-      const start = params.get('start') ||
-        params.get('startapp') ||
-        params.get('tgWebAppStartParam') ||
-        hashParams.get('start') ||
-        window.Telegram?.WebApp?.initDataUnsafe?.start_param;
-
-      if (start && start !== 'undefined' && start !== 'null') {
-        console.log("Referral ID detected:", start);
-        setRefId(start);
-        setFormData(prev => ({ ...prev, referralCode: start }));
-        localStorage.setItem('cartel_pending_ref', start);
-      } else {
-        const saved = localStorage.getItem('cartel_pending_ref');
-        if (saved && saved !== 'undefined' && saved !== 'null') {
-          setRefId(saved);
-          setFormData(prev => ({ ...prev, referralCode: saved }));
-        }
-      }
+      // Re-intentar detección después de 500ms por si Telegram tarda en inyectar
+      setTimeout(detectReferral, 500);
     }
   }, []);
 
