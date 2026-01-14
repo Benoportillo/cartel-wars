@@ -21,13 +21,24 @@ bot.start((ctx) => {
         ? `${baseUrl}?start=${payload}&startapp=${payload}&tgWebAppStartParam=${payload}`
         : baseUrl;
 
-    ctx.replyWithMarkdownV2(
-        `🚬 *CARTEL WARS: PLATA O PLOMO* 💀\n\n` +
+    let welcomeMessage = `🚬 *CARTEL WARS: PLATA O PLOMO* 💀\n\n` +
         `El *$CWARS* es la única moneda que importa aquí\\. Para sobrevivir, vas a necesitar más que suerte: ¡vas a necesitar *fuego*\\! 🔥🔫\n\n` +
         `🔹 *Duelos PvP:* ⚔️ 0\\.2 TON en juego\\. ¡El más rápido gana\\! 💰\n` +
         `🔹 *Contrabando:* 📦 Pon tus armas a producir $CWARS mientras duermes\\. 💵\n` +
         `🔹 *Ruleta:* 🎰 Gira el tambor\\.\\.\\. ¿Premio o plomo? ☠️\n\n` +
-        `*"Bienvenido al infierno\\.\\.\\. ¿Plata o Plomo?"* ⚡️`,
+        `*"Bienvenido al infierno\\.\\.\\. ¿Plata o Plomo?"* ⚡️`;
+
+    // Si hay referido, agregamos mensaje de confirmación
+    if (payload) {
+        welcomeMessage = `🕵️ *INTELIGENCIA DEL CARTEL*\n\n` +
+            `⚠️ *ATENCIÓN:* Has sido reclutado por el Sicario *#${payload}*\\.\n` +
+            `Tu lealtad ha sido registrada\\. ¡No le falles\\!\n\n` +
+            `➖➖➖➖➖➖➖➖➖➖➖➖\n\n` +
+            welcomeMessage;
+    }
+
+    ctx.replyWithMarkdownV2(
+        welcomeMessage,
         Markup.inlineKeyboard([
             [Markup.button.webApp('🔫 ENTRAR AL BARRIO', appUrl)]
         ])
