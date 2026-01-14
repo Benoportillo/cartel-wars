@@ -1,4 +1,4 @@
-const { Telegraf, Markup } = require('telegraf');
+import { Telegraf, Markup } from 'telegraf';
 
 // 1. Token de BotFather
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
@@ -7,19 +7,39 @@ const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 const WEB_APP_URL = 'https://cartel-wars.onrender.com/';
 
 bot.start((ctx) => {
-    const payload = ctx.startPayload || (ctx.message && ctx.message.text && ctx.message.text.split(' ')[1]) || '';
-    console.log("Payload recibido:", payload);
+    console.log("--- NUEVO COMANDO START ---");
+    if (ctx.from) {
+        console.log("De:", ctx.from.id, ctx.from.first_name);
+    }
+    console.log("Texto completo:", ctx.message ? ctx.message.text : "Sin texto");
 
-    // Si hay payload (ref code), lo agregamos a la URL como start y startapp
+    // 1. Intentar obtener payload de Telegraf (Deep Linking)
+    let payload = ctx.startPayload;
+
+    // 2. Si falla, intentar parseo manual del texto "/start <payload>"
+    if (!payload && ctx.message && ctx.message.text) {
+        const parts = ctx.message.text.split(' ');
+        if (parts.length > 1 && parts[1]) {
+            payload = parts[1];
+        }
+    }
+
+    // 3. Limpieza de basura (frontend a veces envía 'undefined' como string)
+    if (payload === 'undefined' || payload === 'null') {
+        payload = '';
+    }
+
+    console.log("Payload Final Detectado:", payload);
+
     // Aseguramos que la URL base no tenga slash final duplicado
     const baseUrl = WEB_APP_URL.endsWith('/') ? WEB_APP_URL.slice(0, -1) : WEB_APP_URL;
 
-    // Construimos la URL con ambos métodos para asegurar compatibilidad
-    // 1. Query Params (para lectura directa en navegador)
-    // 2. startapp (para Telegram Mini App standard)
+    // Construimos la URL con TODOS los parámetros posibles para asegurar que el Frontend lo lea
     const appUrl = payload
         ? `${baseUrl}?start=${payload}&startapp=${payload}&tgWebAppStartParam=${payload}`
         : baseUrl;
+
+    console.log("URL Generada:", appUrl);
 
     let welcomeMessage = `🚬 *CARTEL WARS: PLATA O PLOMO* 💀\n\n` +
         `El *$CWARS* es la única moneda que importa aquí\\. Para sobrevivir, vas a necesitar más que suerte: ¡vas a necesitar *fuego*\\! 🔥🔫\n\n` +
@@ -28,7 +48,7 @@ bot.start((ctx) => {
         `🔹 *Ruleta:* 🎰 Gira el tambor\\.\\.\\. ¿Premio o plomo? ☠️\n\n` +
         `*"Bienvenido al infierno\\.\\.\\. ¿Plata o Plomo?"* ⚡️`;
 
-    // Si hay referido, agregamos mensaje de confirmación
+    // Si hay referido, agregamos mensaje de confirmación VISUAL
     if (payload) {
         welcomeMessage = `🕵️ *INTELIGENCIA DEL CARTEL*\n\n` +
             `⚠️ *ATENCIÓN:* Has sido reclutado por el Sicario *#${payload}*\\.\n` +
@@ -42,11 +62,14 @@ bot.start((ctx) => {
         Markup.inlineKeyboard([
             [Markup.button.webApp('🔫 ENTRAR AL BARRIO', appUrl)]
         ])
-    );
+    ).catch(err => console.error("Error enviando mensaje:", err));
 });
 
-bot.launch();
-console.log("El Capo está vigilando las calles...");
+bot.launch().then(() => {
+    console.log("El Capo está vigilando las calles...");
+}).catch(err => {
+    console.error("Error iniciando el bot:", err);
+});
 
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));
