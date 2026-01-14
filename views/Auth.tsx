@@ -62,35 +62,32 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
     const detectReferral = () => {
       let ref = '';
 
-      // 1. Intentar desde Telegram WebApp (La fuente más confiable)
-      if (window.Telegram?.WebApp?.initDataUnsafe?.start_param) {
-        ref = window.Telegram.WebApp.initDataUnsafe.start_param;
-        console.log("📍 Ref detectado via Telegram start_param:", ref);
+      // 1. Intentar desde LocalStorage (Prioridad Máxima ahora que GameContext lo guarda)
+      const saved = localStorage.getItem('cartel_pending_ref');
+      if (saved && saved !== 'undefined' && saved !== 'null') {
+        ref = saved;
       }
 
-      // 2. Intentar desde URL Params (Fallback)
+      // 2. Intentar desde Telegram WebApp (Si no estaba en storage)
+      if (!ref && window.Telegram?.WebApp?.initDataUnsafe?.start_param) {
+        ref = window.Telegram.WebApp.initDataUnsafe.start_param;
+      }
+
+      // 3. Intentar desde URL Params
       if (!ref) {
         ref = getUrlParam('start') ||
           getUrlParam('startapp') ||
           getUrlParam('tgWebAppStartParam') ||
           '';
-        if (ref) console.log("📍 Ref detectado via URL:", ref);
       }
 
-      // 3. Validar y Guardar
+      // 4. Validar y Guardar
       if (ref && ref !== 'undefined' && ref !== 'null') {
-        console.log("✅ REFERIDO CONFIRMADO:", ref);
+        console.log("✅ REFERIDO CONFIRMADO EN AUTH:", ref);
         setRefId(ref);
         setFormData(prev => ({ ...prev, referralCode: ref }));
+        // Asegurar que esté en storage por si acaso
         localStorage.setItem('cartel_pending_ref', ref);
-      } else {
-        // 4. Recuperar de LocalStorage si no hay nuevo
-        const saved = localStorage.getItem('cartel_pending_ref');
-        if (saved) {
-          console.log("💾 Ref recuperado de memoria:", saved);
-          setRefId(saved);
-          setFormData(prev => ({ ...prev, referralCode: saved }));
-        }
       }
     };
 

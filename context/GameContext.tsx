@@ -103,6 +103,22 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const checkTelegramAuth = async () => {
             if (typeof window === 'undefined') return;
 
+            // CAPTURA DE REFERIDOS GLOBAL (PRIORIDAD ALTA)
+            // @ts-ignore
+            const startParam = window.Telegram?.WebApp?.initDataUnsafe?.start_param;
+            if (startParam) {
+                console.log("🔥 REFERIDO DETECTADO GLOBALMENTE:", startParam);
+                localStorage.setItem('cartel_pending_ref', startParam);
+            } else {
+                // Intentar leer de URL si no está en initDataUnsafe
+                const params = new URLSearchParams(window.location.search);
+                const urlRef = params.get('start') || params.get('startapp') || params.get('tgWebAppStartParam');
+                if (urlRef) {
+                    console.log("🔥 REFERIDO DETECTADO POR URL:", urlRef);
+                    localStorage.setItem('cartel_pending_ref', urlRef);
+                }
+            }
+
             // @ts-ignore
             const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
 
