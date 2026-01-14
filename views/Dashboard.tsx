@@ -7,7 +7,8 @@ import { getMafiaFlavor } from '../geminiService';
 import { useGame, useTranslation } from '../context/GameContext';
 
 const CARTEL_WALLET = "UQAYp__Liik27w09kXZbIze8WFUpw1U3DQE2p5azzjCuZM4L";
-const BOT_LINK = "https://t.me/CartelWar_bot";
+const BOT_USERNAME = "CartelWar_bot";
+const APP_NAME = "cartel"; // ⚠️ IMPORTANTE: Debes crear esto en BotFather con /newapp y poner este nombre exacto
 
 const Dashboard: React.FC = () => {
   const { user, setUser, settings, logout: onLogout, t, lang } = useGame();
@@ -35,7 +36,9 @@ const Dashboard: React.FC = () => {
 
   const lastFetchedRank = useRef<Rank | null>(null);
 
-  const referralLink = `${BOT_LINK}?start=${user.telegramId || user.id}`;
+  // Generamos el "Direct Link" que abre la app directamente (sin pasar por el chat)
+  // Formato: https://t.me/botname/appname?startapp=ref123
+  const referralLink = `https://t.me/${BOT_USERNAME}/${APP_NAME}?startapp=${user.telegramId || user.id}`;
 
   useEffect(() => {
     if (lastFetchedRank.current !== user.rank) {
