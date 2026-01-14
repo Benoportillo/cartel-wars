@@ -32,9 +32,10 @@ bot.start((ctx) => {
     console.log("Payload Final Detectado:", payload);
 
     // Aseguramos que la URL base no tenga slash final duplicado
-    const baseUrl = WEB_APP_URL.endsWith('/') ? WEB_APP_URL.slice(0, -1) : WEB_APP_URL;
+    const baseUrl = WEB_APP_URL.replace(/\/$/, '');
 
     // Construimos la URL con TODOS los parámetros posibles para asegurar que el Frontend lo lea
+    // IMPORTANTE: startapp es el parámetro clave para Mini Apps
     const appUrl = payload
         ? `${baseUrl}?start=${payload}&startapp=${payload}&tgWebAppStartParam=${payload}`
         : baseUrl;
