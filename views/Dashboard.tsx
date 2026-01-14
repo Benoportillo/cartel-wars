@@ -36,9 +36,9 @@ const Dashboard: React.FC = () => {
 
   const lastFetchedRank = useRef<Rank | null>(null);
 
-  // Revertimos al "Deep Link" estándar del Bot (más seguro si no hay Short Name configurado)
-  // Formato: https://t.me/CartelWar_bot?start=ref123
-  const referralLink = `https://t.me/${BOT_USERNAME}?start=${user.telegramId || user.id}`;
+  // Usamos Direct Mini App Link para abrir la app directamente sin pasar por el chat del bot
+  // Formato: https://t.me/CartelWar_bot/cartel?startapp=ref123
+  const referralLink = `https://t.me/${BOT_USERNAME}/${APP_NAME}?startapp=${user.telegramId || user.id}`;
 
   useEffect(() => {
     if (lastFetchedRank.current !== user.rank) {
