@@ -259,7 +259,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 const diffHours = diffMs / (1000 * 60 * 60);
                 const effectiveHours = Math.min(diffHours, 24);
                 const newFarming = totalRate * effectiveHours;
-                return { ...prev, unclaimedFarming: Number(newFarming.toFixed(6)) };
+                return { ...prev, unclaimedFarming: Math.floor(newFarming) }; // CWARS son enteros
             });
         }, 5000);
         return () => clearInterval(interval);

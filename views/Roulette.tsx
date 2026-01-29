@@ -46,9 +46,16 @@ const Roulette: React.FC = () => {
     // 3. Award prize after animation
     setTimeout(() => {
       const updatedUser = { ...user, tickets: user.tickets - 1 };
-      if (selected.type === 'TON') updatedUser.balance += selected.value;
 
-      // Fix: UserProfile interface uses ownedWeapons, not ownedCars, and the correct type from RouletteResult is 'WEAPON'
+      if (selected.type === 'TON') {
+        updatedUser.balance += Number(selected.value);
+      }
+
+      if (selected.type === 'BUFF') {
+        const key = String(selected.value);
+        updatedUser.inventory = { ...updatedUser.inventory, [key]: (updatedUser.inventory?.[key] || 0) + 1 };
+      }
+
       if (selected.type === 'WEAPON') {
         updatedUser.ownedWeapons = [...user.ownedWeapons, selected.value];
       }

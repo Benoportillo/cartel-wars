@@ -348,19 +348,6 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
             </div>
           )}
 
-          {!isLogin && (
-            <div className="space-y-1">
-              <label className="text-[9px] text-zinc-500 font-black uppercase tracking-widest ml-1">Código de Referido (Opcional)</label>
-              <input
-                type="text"
-                value={formData.referralCode}
-                onChange={e => setFormData({ ...formData, referralCode: e.target.value })}
-                className="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-white text-xs outline-none focus:border-red-600 transition-all font-bold"
-                placeholder="ID del Padrino"
-              />
-            </div>
-          )}
-
           <div className="space-y-1">
             <label className="text-[9px] text-zinc-500 font-black uppercase tracking-widest ml-1">{isLogin ? "Usuario / ID" : t.emailLabel}</label>
             <input
@@ -412,13 +399,6 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
 
       <div className="absolute bottom-4 text-[7px] text-zinc-800 font-black uppercase tracking-[0.5em] pointer-events-none">
         Property of the Cartel Intelligence Agency
-      </div>
-
-      {/* DEBUG INFO - REMOVE IN PRODUCTION */}
-      <div className="absolute top-0 left-0 p-2 text-[8px] text-zinc-600 bg-black/80 pointer-events-none z-50 text-left max-w-full break-all">
-        <p>REF: {refId || 'NONE'}</p>
-        <p>URL_PARAMS: {typeof window !== 'undefined' ? window.location.search : ''}</p>
-        <p>TG_START: {typeof window !== 'undefined' ? window.Telegram?.WebApp?.initDataUnsafe?.start_param : ''}</p>
       </div>
     </div>
   );

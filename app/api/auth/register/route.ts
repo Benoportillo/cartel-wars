@@ -46,6 +46,10 @@ export async function POST(req: Request) {
                 recruiterL1.referrals += 1;
                 if (!recruiterL1.referralStats) recruiterL1.referralStats = { level1Count: 0, level2Count: 0, level3Count: 0, level1Earnings: 0, level2Earnings: 0, level3Earnings: 0 };
                 recruiterL1.referralStats.level1Count += 1;
+
+                // BONUS: 5,000 CWARS for invite
+                recruiterL1.cwarsBalance = (recruiterL1.cwarsBalance || 0) + 5000;
+
                 await recruiterL1.save();
 
                 // Level 2: Recruiter of Recruiter

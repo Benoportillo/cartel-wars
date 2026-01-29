@@ -20,11 +20,24 @@ export interface IUser extends Document {
         level2Earnings: number;
         level3Earnings: number;
     };
+    power: number;
+    status: number;
     basePower: number;
     baseStatus: number;
+    pendingReferralBonus: number;
+    claimsCount: number;
+    xp: number;
+    level: number;
+    inventory: Record<string, number>;
     ownedWeapons: any[]; // Define stricter schema if needed
     createdAt: Date;
     lastLogin: Date;
+    lastClaimDate?: Date;
+    unclaimedFarming?: number;
+    totalFarmed: number;
+    totalPvPWon: number;
+    totalPvPLost: number;
+    totalRouletteSpent: number;
     isBanned: boolean;
     isAdmin: boolean;
 }
@@ -40,8 +53,22 @@ const UserSchema: Schema = new Schema({
     tickets: { type: Number, default: 1 },
     referrals: { type: Number, default: 0 },
     referredBy: { type: String },
+    power: { type: Number, default: 35 },
+    status: { type: Number, default: 5 },
     basePower: { type: Number, default: 0 },
     baseStatus: { type: Number, default: 0 },
+
+    // Stats for Dashboard
+    totalFarmed: { type: Number, default: 0 },
+    totalPvPWon: { type: Number, default: 0 },
+    totalPvPLost: { type: Number, default: 0 },
+    totalRouletteSpent: { type: Number, default: 0 },
+
+    // Anti-Fraud & Referral System
+    pendingReferralBonus: { type: Number, default: 0 }, // Bonus locked until activity
+    claimsCount: { type: Number, default: 0 }, // Activity tracker
+
+    inventory: { type: Map, of: Number, default: {} },
     ownedWeapons: { type: Array, default: [] },
     referralStats: {
         level1Count: { type: Number, default: 0 },

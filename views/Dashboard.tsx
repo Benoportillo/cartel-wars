@@ -13,7 +13,7 @@ const APP_NAME = "cartel"; // ⚠️ IMPORTANTE: Debes crear esto en BotFather c
 const Dashboard: React.FC = () => {
   const { user, setUser, settings, logout: onLogout, t, lang } = useGame();
   const [flavor, setFlavor] = useState("...");
-  const [activeTab, setActiveTab] = useState<'garage' | 'street' | 'swap'>('garage');
+  const [activeTab, setActiveTab] = useState<'garage' | 'swap'>('garage');
   const [newName, setNewName] = useState("");
   const [showNameEdit, setShowNameEdit] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -53,16 +53,35 @@ const Dashboard: React.FC = () => {
     }
   }, [settings.swapEnabled, activeTab]);
 
-  const handleClaim = () => {
+  const handleClaim = async () => {
     if (user.unclaimedFarming <= 0) return;
-    const amount = user.unclaimedFarming;
-    setUser({
-      ...user,
-      balance: user.balance + amount,
-      unclaimedFarming: 0,
-      lastClaimDate: new Date()
-    });
-    getMafiaFlavor('claim', lang, `Amount: ${amount}`).then(setFlavor);
+
+    try {
+      const res = await fetch('/api/game/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ telegramId: user.telegramId })
+      });
+
+      if (!res.ok) {
+        console.error("Claim failed");
+        return;
+      }
+
+      const data = await res.json();
+
+      setUser({
+        ...user,
+        cwarsBalance: data.newBalance,
+        unclaimedFarming: 0,
+        lastClaimDate: new Date(data.lastClaimDate)
+      });
+
+      getMafiaFlavor('claim', lang, `Amount: ${data.farmedAmount} CWARS`).then(setFlavor);
+
+    } catch (error) {
+      console.error("Claim error:", error);
+    }
   };
 
   const handleNameChange = () => {
@@ -258,6 +277,40 @@ const Dashboard: React.FC = () => {
         </div>
       </section>
 
+      {/* FINANCIAL REPORT SECTION */}
+      <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+        <div className="flex items-center gap-2 mb-4">
+          <h2 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em]">{lang === 'es' ? 'LIBRO CONTABLE' : 'FINANCIAL REPORT'}</h2>
+          <div className="h-[1px] flex-1 bg-zinc-800"></div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-black/40 p-3 rounded-xl border border-zinc-800/50">
+            <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">CWARS LAVADOS</p>
+            <p className="text-lg font-marker text-green-500">+{user.totalFarmed?.toLocaleString() || 0}</p>
+          </div>
+          <div className="bg-black/40 p-3 rounded-xl border border-zinc-800/50">
+            <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">VICIOS (TON)</p>
+            <p className="text-lg font-marker text-purple-500">-{user.totalRouletteSpent?.toFixed(1) || 0}</p>
+          </div>
+          <div className="bg-black/40 p-3 rounded-xl border border-zinc-800/50">
+            <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">ROBOS (PVP)</p>
+            <p className="text-lg font-marker text-green-500">+{user.totalPvPWon?.toLocaleString() || 0}</p>
+          </div>
+          <div className="bg-black/40 p-3 rounded-xl border border-zinc-800/50">
+            <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">PÉRDIDAS (PVP)</p>
+            <p className="text-lg font-marker text-red-500">-{user.totalPvPLost?.toLocaleString() || 0}</p>
+          </div>
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-zinc-800 flex justify-between items-center">
+          <p className="text-[9px] text-zinc-500 font-black uppercase tracking-widest">NET PROFIT (CWARS)</p>
+          <p className={`text-xl font-marker ${(user.totalFarmed || 0) + (user.totalPvPWon || 0) - (user.totalPvPLost || 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+            {((user.totalFarmed || 0) + (user.totalPvPWon || 0) - (user.totalPvPLost || 0)).toLocaleString()}
+          </p>
+        </div>
+      </section>
+
       {/* REFERRAL SYSTEM SECTION */}
       {/* REFERRAL SYSTEM SECTION */}
       <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl relative overflow-hidden group">
@@ -356,7 +409,6 @@ const Dashboard: React.FC = () => {
 
       <div className="flex bg-zinc-900 p-1 rounded-2xl border border-zinc-800/50 shadow-inner">
         <button onClick={() => setActiveTab('garage')} className={`flex-1 py-3 rounded-xl font-marker text-[10px] tracking-widest transition-all ${activeTab === 'garage' ? 'bg-red-600 text-white shadow-lg' : 'text-zinc-500'}`}>{t.myGarage}</button>
-        <button onClick={() => setActiveTab('street')} className={`flex-1 py-3 rounded-xl font-marker text-[10px] tracking-widest transition-all ${activeTab === 'street' ? 'bg-red-600 text-white shadow-lg' : 'text-zinc-500'}`}>{t.street}</button>
         {settings.swapEnabled && (
           <button onClick={() => setActiveTab('swap')} className={`flex-1 py-3 rounded-xl font-marker text-[10px] tracking-widest transition-all ${activeTab === 'swap' ? 'bg-zinc-100 text-black shadow-lg' : 'text-zinc-500'}`}>SWAP & OUT</button>
         )}
@@ -388,33 +440,6 @@ const Dashboard: React.FC = () => {
               );
             })
           )}
-        </div>
-      ) : activeTab === 'street' ? (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-          <div className="flex justify-center mb-2">
-            <button onClick={() => setShowDepositModal(true)} className="bg-yellow-600/20 border border-yellow-600/50 text-yellow-600 px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-yellow-600 hover:text-black transition-all">
-              LAVAR ACTIVOS 🤵‍♂️
-            </button>
-          </div>
-
-          {WEAPONS.filter(w => w.id !== 'starter').map(weapon => (
-            <div key={weapon.id} className="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden flex flex-col group hover:border-zinc-600 transition-all">
-              <div className="h-48 w-full relative bg-zinc-950 flex items-center justify-center">
-                <img src={weapon.image} className="w-3/4 h-3/4 object-contain group-hover:scale-110 transition-transform duration-500" />
-                <div className="absolute top-4 right-4 bg-yellow-500 text-black px-3 py-1 rounded-xl font-black text-sm shadow-xl">{weapon.price} TON</div>
-              </div>
-              <div className="p-4 border-t border-zinc-800 bg-zinc-900/50">
-                <div className="flex justify-between items-start mb-3">
-                  <h4 className="font-marker text-white text-lg uppercase">{weapon.name}</h4>
-                  <div className="flex flex-col items-end">
-                    <p className="text-red-500 font-bold text-[10px] uppercase">💀 {(weapon.firepower * 100).toFixed(0)} {t.power}</p>
-                    <p className="text-blue-500 font-bold text-[10px] uppercase">👑 {weapon.statusBonus} {t.status}</p>
-                  </div>
-                </div>
-                <button onClick={() => buyWeapon(weapon)} className="w-full py-3 bg-red-600 text-white rounded-xl font-marker text-xs tracking-widest uppercase hover:bg-red-500 transition-all shadow-lg active:scale-95">{t.buyFor}</button>
-              </div>
-            </div>
-          ))}
         </div>
       ) : settings.swapEnabled ? (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 pb-10">
@@ -563,8 +588,8 @@ const Dashboard: React.FC = () => {
         <h2 className="text-red-600 font-marker text-2xl mb-6 tracking-widest">{t.laundering}</h2>
         {isInGang ? (
           <div className="relative inline-block mb-6">
-            <div className="text-5xl font-black text-yellow-500">{user.unclaimedFarming.toFixed(5)}</div>
-            <span className="text-zinc-500 font-bold text-xs uppercase tracking-[0.3em] mt-2 block">{t.tonCollected}</span>
+            <div className="text-5xl font-black text-yellow-500">{user.unclaimedFarming.toLocaleString()}</div>
+            <span className="text-zinc-500 font-bold text-xs uppercase tracking-[0.3em] mt-2 block">CWARS LAVADOS</span>
           </div>
         ) : (
           <p className="text-[10px] text-red-900 font-black uppercase mb-6">{t.mustBelongCartel}</p>

@@ -71,6 +71,7 @@ export interface Gang {
 export interface BattleRecord {
   won: boolean;
   rival: string;
+  rivalId?: string; // Added for Revenge
   powerDiff: number;
   timestamp: number;
 }
@@ -131,6 +132,13 @@ export interface UserProfile {
   baseStatus: number; // New: Respect gained/lost in battle
   power: number; // Total Displayed Power
   status: number; // Total Displayed Respect
+  inventory: Record<string, number>; // New: Buffs & Consumables
+  ammo: number; // PvP Energy
+  lastDailyAmmo: Date; // For daily reset
+  pendingReferralBonus: number; // Anti-Fraud
+  claimsCount: number; // Anti-Fraud
+  xp: number; // RPG
+  level: number; // RPG
   myGangId?: string;
   joinedGangId?: string;
   appliedGangId?: string;
@@ -149,12 +157,16 @@ export interface UserProfile {
     level2Earnings: number;
     level3Earnings: number;
   };
+  totalFarmed?: number;
+  totalPvPWon?: number;
+  totalPvPLost?: number;
+  totalRouletteSpent?: number;
 }
 
 export interface RouletteResult {
   id: string;
   label: string;
   value: any;
-  type: 'TON' | 'BOOST' | 'PIECE' | 'WEAPON' | 'MISS' | 'CWARS';
+  type: 'TON' | 'BOOST' | 'PIECE' | 'WEAPON' | 'MISS' | 'CWARS' | 'BUFF';
   probability: number;
 }
