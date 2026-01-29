@@ -15,6 +15,13 @@ const APP_NAME = "cartel"; // ⚠️ IMPORTANTE: Debes crear esto en BotFather c
 const Dashboard: React.FC = () => {
   const { user, setUser, settings, logout: onLogout, t, lang } = useGame();
   const { socket } = useSocket();
+  const userRef = useRef(user);
+
+  // Keep ref synced with user state to avoid stale closures in socket listeners
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
+
   const [flavor, setFlavor] = useState("...");
   const [activeTab, setActiveTab] = useState<'garage' | 'swap'>('garage');
   const [newName, setNewName] = useState("");
@@ -29,8 +36,11 @@ const Dashboard: React.FC = () => {
 
     const handleBalanceUpdate = (data: { newBalance: number, message: string }) => {
       console.log('💰 Balance Update Received:', data);
-      setUser(prev => ({ ...prev, balance: data.newBalance }));
-      alert(data.message); // Simple alert for now, could be a toast
+      // Use ref to get latest user without re-subscribing
+      if (userRef.current) {
+        setUser({ ...userRef.current, balance: data.newBalance });
+      }
+      alert(data.message);
     };
 
     socket.on('balance_update', handleBalanceUpdate);
