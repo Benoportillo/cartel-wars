@@ -62,18 +62,12 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
     const detectReferral = () => {
       let ref = '';
 
-      // 1. Intentar desde LocalStorage (Prioridad Máxima ahora que GameContext lo guarda)
-      const saved = localStorage.getItem('cartel_pending_ref');
-      if (saved && saved !== 'undefined' && saved !== 'null') {
-        ref = saved;
-      }
-
-      // 2. Intentar desde Telegram WebApp (Si no estaba en storage)
-      if (!ref && window.Telegram?.WebApp?.initDataUnsafe?.start_param) {
+      // 1. Intentar desde Telegram WebApp (Prioridad Máxima: Fuente más confiable)
+      if (window.Telegram?.WebApp?.initDataUnsafe?.start_param) {
         ref = window.Telegram.WebApp.initDataUnsafe.start_param;
       }
 
-      // 3. Intentar desde URL Params
+      // 2. Intentar desde URL Params (Fallback)
       if (!ref) {
         ref = getUrlParam('start') ||
           getUrlParam('startapp') ||
@@ -81,12 +75,24 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
           '';
       }
 
-      // 4. Validar y Guardar
-      if (ref && ref !== 'undefined' && ref !== 'null') {
+      // 3. Intentar desde LocalStorage (Último recurso si ya se había guardado)
+      if (!ref) {
+        const saved = localStorage.getItem('cartel_pending_ref');
+        if (saved && saved !== 'undefined' && saved !== 'null') {
+          ref = saved;
+        }
+      }
+
+      // 4. Limpieza Estricta de Basura
+      if (ref === 'undefined' || ref === 'null' || ref === 'NaN') {
+        ref = '';
+      }
+
+      // 5. Validar y Guardar
+      if (ref) {
         console.log("✅ REFERIDO CONFIRMADO EN AUTH:", ref);
         setRefId(ref);
         setFormData(prev => ({ ...prev, referralCode: ref }));
-        // Asegurar que esté en storage por si acaso
         localStorage.setItem('cartel_pending_ref', ref);
       }
     };

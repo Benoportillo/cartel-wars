@@ -32,10 +32,17 @@ export async function POST(req: Request) {
         }
 
         // Handle Multi-Level Referral System
-        if (referredBy) {
-            // Level 1: Direct Recruiter
+        let validReferredBy = undefined;
+
+        if (referredBy && referredBy !== 'undefined' && referredBy !== 'null') {
+            // VALIDATION: Check if referrer actually exists
             const recruiterL1 = await User.findOne({ telegramId: referredBy });
+
             if (recruiterL1) {
+                console.log(`✅ Referrer verified: ${recruiterL1.name} (${recruiterL1.telegramId})`);
+                validReferredBy = referredBy;
+
+                // Level 1: Direct Recruiter
                 recruiterL1.referrals += 1;
                 if (!recruiterL1.referralStats) recruiterL1.referralStats = { level1Count: 0, level2Count: 0, level3Count: 0, level1Earnings: 0, level2Earnings: 0, level3Earnings: 0 };
                 recruiterL1.referralStats.level1Count += 1;
@@ -60,6 +67,8 @@ export async function POST(req: Request) {
                         }
                     }
                 }
+            } else {
+                console.warn(`⚠️ Invalid Referrer ID: ${referredBy} (User not found). Registering without referral.`);
             }
         }
 
@@ -69,7 +78,7 @@ export async function POST(req: Request) {
             email: email.toLowerCase().trim(),
             password,
             name: name || `Sicario_${telegramId}`,
-            referredBy,
+            referredBy: validReferredBy,
             power: 35,
             ownedWeapons: INITIAL_USER.ownedWeapons
         });
