@@ -4,17 +4,23 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "next dev",
+    "dev": "ts-node --project tsconfig.server.json server.ts",
     "build": "next build",
-    "start": "next start",
+    "start": "NODE_ENV=production ts-node --project tsconfig.server.json server.ts",
     "lint": "next lint"
   },
   "dependencies": {
+    "@tonconnect/sdk": "^3.4.0",
+    "@tonconnect/ui-react": "^2.4.0",
     "mongoose": "^9.1.2",
     "next": "14.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "telegraf": "^4.16.3"
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3",
+    "telegraf": "^4.16.3",
+    "tonweb": "^0.0.66",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

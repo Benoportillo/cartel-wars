@@ -106,6 +106,8 @@ export interface GlobalSettings {
   maintenanceMode: boolean;
   premiumMissions: PremiumMission[];
   referralCommissionPercent: number; // Nuevo: Porcentaje configurable
+  gangsterHours?: { start: number; end: number; bonus: number }[]; // 0-23 hours
+  lastGangsterUpdate?: number; // Timestamp of last randomization
 }
 
 export interface UserProfile {

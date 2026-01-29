@@ -296,3 +296,6 @@ export const SHOP_ITEMS = [
   { id: 'charm', name: 'Amuleto de la Muerte', price: 1.2, image: '/assets/items/charm.png', description: 'Aumenta probabilidad de golpe crítico.', type: 'BUFF' },
   { id: 'kevlar', name: 'Chaleco Kevlar', price: 2.0, image: '/assets/items/kevlar.png', description: 'Reduce drásticamente las pérdidas al morir.', type: 'BUFF' }
 ];
+
+export const MASTER_WALLET_ADDRESS = "UQDZDP9qAdglpsThm7XFhSGKjFhx98nJj6IzGI0yh-rop7H7";
+export const WITHDRAWAL_WALLET_ADDRESS = "UQD-h3pdcJlGjyWqG9d7QZszZqjMz9IxRqdkSjaVOzqC5O01";
