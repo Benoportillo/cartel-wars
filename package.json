@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "ts-node-esm --project tsconfig.server.json server.ts",
-    "build": "next build",
-    "start": "NODE_ENV=production ts-node-esm --project tsconfig.server.json server.ts",
+    "build": "tsc --project tsconfig.server.json && next build",
+    "start": "NODE_ENV=production node dist/server.js",
     "lint": "next lint"
   },
   "dependencies": {

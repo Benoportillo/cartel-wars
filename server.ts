@@ -2,6 +2,9 @@ import { createServer } from 'http';
 import { parse } from 'url';
 import next from 'next';
 import { Server } from 'socket.io';
+import mongoose from 'mongoose';
+import { startTonWatcher } from './services/tonWatcher';
+
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
@@ -16,13 +19,12 @@ app.prepare().then(() => {
     const io = new Server(server);
 
     // Connect to DB
-    const mongoose = require('mongoose');
+    // Connect to DB
     mongoose.connect(process.env.MONGODB_URI || "mongodb+srv://forexbotiam:42532880@cluster0.w6r3t.mongodb.net/cartel-wars?retryWrites=true&w=majority&appName=Cluster0")
         .then(() => {
             console.log('🍃 MongoDB Connected via Server');
             // Start Watcher
             try {
-                const { startTonWatcher } = require('./services/tonWatcher');
                 startTonWatcher(io);
             } catch (e) {
                 console.error('Failed to start TON Watcher:', e);
