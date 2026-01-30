@@ -3,7 +3,8 @@ import User from '../models/User.js';
 import Transaction from '../models/Transaction.js';
 import { MASTER_WALLET_ADDRESS } from '../constants.js';
 
-const tonweb = new TonWeb(new TonWeb.HttpProvider('https://toncenter.com/api/v2/json'));
+const TonWebClass = (TonWeb as any).default || TonWeb;
+const tonweb = new (TonWebClass as any)(new (TonWebClass as any).HttpProvider('https://toncenter.com/api/v2/json'));
 
 // In-memory cache to avoid re-processing recent TXs in the same poll cycle
 const processedTxIds = new Set<string>();

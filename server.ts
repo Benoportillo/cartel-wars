@@ -7,7 +7,7 @@ import { startTonWatcher } from './services/tonWatcher.js';
 
 
 const dev = process.env.NODE_ENV !== 'production';
-const app = next({ dev });
+const app = (next as any)({ dev });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {

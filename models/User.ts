@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { Rank, WeaponInstance, BattleRecord } from '../types';
+import { Rank, WeaponInstance, BattleRecord } from '../types.js';
 
 export interface IUser extends Document {
     telegramId: string;
