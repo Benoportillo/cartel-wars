@@ -58,7 +58,8 @@ export async function POST(req: Request) {
 
         if (mnemonic) {
             try {
-                const keyPair = await tonweb.mnemonic.toKeyPair(mnemonic.split(' '));
+                // @ts-ignore
+                const keyPair = await TonWeb.mnemonic.toKeyPair(mnemonic.split(' '));
                 const WalletClass = tonweb.wallet.all.v4R2;
                 const wallet = new WalletClass(tonweb.provider, {
                     publicKey: keyPair.publicKey,
