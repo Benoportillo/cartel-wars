@@ -9,6 +9,7 @@ export interface IUser extends Document {
     rank: Rank;
     balance: number;
     cwarsBalance: number;
+    tonWithdrawn: number;
     tickets: number;
     referrals: number;
     referredBy?: string;
@@ -50,6 +51,7 @@ const UserSchema: Schema = new Schema({
     rank: { type: String, default: Rank.INDEPENDIENTE },
     balance: { type: Number, default: 0.2 },
     cwarsBalance: { type: Number, default: 0 },
+    tonWithdrawn: { type: Number, default: 0 },
     tickets: { type: Number, default: 1 },
     referrals: { type: Number, default: 0 },
     referredBy: { type: String },
