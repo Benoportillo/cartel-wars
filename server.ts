@@ -3,7 +3,7 @@ import { parse } from 'url';
 import next from 'next';
 import { Server } from 'socket.io';
 import mongoose from 'mongoose';
-import { startTonWatcher } from './services/tonWatcher';
+import { startTonWatcher } from './services/tonWatcher.js';
 
 
 const dev = process.env.NODE_ENV !== 'production';

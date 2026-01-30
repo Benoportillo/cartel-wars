@@ -1,7 +1,7 @@
 import TonWeb from 'tonweb';
-import User from '../models/User';
-import Transaction from '../models/Transaction';
-import { MASTER_WALLET_ADDRESS } from '../constants';
+import User from '../models/User.js';
+import Transaction from '../models/Transaction.js';
+import { MASTER_WALLET_ADDRESS } from '../constants.js';
 
 const tonweb = new TonWeb(new TonWeb.HttpProvider('https://toncenter.com/api/v2/json'));
 

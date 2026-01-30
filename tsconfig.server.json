@@ -9,6 +9,10 @@
         "isolatedModules": false
     },
     "include": [
-        "server.ts"
+        "server.ts",
+        "services/**/*",
+        "models/**/*",
+        "constants.tsx",
+        "types.ts"
     ]
 }
