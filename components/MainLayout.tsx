@@ -16,11 +16,23 @@ const flags: Record<string, string> = {
 
 type Language = 'en' | 'es' | 'ru' | 'ar';
 
+import Auth from '../views/Auth';
+import Intro from '../views/Intro';
+
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
-    const { user, changeLang, logout, t } = useGame();
+    const { user, globalUsers, changeLang, logout, t, showIntro, setShowIntro, showAuth, setShowAuth, handleIntroComplete, handleAuthComplete } = useGame();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [langDropdownOpen, setLangDropdownOpen] = useState(false);
     const pathname = usePathname();
+
+    // Early return for Intro and Auth to ensure they cover the full screen and prevent context/layout issues
+    if (showIntro) {
+        return <Intro onEnter={handleIntroComplete} />;
+    }
+
+    if (showAuth) {
+        return <Auth lang={user.language} globalUsers={globalUsers} onComplete={handleAuthComplete} />;
+    }
 
     return (
         <div className={`min-h-screen pb-24 bg-[#0a0a0a] text-gray-200 animate-in fade-in duration-1000 ${user.language === 'ar' ? 'font-sans' : ''}`} dir={user.language === 'ar' ? 'rtl' : 'ltr'}>
