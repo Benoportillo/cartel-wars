@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { Rank } from '../types';
+import { Rank, WeaponInstance, BattleRecord } from '../types';
 
 export interface IUser extends Document {
     telegramId: string;
@@ -29,8 +29,11 @@ export interface IUser extends Document {
     claimsCount: number;
     xp: number;
     level: number;
+
+    ammo: number;
+    lastDailyAmmo: Date;
     inventory: Record<string, number>;
-    ownedWeapons: any[]; // Define stricter schema if needed
+    ownedWeapons: WeaponInstance[]; // Define stricter schema if needed
     createdAt: Date;
     lastLogin: Date;
     lastClaimDate?: Date;
@@ -41,6 +44,17 @@ export interface IUser extends Document {
     totalRouletteSpent: number;
     isBanned: boolean;
     isAdmin: boolean;
+    pvpHistory: BattleRecord[];
+    lastTicketDate?: Date;
+    nameChanged?: boolean;
+    lastRaceDate?: Date;
+    myGangId?: string;
+    joinedGangId?: string;
+    appliedGangId?: string;
+    pendingFeeLock?: number;
+    lastMissionDate?: Date;
+    completedMissions?: string[];
+    hasSeenGuide?: boolean;
 }
 
 const UserSchema: Schema = new Schema({
@@ -71,6 +85,8 @@ const UserSchema: Schema = new Schema({
     claimsCount: { type: Number, default: 0 }, // Activity tracker
 
     inventory: { type: Map, of: Number, default: {} },
+    ammo: { type: Number, default: 10 },
+    lastDailyAmmo: { type: Date, default: Date.now },
     ownedWeapons: { type: Array, default: [] },
     referralStats: {
         level1Count: { type: Number, default: 0 },
@@ -82,7 +98,17 @@ const UserSchema: Schema = new Schema({
     },
     isBanned: { type: Boolean, default: false },
     isAdmin: { type: Boolean, default: false },
-    lastLogin: { type: Date, default: Date.now },
+    pvpHistory: { type: Array, default: [] },
+    lastTicketDate: { type: Date },
+    nameChanged: { type: Boolean, default: false },
+    lastRaceDate: { type: Date },
+    myGangId: { type: String },
+    joinedGangId: { type: String },
+    appliedGangId: { type: String },
+    pendingFeeLock: { type: Number },
+    lastMissionDate: { type: Date },
+    completedMissions: { type: [String], default: [] },
+    hasSeenGuide: { type: Boolean, default: false }
 }, { timestamps: true });
 
 // Prevent recompilation of model in development

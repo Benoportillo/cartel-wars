@@ -280,7 +280,15 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
           power: 1000,
           status: 1000,
           pvpHistory: [],
-          isAdmin: true
+          isAdmin: true,
+          inventory: {},
+          ammo: 10,
+          lastDailyAmmo: new Date(),
+          pendingReferralBonus: 0,
+          claimsCount: 0,
+          xp: 0,
+          level: 1,
+          isBanned: false
         } as UserProfile);
         setIsLoading(false);
       }, 1000);

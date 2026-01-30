@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import User from '@/models/User';
 import dbConnect from '@/lib/dbConnect';
-import { TERRAINS } from '@/constants';
+import { TERRAINS, WEAPONS } from '@/constants';
 
 export async function POST(req: Request) {
     try {

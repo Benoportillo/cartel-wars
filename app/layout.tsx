@@ -19,11 +19,11 @@ export default function RootLayout({
         <html lang="en">
             <body>
                 <TonConnectProvider>
-                    <SocketProvider>
-                        <GameProvider>
+                    <GameProvider>
+                        <SocketProvider>
                             {children}
-                        </GameProvider>
-                    </SocketProvider>
+                        </SocketProvider>
+                    </GameProvider>
                 </TonConnectProvider>
             </body>
         </html>
