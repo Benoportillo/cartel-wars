@@ -1,7 +1,9 @@
 {
     "extends": "./tsconfig.json",
     "compilerOptions": {
-        "module": "commonjs",
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "esModuleInterop": true,
         "outDir": "dist",
         "noEmit": false,
         "isolatedModules": false
