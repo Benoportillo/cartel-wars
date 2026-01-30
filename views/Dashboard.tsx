@@ -306,6 +306,36 @@ const Dashboard: React.FC = () => {
           <StatBox label={t.status} value={user.status.toFixed(0)} color="text-blue-500" icon="👑" />
           <StatBox label="Mafiosos" value={user.referrals.toString()} color="text-zinc-400" icon="👥" />
         </div>
+
+        {/* TON BALANCE & BUFFS */}
+        <div className="grid grid-cols-2 gap-3 mt-3">
+          <div className="bg-gradient-to-r from-blue-900/40 to-black p-3 rounded-xl border border-blue-900/30 flex items-center justify-between">
+            <div>
+              <p className="text-[8px] text-blue-400 font-black uppercase tracking-widest">TON BALANCE</p>
+              <p className="text-xl font-marker text-white">{user.balance.toFixed(2)} <span className="text-xs">TON</span></p>
+            </div>
+            <button onClick={() => setShowWallet(true)} className="w-8 h-8 flex items-center justify-center bg-blue-600 rounded-full text-white shadow-lg hover:scale-110 transition-transform">+</button>
+          </div>
+          <div className="bg-zinc-900 p-3 rounded-xl border border-zinc-800 flex flex-col justify-center">
+            <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">SUPPLIES ACTIVOS</p>
+            <div className="flex gap-2">
+              {(!user.inventory || Object.keys(user.inventory).length === 0) ? (
+                <span className="text-[10px] text-zinc-600 italic">Nada activo</span>
+              ) : (
+                Object.entries(user.inventory || {}).map(([key, count]) => (
+                  count > 0 && (
+                    <div key={key} className="relative group/buff">
+                      <div className="w-8 h-8 bg-zinc-800 rounded-lg flex items-center justify-center border border-zinc-700 text-lg" title={key}>
+                        {key === 'oil' ? '🛢️' : key === 'charm' ? '🧿' : key === 'kevlar' ? '🛡️' : '📦'}
+                      </div>
+                      <span className="absolute -top-2 -right-2 bg-yellow-600 text-black text-[8px] font-bold w-4 h-4 flex items-center justify-center rounded-full border border-black">{count}</span>
+                    </div>
+                  )
+                ))
+              )}
+            </div>
+          </div>
+        </div>
         {/* FINANCIAL REPORT SECTION */}
         <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
           <div className="flex items-center gap-2 mb-4">
