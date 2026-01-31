@@ -1,6 +1,6 @@
 # SKILL: Conexión TON Wallet & Watcher (Miniapp Master) 💎
-**Versión:** 1.0.0 (Unicorn Stable)
-**Descripción:** Guía maestra para integrar TON Connect 2.0 en Frontend y un Watcher de Pagos robusto en Backend para Telegram Mini Apps.
+**Versión:** 1.1.0 (Cartel-Grade)
+**Descripción:** Guía maestra para integrar TON Connect 2.0 en Frontend y un Watcher de Pagos robusto en Backend para Telegram Mini Apps. Incluye manejo de errores avanzado y trucos de Manifest.
 
 ## 📋 Prerrequisitos
 - Node.js v18+ (Recomendado v20/v22)
@@ -23,45 +23,32 @@ TONCENTER_API_KEY="tu-api-key-aqui"
 MASTER_WALLET_ADDRESS="UQD..."
 ```
 
-### 2. Configuración de TypeScript (Backend/ESM)
-Para evitar errores de "Import", configura `tsconfig.server.json`:
-```json
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "outDir": "dist",
-    "rootDir": ".",
-    "noEmit": false
-  },
-  "include": ["server.ts", "services/**/*", "models/**/*", "constants.ts"]
-}
-```
-
 ---
 
 ## 🎨 Fase 2: Frontend (TON Connect)
 
 ### 1. Manifest (public/tonconnect-manifest.json)
+**TRUCO PRO:** Si Telegram cachea tu manifest y da error, añade `?v=2` a la URL.
 **Requisito:** Debe ser HTTPS y coincidir exactamente con tu URL de producción.
 ```json
 {
     "url": "https://tu-proyecto.onrender.com",
     "name": "Nombre App",
-    "iconUrl": "https://url-a-tu-logo.png",
+    "iconUrl": "https://tu-proyecto.onrender.com/assets/logo.png",
     "termsOfUseUrl": "https://tu-proyecto.onrender.com/terms",
     "privacyPolicyUrl": "https://tu-proyecto.onrender.com/privacy"
 }
 ```
 
 ### 2. Provider (components/TonConnectProvider.tsx)
+**Recomendación:** Hardcodea la URL de producción o usa variables con cuidado.
 ```tsx
 'use client';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
 
 export function TonConnectProvider({ children }: { children: React.ReactNode }) {
-    const manifestUrl = 'https://tu-proyecto.onrender.com/tonconnect-manifest.json';
+    // ?v=2 es CRÍTICO para limpiar la caché de Telegram si editas el archivo
+    const manifestUrl = 'https://tu-proyecto.onrender.com/tonconnect-manifest.json?v=2';
     return (
         <TonConnectUIProvider manifestUrl={manifestUrl}>
             {children}
@@ -70,11 +57,50 @@ export function TonConnectProvider({ children }: { children: React.ReactNode }) 
 }
 ```
 
-### 3. Botón de Conexión
+### 3. Enviar Pagos con Comentarios (Memo)
+Para que el backend sepa QUIÉN pagó, enviamos el `userId` en el payload.
+
 ```tsx
-import { TonConnectButton } from '@tonconnect/ui-react';
-// ...
-<TonConnectButton />
+import TonWeb from 'tonweb'; // npm install tonweb
+
+const handlePayment = async () => {
+    try {
+        // A. Construir Payload (Texto/Comentario)
+        const cell = new TonWeb.boc.Cell();
+        cell.bits.writeUint(0, 32); // OpCode 0 = Comentario
+        cell.bits.writeString(String(user.telegramId)); // Tu Memo
+        const payload = TonWeb.utils.bytesToBase64(await cell.toBoc());
+
+        // B. Crear Transacción
+        const transaction = {
+            validUntil: Math.floor(Date.now() / 1000) + 600, // 10 min
+            messages: [
+                {
+                    address: "DIRECCION_DESTINO",
+                    amount: (5.5 * 1e9).toFixed(0), // 5.5 TON en nanotons (String Entero)
+                    payload: payload
+                },
+            ],
+        };
+
+        // C. Enviar
+        await tonConnectUI.sendTransaction(transaction);
+        alert("¡Enviado! Esperando confirmación...");
+
+    } catch (e: any) {
+        // D. Manejo de Errores "Humanos"
+        const err = String(e);
+        if (err.includes("User rejected") || err.includes("OK")) {
+             alert("⛔ Operación cancelada.");
+        } else if (err.includes("No enough funds")) {
+             alert("💸 Sin fondos suficientes.");
+        } else if (err.includes("Manifest")) {
+             alert("⚠️ Error de conexión (Manifiesto). Reabre la app.");
+        } else {
+             alert("❌ Error desconocido.");
+        }
+    }
+};
 ```
 
 ---
@@ -86,102 +112,60 @@ Este servicio se ejecuta en paralelo al servidor y detecta depósitos entrantes.
 **Características:**
 - Usa `TONCENTER_API_KEY` para evitar Rate Limits.
 - Maneja errores de JSON/Network silenciosamente.
-- Detecta depósitos por `Check Only` o `Memo`.
+- Inicialización perezosa (dentro de la función `start`) para asegurar que carguen los ENV.
 
 ```typescript
 import TonWeb from 'tonweb';
-// Importa tus modelos y constantes (recuerda la extensión .js si usas ESM)
-import User from '../models/User.js';
+// Importaciones con extensión si usas "type": "module"
+import User from '../models/User.js'; 
 import { MASTER_WALLET_ADDRESS } from '../constants.js';
 
-const TonWebClass = (TonWeb as any).default || TonWeb;
-const apiKey = process.env.TONCENTER_API_KEY;
-
-// Inicialización Robusta
-const tonweb = new (TonWebClass as any)(new (TonWebClass as any).HttpProvider(
-    'https://toncenter.com/api/v2/json', 
-    apiKey ? { apiKey } : undefined
-));
-
-const processedTxIds = new Set<string>();
+let tonweb: any;
 
 export const startTonWatcher = (io: any) => {
+    // Inicializar AQUÍ para leer ENV correctamente
+    const TonWebClass = (TonWeb as any).default || TonWeb;
+    const apiKey = process.env.TONCENTER_API_KEY;
+    
+    console.log(`🔑 API Key Configured: ${apiKey ? 'YES' : 'NO (Rate Limit Risk)'}`);
+    
+    tonweb = new (TonWebClass as any)(new (TonWebClass as any).HttpProvider(
+        'https://toncenter.com/api/v2/json', 
+        apiKey ? { apiKey } : undefined
+    ));
+
     console.log('👀 TON Watcher Started');
 
     setInterval(async () => {
         try {
             const history = await tonweb.getTransactions(MASTER_WALLET_ADDRESS, 10);
-            
-            for (const tx of history) {
-                const txHash = tx.transaction_id.hash;
-                const inMsg = tx.in_msg;
-
-                // 1. Filtrar transacciones entrantes con valor
-                if (!inMsg || inMsg.value <= 0) continue;
-
-                // 2. Verificar duplicados (Memoria y DB)
-                // const exists = await Transaction.findOne({ txid: txHash }); ...
-                if (processedTxIds.has(txHash)) continue;
-                processedTxIds.add(txHash);
-
-                // 3. Procesar Lógica de Negocio (Dar saldo, activar item, etc)
-                const amountTon = Number(inMsg.value) / 1e9;
-                console.log(`💰 Depósito detectado: ${amountTon} TON`);
-                
-                // 4. Notificar al Frontend (Socket.io)
-                // io.to(...).emit('balance_update', ...);
-            }
+            // ... (Lógica de procesamiento igual a la V1)
         } catch (error: any) {
-             // Manejo de Errores Silencioso (Anti-Crash)
-            if (error instanceof SyntaxError && error.message.includes('Unexpected end of JSON input')) {
+            // Manejo de Rate Limit Graciable
+            if (error instanceof SyntaxError || error.message?.includes('429')) {
                 console.warn('⚠️ API Rate Limit. Reintentando...');
             } else {
                 console.error('Watcher Error:', error);
             }
         }
-    }, 10000); // Polling cada 10s
+    }, 10000); // Polling 10s
 };
-```
-
-### 2. Integración en Servidor (server.ts)
-```typescript
-import { startTonWatcher } from './services/tonWatcher.js';
-
-// ... Conexión DB ...
-mongoose.connect(process.env.MONGODB_URI).then(() => {
-    console.log('🍃 MongoDB Conectado');
-    startTonWatcher(io); // Iniciar Watcher solo tras conectar DB
-});
 ```
 
 ---
 
-## 🛠️ Fase 4: Solución de Problemas Comunes (Troubleshooting)
+## 🛠️ Fase 4: Solución de Problemas Comunes
 
-### 1. "Watcher Error: Unexpected end of JSON input"
-- **Causa:** TonCenter está bloqueando tu IP por exceso de peticiones.
-- **Solución:** ¡Configura `TONCENTER_API_KEY` en tus variables de entorno!
+### 1. "Manifest Error" (El Pato Muerto 🦆)
+- **Causa:** Telegram cacheó una versión vieja de tu manifest o la URL no es HTTPS.
+- **Solución:** Añade `?v=2` o `?v=3` al final de la URL en `TonConnectUIProvider`.
 
-### 2. "Module not found: Can't resolve './types.js'"
-- **Causa:** Next.js (Webpack) se confunde con las extensiones explícitas `.js` que necesita el backend.
-- **Solución:** Crea `next.config.mjs`:
+### 2. "User rejected" aunque el usuario aceptó
+- **Causa:** Timeout o pérdida de conexión con la wallet móvil.
+- **Solución:** A veces es un falso negativo. Revisa siempre el Hash en la blockchain (explorador) antes de dar por fallido, aunque para UX, confía en el error.
+
+### 3. Build Falls (Webpack/ESM)
+- Si usas CommonJS y ESM mezclados, fuerza las extensiones en `next.config.mjs`:
 ```javascript
-const nextConfig = {
-  webpack: (config) => {
-    config.resolve.extensionAlias = {
-      ".js": [".ts", ".tsx", ".js", ".jsx"],
-    };
-    return config;
-  },
-};
-export default nextConfig;
+config.resolve.extensionAlias = { ".js": [".ts", ".tsx", ".js", ".jsx"] };
 ```
-
-### 3. "Styles not loading / Plain Text"
-- **Causa:** Falta `postcss.config.cjs` o dependencias.
-- **Solución:**
-    1. `npm install -D tailwindcss@3 postcss autoprefixer`
-    2. Crear `postcss.config.cjs`:
-       ```javascript
-       module.exports = { plugins: { tailwindcss: {}, autoprefixer: {} } };
-       ```

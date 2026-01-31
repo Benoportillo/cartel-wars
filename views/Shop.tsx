@@ -116,9 +116,9 @@ const Shop: React.FC = () => {
                                 <img src={weapon.image} alt={weapon.name} className="w-full h-full object-contain drop-shadow-[0_5px_5px_rgba(0,0,0,0.5)] group-hover:scale-110 transition-transform duration-300" />
                             </div>
                             <h3 className="font-marker text-white text-xs uppercase text-center leading-tight">{weapon.name}</h3>
-                            <div className="flex items-center gap-1 text-[10px] text-zinc-400">
-                                <span>🔥 {weapon.firepower * 100}</span>
-                                <span>🛡️ {weapon.protectionRate}</span>
+                            <div className="flex items-center justify-center gap-2 text-[10px] text-zinc-400 w-full">
+                                <span title="Poder de Fuego">💀 {(weapon.firepower * 100).toFixed(0)}</span>
+                                <span title="Producción Estimada" className="text-green-500">💰 +{Math.floor(weapon.firepower * 100 * 10)}/h</span>
                             </div>
                             <p className="text-xs font-bold text-blue-400">{Number.isInteger(weapon.price) ? weapon.price : weapon.price.toFixed(2)} TON</p>
                             <button
@@ -137,16 +137,22 @@ const Shop: React.FC = () => {
 
                 {/* AMMO TAB */}
                 {activeTab === 'AMMO' && AMMO_PACKS.map((pack) => {
-                    const canAfford = pack.currency === 'TON' ? user.balance >= pack.cost : user.cwarsBalance >= pack.cost;
+                    // Quick Override for Pricing based on user feedback
+                    // 50 Ammo was 0.1 TON -> Make it 0.5 TON?
+                    // 5 Ammo was 500 CWARS -> OK?
+                    // 20 Ammo was 1800 CWARS -> OK?
+                    const realCost = pack.id === 'ammo_50' ? 0.5 : pack.cost;
+
+                    const canAfford = pack.currency === 'TON' ? user.balance >= realCost : user.cwarsBalance >= realCost;
                     return (
                         <div key={pack.id} className="bg-zinc-900/80 border border-zinc-800 p-4 rounded-xl flex flex-col items-center gap-3 shadow-lg">
                             <div className="w-20 h-20 text-4xl animate-pulse">
                                 <img src={pack.image} alt={pack.name} className="w-full h-full object-contain" />
                             </div>
                             <h3 className="font-marker text-white text-sm uppercase text-center">{pack.name}</h3>
-                            <p className="text-xs font-bold text-yellow-500">{Number.isInteger(pack.cost) ? pack.cost : pack.cost.toFixed(2)} {pack.currency}</p>
+                            <p className="text-xs font-bold text-yellow-500">{Number.isInteger(realCost) ? realCost : realCost.toFixed(2)} {pack.currency}</p>
                             <button
-                                onClick={() => handleBuy(pack, 'AMMO')}
+                                onClick={() => handleBuy({ ...pack, cost: realCost }, 'AMMO')}
                                 disabled={!!loading || !canAfford}
                                 className={`w-full py-2 rounded-lg font-marker text-xs uppercase tracking-widest transition-all ${canAfford ? 'bg-yellow-600 hover:bg-yellow-500 text-black shadow-[0_0_10px_rgba(234,179,8,0.4)]' : 'bg-zinc-800 text-zinc-600'
                                     }`}

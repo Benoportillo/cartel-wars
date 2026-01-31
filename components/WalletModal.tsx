@@ -76,19 +76,25 @@ const WalletModal: React.FC<WalletModalProps> = ({ onClose }) => {
             await tonConnectUI.sendTransaction(transaction);
 
             console.log("Transaction successfully sent to wallet for signature.");
-            setMessage({ text: "Transacción enviada. Esperando confirmación...", type: 'success' });
+            setMessage({ text: "🚀 Enviado a la Blockchain. Esperando confirmación...", type: 'success' });
 
             setTimeout(() => {
                 onClose();
-                alert("Depósito enviado. El sistema te acreditará en cuanto se confirme en la blockchain (aprox 10-30s).");
-            }, 5000);
+                // No alert here. The Dashboard socket listener will handle the "Ka-ching" notification.
+            }, 3000);
 
         } catch (e: any) {
             console.error("Payment Failed:", e);
-            if (e?.message?.includes("User rejected")) {
-                setMessage({ text: "Cancelado por el usuario", type: 'error' });
+            const errStr = e?.message || String(e);
+
+            if (errStr.includes("User rejected") || errStr.includes("OK")) {
+                setMessage({ text: "⛔ Operación cancelada por el usuario.", type: 'error' });
+            } else if (errStr.includes("No enough funds")) {
+                setMessage({ text: "💸 Sin fondos suficientes en tu wallet.", type: 'error' });
+            } else if (errStr.includes("Manifest")) {
+                setMessage({ text: "⚠️ Error de conexión (Manifiesto). Intenta reabrir.", type: 'error' });
             } else {
-                setMessage({ text: `Error: ${e.message || "Fallo desconocido"}`, type: 'error' });
+                setMessage({ text: "❌ Error en la transacción. Intenta de nuevo.", type: 'error' });
             }
         } finally {
             setLoading(false);
@@ -183,17 +189,7 @@ const WalletModal: React.FC<WalletModalProps> = ({ onClose }) => {
                             </div>
                         )}
 
-                        <div className="bg-green-900/20 p-2 rounded-xl border border-green-800 mb-2 flex items-center justify-center gap-2">
-                            <span className="text-lg">🤖</span>
-                            <p className="text-[10px] text-green-400 text-center uppercase font-bold">
-                                SISTEMA AUTOMÁTICO: Tu ID ({user.telegramId}) se adjuntará solo.
-                            </p>
-                        </div>
 
-                        <div className="bg-black/50 p-4 rounded-xl border border-zinc-800 text-center">
-                            <p className="text-[9px] text-zinc-500 font-black uppercase tracking-widest mb-2">BÓVEDA PRINCIPAL</p>
-                            <p className="text-xs font-mono text-white break-all bg-zinc-900 p-2 rounded border border-zinc-800 select-all">{MASTER_WALLET}</p>
-                        </div>
 
                         <div className="space-y-2">
                             <label className="text-[9px] text-zinc-500 font-black uppercase tracking-widest ml-1">CANTIDAD A DEPOSITAR (TON)</label>
@@ -208,20 +204,7 @@ const WalletModal: React.FC<WalletModalProps> = ({ onClose }) => {
                             <span>💎</span> PAGAR CON WALLET
                         </button>
 
-                        <div className="relative flex py-2 items-center">
-                            <div className="flex-grow border-t border-zinc-800"></div>
-                            <span className="flex-shrink-0 mx-4 text-zinc-600 text-[9px] uppercase font-black">O MANUALMENTE</span>
-                            <div className="flex-grow border-t border-zinc-800"></div>
-                        </div>
 
-                        <div className="space-y-2 opacity-50 hover:opacity-100 transition-opacity">
-                            <label className="text-[9px] text-zinc-500 font-black uppercase tracking-widest ml-1">HASH DE TRANSACCIÓN (TXID)</label>
-                            <input type="text" value={txHash} onChange={e => setTxHash(e.target.value)} className="w-full bg-black border border-zinc-800 p-3 rounded-xl text-white outline-none focus:border-green-600 font-mono text-xs" placeholder="Pegar Hash si pagaste manual..." />
-                        </div>
-
-                        <button onClick={handleDeposit} disabled={loading} className="w-full py-3 bg-zinc-800 text-zinc-400 rounded-xl font-marker text-sm uppercase tracking-widest hover:bg-zinc-700 transition-all active:scale-95 disabled:opacity-50">
-                            {loading ? 'Verificando...' : 'VERIFICAR MANUALMENTE'}
-                        </button>
                     </div>
                 ) : (
                     <div className="space-y-4 animate-in fade-in slide-in-from-left-4">
