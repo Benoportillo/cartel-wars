@@ -344,15 +344,20 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
           {!isLogin && (
             <div className="space-y-1">
               <label className="text-[9px] text-zinc-500 font-black uppercase tracking-widest ml-1">{t.aliasLabel}</label>
-              <input
-                type="text"
-                maxLength={15}
-                value={formData.alias}
-                onChange={e => setFormData({ ...formData, alias: e.target.value })}
-                className="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-white text-xs outline-none focus:border-red-600 transition-all font-bold"
-                placeholder="Escobar_V2"
-                readOnly={!!telegramUser}
-              />
+              {telegramUser ? (
+                <div className="w-full bg-zinc-900/50 border border-zinc-800 p-3 rounded-xl text-zinc-400 text-xs font-mono">
+                  IDENTIDAD CONFIRMADA: <span className="text-white font-bold">{formData.alias}</span>
+                </div>
+              ) : (
+                <input
+                  type="text"
+                  maxLength={15}
+                  value={formData.alias}
+                  onChange={e => setFormData({ ...formData, alias: e.target.value })}
+                  className="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-white text-xs outline-none focus:border-red-600 transition-all font-bold"
+                  placeholder="Escobar_V2"
+                />
+              )}
             </div>
           )}
 
