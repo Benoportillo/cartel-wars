@@ -77,31 +77,31 @@ export const startTonWatcher = (io: any) => {
             // TonCenter V2 returns { ok: true, result: [...] }
             const history = data.result;
 
-            // Log success once to confirm it's working
-            // console.log(`✅ Fetched ${history.length} TXs via Fetch.`);
+            // Log success to confirm it's working
+            console.log(`✅ Fetched ${history.length} TXs. Checking for new deposits...`);
 
             for (const tx of history) {
                 const txHash = tx.transaction_id.hash;
                 const inMsg = tx.in_msg;
 
-                processedTxIds.add(txHash); // Add to cache immediately to prevent double processing in this runtime
+                // processedTxIds.add(txHash); // Add to cache immediately to prevent double processing in this runtime
 
                 // Only process incoming transfers with value
                 if (!inMsg || inMsg.value <= 0) {
-                    // console.log(`⏩ Skipped ${txHash.substring(0, 6)}: No value or outgoing.`);
+                    console.log(`⏩ Skipped ${txHash.substring(0, 6)}: No value or outgoing.`);
                     continue;
                 }
 
                 // Check if already processed in DB
                 const exists = await Transaction.findOne({ txid: txHash });
                 if (exists) {
-                    // console.log(`⏩ Skipped ${txHash.substring(0, 6)}: Already in DB (Status: ${exists.status})`);
+                    console.log(`⏩ Skipped ${txHash.substring(0, 6)}: Already in DB (Status: ${exists.status})`);
                     processedTxIds.add(txHash);
                     continue;
                 }
 
-                if (processedTxIds.has(txHash) && !exists) {
-                    // Memory cache hit but DB miss? Rare but possible.
+                if (processedTxIds.has(txHash)) {
+                    // Memory cache hit
                     continue;
                 }
 
