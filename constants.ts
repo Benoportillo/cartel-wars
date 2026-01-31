@@ -140,6 +140,7 @@ export const INITIAL_USER: any = {
   basePower: 0,
   baseStatus: 0,
   power: 350, // Initial Mining Power (Starter Knife)
+  firepower: 0,
   status: 5,
   pvpHistory: [],
   language: 'en'

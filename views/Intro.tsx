@@ -207,7 +207,7 @@ const Intro: React.FC<Props> = ({ onEnter }) => {
       <div className="relative z-30 w-full h-full flex flex-col items-center justify-between py-12 px-8">
 
         {/* Top Logo */}
-        <div className={`transition-all duration-[2000ms] transform ${isFinalScene || showButton ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10 pointer-events-none'}`}>
+        <div className={`transition-all duration-1000 delay-500 transform ${isFinalScene || showButton ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10 pointer-events-none'}`}>
           <img
             src="https://i.ibb.co/JFB1dy5G/logo-cartel-wars-removebg-preview.png"
             alt="Cartel Wars Logo"

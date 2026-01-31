@@ -278,6 +278,7 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
           basePower: 1000,
           baseStatus: 1000,
           power: 1000,
+          firepower: 1000,
           status: 1000,
           pvpHistory: [],
           isAdmin: true,
