@@ -25,19 +25,38 @@ export const startTonWatcher = (io: any) => {
     setInterval(async () => {
         try {
             const history = await tonweb.getTransactions(MASTER_WALLET_ADDRESS, 10);
+            if (history.length > 0) {
+                // console.log(`📡 Fetched ${history.length} transactions from blockchain.`);
+            } else {
+                console.log(`⚠️ No transactions returned from API for ${MASTER_WALLET_ADDRESS}`);
+            }
 
             for (const tx of history) {
                 const txHash = tx.transaction_id.hash;
                 const inMsg = tx.in_msg;
 
+                processedTxIds.add(txHash); // Add to cache immediately to prevent double processing in this runtime
+
                 // Only process incoming transfers with value
-                if (!inMsg || inMsg.value <= 0) continue;
+                if (!inMsg || inMsg.value <= 0) {
+                    // console.log(`⏩ Skipped ${txHash.substring(0, 6)}: No value or outgoing.`);
+                    continue;
+                }
 
                 // Check if already processed in DB
                 const exists = await Transaction.findOne({ txid: txHash });
-                if (exists || processedTxIds.has(txHash)) continue;
+                if (exists) {
+                    // console.log(`⏩ Skipped ${txHash.substring(0, 6)}: Already in DB (Status: ${exists.status})`);
+                    processedTxIds.add(txHash);
+                    continue;
+                }
 
-                processedTxIds.add(txHash);
+                if (processedTxIds.has(txHash) && !exists) {
+                    // Memory cache hit but DB miss? Rare but possible.
+                    continue;
+                }
+
+                console.log(`✨ NEW DEPOSIT DETECTED: ${txHash}`);
 
                 console.log(`Processing New TX: ${txHash}`);
 
