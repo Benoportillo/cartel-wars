@@ -709,10 +709,26 @@ const Dashboard: React.FC = () => {
         </div>
 
         <div className="flex flex-col gap-1">
-          <p className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">FLUJO DE CAJA (CWARS/HORA)</p>
-          <div className="text-4xl font-black text-white drop-shadow-lg">
-            +{(user.power || 0).toLocaleString()} <span className="text-xs text-zinc-600 align-middle">/ HR</span>
+          <p className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">FLUJO DE CAJA</p>
+
+          {/* LIVE COUNTER */}
+          <LiveProductionCounter userPower={user.power || 0} initialBalance={user.cwarsBalance || 0} />
+
+          <div className="flex justify-center gap-4 mt-2">
+            <div className="text-center">
+              <p className="text-2xl font-black text-white drop-shadow-lg">
+                +{(user.power || 0).toLocaleString()}
+              </p>
+              <p className="text-[8px] text-zinc-600 uppercase font-bold">CWARS / HORA</p>
+            </div>
+            <div className="text-center border-l border-zinc-800 pl-4">
+              <p className="text-lg font-black text-green-500 drop-shadow-lg">
+                +{((user.power || 0) / 60).toFixed(2)}
+              </p>
+              <p className="text-[8px] text-zinc-600 uppercase font-bold">CWARS / MIN</p>
+            </div>
           </div>
+
           <p className="text-[9px] text-zinc-500 mt-2 bg-black/40 p-2 rounded-lg border border-zinc-800/50">
             🚀 Producción contínua. Los ingresos se depositan <span className="text-green-400 font-bold">AUTOMÁTICAMENTE</span> incluso offline.
           </p>
@@ -723,6 +739,30 @@ const Dashboard: React.FC = () => {
         <div className="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center text-2xl border border-zinc-800">🚬</div>
         <p className="leading-relaxed">"{flavor}"</p>
       </section>
+    </div>
+  );
+};
+
+// COMPONENTE DE CONTADOR EN VIVO
+const LiveProductionCounter: React.FC<{ userPower: number, initialBalance: number }> = ({ userPower, initialBalance }) => {
+  const [displayBalance, setDisplayBalance] = useState(initialBalance);
+
+  useEffect(() => {
+    setDisplayBalance(initialBalance);
+  }, [initialBalance]);
+
+  useEffect(() => {
+    if (userPower <= 0) return;
+    const cwarsPerSecond = userPower / 3600;
+    const interval = setInterval(() => {
+      setDisplayBalance(prev => prev + (cwarsPerSecond * 0.1)); // Update every 100ms
+    }, 100);
+    return () => clearInterval(interval);
+  }, [userPower]);
+
+  return (
+    <div className="text-4xl font-black text-white drop-shadow-lg tabular-nums">
+      {displayBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })} <span className="text-xs text-zinc-600 align-middle">CWARS</span>
     </div>
   );
 };
