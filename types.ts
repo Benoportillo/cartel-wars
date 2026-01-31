@@ -17,6 +17,7 @@ export interface Weapon {
   level: number;
   price: number;
   protectionRate: number;
+  miningPower: number; // New: Decoupled Economy Stat
   firepower: number;
   statusBonus: number;
   isLimited?: boolean;

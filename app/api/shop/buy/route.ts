@@ -54,8 +54,13 @@ export async function POST(req: Request) {
                 skin: 'default'
             });
 
-            // Recalculate Power (optional here, but good for consistency)
-            // user.power += weaponDef.firepower * 100; 
+            // Recalculate Power (Mining Rate)
+            const weaponPower = user.ownedWeapons.reduce((sum: number, w: any) => {
+                const def = WEAPONS.find(def => def.id === w.weaponId);
+                return sum + (def?.miningPower || 0);
+            }, 0);
+
+            user.power = (user.basePower || 0) + weaponPower;
 
         } else if (type === 'AMMO') {
             const ammoAmount = amount || 5; // Default to 5 if not specified

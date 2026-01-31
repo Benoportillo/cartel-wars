@@ -39,6 +39,26 @@ export const startTonWatcher = (io: any) => {
 
                 processedTxIds.add(txHash);
 
+                console.log(`Processing New TX: ${txHash}`);
+
+                // 1. Create PENDING Transaction Record
+                let transactionRecord;
+                try {
+                    transactionRecord = await Transaction.create({
+                        userId: "unknown", // Temporary
+                        userName: "Unknown",
+                        type: 'deposit',
+                        amount: Number(inMsg.value) / 1e9,
+                        currency: 'TON',
+                        txid: txHash,
+                        status: 'pending'
+                    });
+                } catch (dbError) {
+                    console.error(`Error creating initial transaction record for ${txHash}`, dbError);
+                    continue; // Skip if we can't even log the invalid tx
+                }
+
+
                 // Parse Memo (Comment) to get User ID
                 // --- ROBUST COMMENT EXTRACTION ---
                 let userId = "";
@@ -91,14 +111,25 @@ export const startTonWatcher = (io: any) => {
 
                 if (!userId) {
                     console.log('❌ Could not extract User ID from deposit.');
+                    transactionRecord.status = 'failed';
+                    await transactionRecord.save();
                     continue;
                 }
+
+                // Update Transaction with User ID found
+                transactionRecord.userId = userId;
 
                 const user = await User.findOne({ telegramId: userId });
                 if (!user) {
                     console.log(`Received deposit from unknown user: ${userId}`);
+                    transactionRecord.status = 'failed'; // Or keep pending if we want manual intervention
+                    await transactionRecord.save();
                     continue;
                 }
+
+                // Update Transaction with User Name
+                transactionRecord.userName = user.name;
+                await transactionRecord.save();
 
                 const amountTon = Number(inMsg.value) / 1e9; // Nanotons to TON
 
@@ -108,18 +139,13 @@ export const startTonWatcher = (io: any) => {
                 const bonus = amountTon * 0.05;
                 const totalCredit = amountTon + bonus;
 
+                // 2. Update User Balance
                 user.balance += totalCredit;
                 await user.save();
 
-                await Transaction.create({
-                    userId: user.telegramId,
-                    userName: user.name,
-                    type: 'deposit',
-                    amount: amountTon,
-                    currency: 'TON',
-                    txid: txHash,
-                    status: 'completed'
-                });
+                // 3. Mark Transaction as Completed
+                transactionRecord.status = 'completed';
+                await transactionRecord.save();
 
                 console.log(`✅ Deposit Processed: ${amountTon} TON for ${user.name}`);
 
@@ -142,3 +168,4 @@ export const startTonWatcher = (io: any) => {
         }
     }, 10000); // Poll every 10 seconds
 };
+

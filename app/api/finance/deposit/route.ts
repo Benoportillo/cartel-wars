@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import User from '@/models/User';
-import Settings from '@/models/Settings'; // Assuming this exists or I'll create it
+import Settings from '@/models/Settings';
+import Transaction from '@/models/Transaction';
 import dbConnect from '@/lib/dbConnect';
 
 export async function POST(req: Request) {
@@ -16,6 +17,23 @@ export async function POST(req: Request) {
         if (!user) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
+
+        // Check for duplicate hash
+        const existingTx = await Transaction.findOne({ txid: txHash });
+        if (existingTx) {
+            return NextResponse.json({ error: 'Duplicate Transaction ID' }, { status: 400 });
+        }
+
+        // 0. Create Pending Transaction
+        const transactionRecord = await Transaction.create({
+            userId: user.telegramId,
+            userName: user.name,
+            type: 'deposit',
+            amount: Number(amount),
+            currency: 'TON',
+            txid: txHash,
+            status: 'pending'
+        });
 
         // 1. Gangster Hour Logic
         let settings = await Settings.findOne();
@@ -67,13 +85,13 @@ export async function POST(req: Request) {
         // In production: await verifyTonTransaction(txHash, amount, MASTER_WALLET);
         // For now, assume valid if hash is provided.
 
-        // Check for duplicate hash
-        // const existingTx = await Transaction.findOne({ txid: txHash });
-        // if (existingTx) return NextResponse.json({ error: 'Duplicate TX' }, { status: 400 });
-
         // 3. Credit User
         user.balance = (user.balance || 0) + finalAmount;
         await user.save();
+
+        // 4. Complete Transaction
+        transactionRecord.status = 'completed';
+        await transactionRecord.save();
 
         return NextResponse.json({
             success: true,

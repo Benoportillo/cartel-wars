@@ -34,12 +34,7 @@ export async function POST(req: Request) {
         const fee = withdrawAmount * 0.05;
         const netAmount = withdrawAmount - fee;
 
-        // Deduct Balance
-        user.balance -= withdrawAmount;
-        user.tonWithdrawn = (user.tonWithdrawn || 0) + withdrawAmount;
-        await user.save();
-
-        // Create Transaction Record
+        // Create Pending Transaction Record FIRST
         const txRecord = await Transaction.create({
             userId: user.telegramId,
             userName: user.name,
@@ -49,6 +44,18 @@ export async function POST(req: Request) {
             txid: address, // Temporary until we have hash
             status: 'pending'
         });
+
+        // Deduct Balance
+        try {
+            user.balance -= withdrawAmount;
+            user.tonWithdrawn = (user.tonWithdrawn || 0) + withdrawAmount;
+            await user.save();
+        } catch (error) {
+            console.error('Balance deduction failed:', error);
+            txRecord.status = 'failed';
+            await txRecord.save();
+            return NextResponse.json({ error: 'Transaction Failed during balance update' }, { status: 500 });
+        }
 
         // AUTOMATIC WITHDRAWAL LOGIC
         let withdrawalTxHash = "";
