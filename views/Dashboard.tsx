@@ -296,13 +296,13 @@ const Dashboard: React.FC = () => {
               </div>
             )}
           </div>
-          <div className="text-right flex flex-col items-end gap-2">
-            <span className="text-red-600 font-marker text-xl uppercase animate-pulse">{user.rank}</span>
+          <div className="text-right flex flex-col items-end gap-2 max-w-[50%]">
+            <span className="text-red-600 font-marker text-lg md:text-xl uppercase animate-pulse truncate w-full text-right" title={user.rank}>{user.rank}</span>
           </div>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
-          <StatBox label={t.power} value={user.power.toFixed(2)} color="text-red-500" icon="💀" />
+          <StatBox label={t.power} value={user.power.toFixed(0)} color="text-red-500" icon="💀" />
           <StatBox label={t.status} value={user.status.toFixed(0)} color="text-blue-500" icon="👑" />
           <StatBox label="Mafiosos" value={user.referrals.toString()} color="text-zinc-400" icon="👥" />
         </div>
@@ -354,26 +354,26 @@ const Dashboard: React.FC = () => {
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-black/40 p-3 rounded-xl border border-zinc-800/50">
             <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">CWARS LAVADOS</p>
-            <p className="text-lg font-marker text-green-500">+{user.totalFarmed?.toLocaleString() || 0}</p>
+            <p className="text-lg font-marker text-green-500">+{user.totalFarmed?.toLocaleString(undefined, { maximumFractionDigits: 2 }) || 0}</p>
           </div>
           <div className="bg-black/40 p-3 rounded-xl border border-zinc-800/50">
             <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">VICIOS (TON)</p>
-            <p className="text-lg font-marker text-purple-500">-{user.totalRouletteSpent?.toFixed(1) || 0}</p>
+            <p className="text-lg font-marker text-purple-500">-{user.totalRouletteSpent?.toFixed(2) || '0.00'}</p>
           </div>
           <div className="bg-black/40 p-3 rounded-xl border border-zinc-800/50">
             <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">ROBOS (PVP)</p>
-            <p className="text-lg font-marker text-green-500">+{user.totalPvPWon?.toLocaleString() || 0}</p>
+            <p className="text-lg font-marker text-green-500">+{user.totalPvPWon?.toLocaleString(undefined, { maximumFractionDigits: 2 }) || 0}</p>
           </div>
           <div className="bg-black/40 p-3 rounded-xl border border-zinc-800/50">
             <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">PÉRDIDAS (PVP)</p>
-            <p className="text-lg font-marker text-red-500">-{user.totalPvPLost?.toLocaleString() || 0}</p>
+            <p className="text-lg font-marker text-red-500">-{user.totalPvPLost?.toLocaleString(undefined, { maximumFractionDigits: 2 }) || 0}</p>
           </div>
         </div>
 
         <div className="mt-4 pt-4 border-t border-zinc-800 flex justify-between items-center">
           <p className="text-[9px] text-zinc-500 font-black uppercase tracking-widest">NET PROFIT (CWARS)</p>
           <p className={`text-xl font-marker ${(user.totalFarmed || 0) + (user.totalPvPWon || 0) - (user.totalPvPLost || 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-            {((user.totalFarmed || 0) + (user.totalPvPWon || 0) - (user.totalPvPLost || 0)).toLocaleString()}
+            {((user.totalFarmed || 0) + (user.totalPvPWon || 0) - (user.totalPvPLost || 0)).toLocaleString(undefined, { maximumFractionDigits: 2 })}
           </p>
         </div>
       </section>

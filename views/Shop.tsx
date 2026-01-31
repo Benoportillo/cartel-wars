@@ -11,9 +11,9 @@ const Shop: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'WEAPONS' | 'AMMO' | 'BLACK_MARKET'>('WEAPONS');
 
     const AMMO_PACKS = [
-        { id: 'ammo_5', name: 'Pack Ligero (5)', cost: 500, currency: 'CWARS', amount: 5, icon: '🔫' },
-        { id: 'ammo_20', name: 'Pack Pesado (20)', cost: 1800, currency: 'CWARS', amount: 20, icon: '🎒' },
-        { id: 'ammo_50', name: 'Caja Munición (50)', cost: 0.1, currency: 'TON', amount: 50, icon: '📦' },
+        { id: 'ammo_5', name: 'Pack Ligero (5)', cost: 500, currency: 'CWARS', amount: 5, image: '/assets/items/ammo_light.png' },
+        { id: 'ammo_20', name: 'Pack Pesado (20)', cost: 1800, currency: 'CWARS', amount: 20, image: '/assets/items/ammo_heavy.png' },
+        { id: 'ammo_50', name: 'Caja Munición (50)', cost: 0.1, currency: 'TON', amount: 50, image: '/assets/items/ammo_crate.png' },
     ];
 
     const handleBuy = async (item: any, type: 'WEAPON' | 'AMMO' | 'ITEM') => {
@@ -91,8 +91,8 @@ const Shop: React.FC = () => {
                         key={tab}
                         onClick={() => setActiveTab(tab as any)}
                         className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === tab
-                                ? 'bg-yellow-600 text-black shadow-[0_0_15px_rgba(234,179,8,0.4)]'
-                                : 'text-zinc-500 hover:text-zinc-300'
+                            ? 'bg-yellow-600 text-black shadow-[0_0_15px_rgba(234,179,8,0.4)]'
+                            : 'text-zinc-500 hover:text-zinc-300'
                             }`}
                     >
                         {tab === 'WEAPONS' ? 'Armería' : tab === 'AMMO' ? 'Munición' : 'Items'}
@@ -120,13 +120,13 @@ const Shop: React.FC = () => {
                                 <span>🔥 {weapon.firepower * 100}</span>
                                 <span>🛡️ {weapon.protectionRate}</span>
                             </div>
-                            <p className="text-xs font-bold text-blue-400">{weapon.price} TON</p>
+                            <p className="text-xs font-bold text-blue-400">{Number.isInteger(weapon.price) ? weapon.price : weapon.price.toFixed(2)} TON</p>
                             <button
                                 onClick={() => handleBuy({ ...weapon, currency: 'TON', cost: weapon.price }, 'WEAPON')}
                                 disabled={!!loading || isOwned || !canAfford}
                                 className={`w-full py-1.5 rounded-lg font-marker text-[10px] uppercase tracking-widest transition-all ${loading === weapon.id ? 'bg-zinc-700' :
-                                        isOwned ? 'bg-zinc-800 text-zinc-500 cursor-default' :
-                                            canAfford ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_10px_rgba(37,99,235,0.4)]' : 'bg-zinc-800 text-zinc-600'
+                                    isOwned ? 'bg-zinc-800 text-zinc-500 cursor-default' :
+                                        canAfford ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_10px_rgba(37,99,235,0.4)]' : 'bg-zinc-800 text-zinc-600'
                                     }`}
                             >
                                 {isOwned ? 'COMPRADO' : 'COMPRAR'}
@@ -140,9 +140,11 @@ const Shop: React.FC = () => {
                     const canAfford = pack.currency === 'TON' ? user.balance >= pack.cost : user.cwarsBalance >= pack.cost;
                     return (
                         <div key={pack.id} className="bg-zinc-900/80 border border-zinc-800 p-4 rounded-xl flex flex-col items-center gap-3 shadow-lg">
-                            <div className="text-4xl animate-pulse">{pack.icon}</div>
+                            <div className="w-20 h-20 text-4xl animate-pulse">
+                                <img src={pack.image} alt={pack.name} className="w-full h-full object-contain" />
+                            </div>
                             <h3 className="font-marker text-white text-sm uppercase text-center">{pack.name}</h3>
-                            <p className="text-xs font-bold text-yellow-500">{pack.cost} {pack.currency}</p>
+                            <p className="text-xs font-bold text-yellow-500">{Number.isInteger(pack.cost) ? pack.cost : pack.cost.toFixed(2)} {pack.currency}</p>
                             <button
                                 onClick={() => handleBuy(pack, 'AMMO')}
                                 disabled={!!loading || !canAfford}

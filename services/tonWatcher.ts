@@ -4,14 +4,23 @@ import Transaction from '../models/Transaction.js';
 import { MASTER_WALLET_ADDRESS } from '../constants.js';
 
 const TonWebClass = (TonWeb as any).default || TonWeb;
-const apiKey = process.env.TONCENTER_API_KEY;
-const tonweb = new (TonWebClass as any)(new (TonWebClass as any).HttpProvider('https://toncenter.com/api/v2/json', apiKey ? { apiKey } : undefined));
 
-// In-memory cache to avoid re-processing recent TXs in the same poll cycle
-const processedTxIds = new Set<string>();
-
+// Lazy initialization inside startTonWatcher to ensuring ENV is loaded
 export const startTonWatcher = (io: any) => {
-    console.log('👀 TON Watcher Started on:', MASTER_WALLET_ADDRESS);
+    const apiKey = process.env.TONCENTER_API_KEY;
+    console.log(`👀 Starting TON Watcher...`);
+    console.log(`🔑 API Key Configured: ${apiKey ? `YES (Length: ${apiKey.length})` : 'NO'}`);
+    if (apiKey) console.log(`🔑 Key Preview: ${apiKey.substring(0, 5)}...`);
+
+    const tonweb = new (TonWebClass as any)(new (TonWebClass as any).HttpProvider(
+        'https://toncenter.com/api/v2/json',
+        apiKey ? { apiKey } : undefined
+    ));
+
+    console.log('✅ Connected to TonCenter V2:', MASTER_WALLET_ADDRESS);
+
+    // In-memory cache
+    const processedTxIds = new Set<string>();
 
     setInterval(async () => {
         try {

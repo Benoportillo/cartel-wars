@@ -38,39 +38,58 @@ const WalletModal: React.FC<WalletModalProps> = ({ onClose }) => {
             return;
         }
 
+        // 1. Check Connection
+        if (!tonConnectUI.connected) {
+            console.log("Wallet not connected. Opening modal...");
+            setMessage({ text: "Conecta tu Wallet para continuar...", type: 'success' }); // Yellow/Info ideally, but using existing types
+            await tonConnectUI.openModal();
+            return;
+        }
+
         try {
             setLoading(true);
+            console.log("Starting transaction construction...");
+            console.log("User ID for Memo:", user.telegramId);
 
             // Construct payload with User ID as comment
+            // NOTE: Using TonWeb on client requires it to be bundled correctly.
             const cell = new TonWeb.boc.Cell();
             cell.bits.writeUint(0, 32); // 0 = Text Comment op code
-            cell.bits.writeString(user.telegramId || ''); // User ID
+            cell.bits.writeString(String(user.telegramId) || 'UNKNOWN'); // User ID
             const payload = TonWeb.utils.bytesToBase64(await cell.toBoc());
+
+            console.log("Payload generated:", payload);
 
             const transaction = {
                 validUntil: Math.floor(Date.now() / 1000) + 600,
                 messages: [
                     {
                         address: MASTER_WALLET,
-                        amount: (Number(amount) * 1e9).toString(),
-                        payload: payload // Automatic Comment!
+                        amount: (Number(amount) * 1e9).toFixed(0), // Ensure integer string
+                        payload: payload
                     },
                 ],
             };
 
-            await tonConnectUI.sendTransaction(transaction);
-            setMessage({ text: "Transacción enviada CON TU ID. Esperando confirmación...", type: 'success' });
+            console.log("Sending Transaction:", transaction);
 
-            // Optimistic update or wait for watcher?
-            // Watcher takes time. Let's just reset UI and tell them to wait.
+            await tonConnectUI.sendTransaction(transaction);
+
+            console.log("Transaction successfully sent to wallet for signature.");
+            setMessage({ text: "Transacción enviada. Esperando confirmación...", type: 'success' });
+
             setTimeout(() => {
                 onClose();
-                alert("Depósito enviado. El sistema te acreditará en unos segundos.");
-            }, 3000);
+                alert("Depósito enviado. El sistema te acreditará en cuanto se confirme en la blockchain (aprox 10-30s).");
+            }, 5000);
 
-        } catch (e) {
-            console.error(e);
-            setMessage({ text: "Cancelado o Error al firmar", type: 'error' });
+        } catch (e: any) {
+            console.error("Payment Failed:", e);
+            if (e?.message?.includes("User rejected")) {
+                setMessage({ text: "Cancelado por el usuario", type: 'error' });
+            } else {
+                setMessage({ text: `Error: ${e.message || "Fallo desconocido"}`, type: 'error' });
+            }
         } finally {
             setLoading(false);
         }
