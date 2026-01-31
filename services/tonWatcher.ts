@@ -25,7 +25,7 @@ export const startTonWatcher = (io: any) => {
     (async () => {
         try {
             console.log("🕵️‍♂️ Running Network Diagnostics on TonCenter...");
-            const testUrl = `https://toncenter.com/api/v2/json/getTransactions?address=${MASTER_WALLET_ADDRESS}&limit=1&api_key=${apiKey}`;
+            const testUrl = `https://toncenter.com/api/v2/getTransactions?address=${MASTER_WALLET_ADDRESS}&limit=1&api_key=${apiKey}`;
             // Use native fetch (Node 18+)
             const res = await fetch(testUrl);
             console.log(`📡 Diagnostics Status: ${res.status} ${res.statusText}`);
