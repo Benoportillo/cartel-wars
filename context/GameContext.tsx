@@ -138,12 +138,12 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                             setUser(data.user);
                             setShowAuth(false);
                         } else {
-                            console.log("User not found in DB, forcing registration");
-                            // User not in DB, force registration even if localStorage had something
-                            if (localStorage.getItem('cartel_user')) {
-                                localStorage.removeItem('cartel_user');
-                                setUserState(INITIAL_USER);
-                            }
+                            console.log("User not found in DB (DB Wiped?), forcing logout & clear...");
+                            // AUTO-WIPE: User exists in LocalStorage but NOT in DB.
+                            // This means DB was wiped. We must clear LocalStorage to allow re-registration.
+                            localStorage.removeItem('cartel_user');
+                            localStorage.removeItem('cartel_token'); // If used
+                            setUserState(INITIAL_USER);
                             setShowAuth(true);
                         }
                     }
@@ -180,9 +180,9 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const weaponPower = profile.ownedWeapons.reduce((acc, instance) => {
             const baseWeapon = WEAPONS.find(w => w.id === instance.weaponId);
             if (!baseWeapon) return acc;
-            const basePowerVal = baseWeapon.firepower * 100;
-            const upgradeBonus = (instance.caliberLevel + instance.magazineLevel + instance.accessoryLevel - 3) * 8;
-            return acc + basePowerVal + upgradeBonus;
+            // FIX: Use miningPower (Economy) instead of firepower (Combat)
+            // Firepower is used specifically for PVP calculations elsewhere
+            return acc + (baseWeapon.miningPower || 0);
         }, 0);
 
         const weaponStatus = profile.ownedWeapons.reduce((acc, instance) => {

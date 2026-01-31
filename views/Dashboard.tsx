@@ -413,8 +413,11 @@ const Dashboard: React.FC = () => {
             <p className="text-lg font-marker text-green-500">+{user.totalPvPWon?.toLocaleString(undefined, { maximumFractionDigits: 2 }) || 0}</p>
           </div>
           <div className="bg-black/40 p-3 rounded-xl border border-zinc-800/50">
-            <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">PÉRDIDAS (PVP)</p>
             <p className="text-lg font-marker text-red-500">-{user.totalPvPLost?.toLocaleString(undefined, { maximumFractionDigits: 2 }) || 0}</p>
+          </div>
+          <div className="bg-black/40 p-3 rounded-xl border border-zinc-800/50 col-span-2">
+            <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">GANANCIAS REFERIDOS (CWARS)</p>
+            <p className="text-lg font-marker text-yellow-500">+{user.totalReferralBonus?.toLocaleString(undefined, { maximumFractionDigits: 2 }) || 0}</p>
           </div>
         </div>
 
@@ -550,6 +553,7 @@ const Dashboard: React.FC = () => {
                     <div className="flex flex-col gap-1 mt-1">
                       <p className="text-red-500 font-bold text-xs flex items-center gap-1">💀 {totalPower.toFixed(2)} <span className="text-[8px] opacity-60 uppercase">{t.power}</span></p>
                       <p className="text-blue-500 font-bold text-xs flex items-center gap-1">👑 {totalRespect.toFixed(0)} <span className="text-[8px] opacity-60 uppercase">{t.status}</span></p>
+                      <p className="text-green-500 font-bold text-xs flex items-center gap-1">💸 +{weapon.miningPower.toLocaleString()} <span className="text-[8px] opacity-60 uppercase">CWARS/HR</span></p>
                     </div>
                   </div>
                 </div>

@@ -166,6 +166,7 @@ export interface UserProfile {
   totalPvPWon?: number;
   totalPvPLost?: number;
   totalRouletteSpent?: number;
+  totalReferralBonus?: number; // New: Tracks CWARS earned from referrals
 }
 
 export interface RouletteResult {

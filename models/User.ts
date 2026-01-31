@@ -41,8 +41,8 @@ export interface IUser extends Document {
     unclaimedFarming?: number;
     totalFarmed: number;
     totalPvPWon: number;
-    totalPvPLost: number;
-    totalRouletteSpent: number;
+
+    totalReferralBonus: number; // New: Tracks CWARS earned from referrals
     isBanned: boolean;
     isAdmin: boolean;
     pvpHistory: BattleRecord[];
@@ -80,6 +80,7 @@ const UserSchema: Schema = new Schema({
     totalPvPWon: { type: Number, default: 0 },
     totalPvPLost: { type: Number, default: 0 },
     totalRouletteSpent: { type: Number, default: 0 },
+    totalReferralBonus: { type: Number, default: 0 },
 
     // Anti-Fraud & Referral System
     pendingReferralBonus: { type: Number, default: 0 }, // Bonus locked until activity

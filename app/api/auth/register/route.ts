@@ -48,7 +48,9 @@ export async function POST(req: Request) {
                 recruiterL1.referralStats.level1Count += 1;
 
                 // BONUS: 5,000 CWARS for invite
-                recruiterL1.cwarsBalance = (recruiterL1.cwarsBalance || 0) + 5000;
+                const bonus = 5000;
+                recruiterL1.cwarsBalance = (recruiterL1.cwarsBalance || 0) + bonus;
+                recruiterL1.totalReferralBonus = (recruiterL1.totalReferralBonus || 0) + bonus;
 
                 await recruiterL1.save();
 
@@ -83,7 +85,6 @@ export async function POST(req: Request) {
             password,
             name: name || `Sicario_${telegramId}`,
             referredBy: validReferredBy,
-            power: 35,
             ownedWeapons: INITIAL_USER.ownedWeapons
         });
 
