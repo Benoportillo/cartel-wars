@@ -19,6 +19,31 @@ export const startTonWatcher = (io: any) => {
 
     console.log('✅ Connected to TonCenter V2:', MASTER_WALLET_ADDRESS);
 
+    // --- DIAGNOSTICS: Test Connection Manually ---
+    // Sometimes TonWeb hides the real error info (status code/body).
+    // We'll do a raw fetch to see what's happening.
+    (async () => {
+        try {
+            console.log("🕵️‍♂️ Running Network Diagnostics on TonCenter...");
+            const testUrl = `https://toncenter.com/api/v2/json/getTransactions?address=${MASTER_WALLET_ADDRESS}&limit=1&api_key=${apiKey}`;
+            // Use native fetch (Node 18+)
+            const res = await fetch(testUrl);
+            console.log(`📡 Diagnostics Status: ${res.status} ${res.statusText}`);
+            const text = await res.text();
+
+            if (res.ok) {
+                console.log("✅ Diagnostics Success: API is responding correctly.");
+                // console.log("Sample Preview:", text.substring(0, 100));
+            } else {
+                console.error("❌ Diagnostics FAILED. API Response Body:", text);
+                console.error("👉 This is likely why the watcher is retrying loops.");
+            }
+        } catch (diagErr) {
+            console.error("❌ Diagnostics Network Error:", diagErr);
+        }
+    })();
+    // ---------------------------------------------
+
     // In-memory cache
     const processedTxIds = new Set<string>();
 
@@ -208,13 +233,10 @@ export const startTonWatcher = (io: any) => {
             }
 
         } catch (error: any) {
-            // Handle expected API errors (Rate limiting or empty response)
-            if (error instanceof SyntaxError && error.message.includes('Unexpected end of JSON input')) {
-                console.warn('⚠️ TON API Rate Limit or Empty Response. Retrying next cycle...');
-            } else if (error?.message?.includes('fetch failed')) {
-                console.warn('⚠️ TON Network Connection Error. Retrying...');
-            } else {
-                console.error('Watcher Error:', error);
+            console.error("💥 Watcher Loop Error:", error);
+            // Log if it has a response property (axios/fetch sometimes attached)
+            if (error.response) {
+                console.error("Error Response Data:", error.response.data);
             }
         }
     }, 10000); // Poll every 10 seconds
