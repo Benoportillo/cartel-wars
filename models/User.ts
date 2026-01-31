@@ -41,6 +41,8 @@ export interface IUser extends Document {
     unclaimedFarming?: number;
     totalFarmed: number;
     totalPvPWon: number;
+    totalPvPLost: number;
+    totalRouletteSpent: number;
 
     totalReferralBonus: number; // New: Tracks CWARS earned from referrals
     isBanned: boolean;
