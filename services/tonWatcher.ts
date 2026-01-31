@@ -49,12 +49,36 @@ export const startTonWatcher = (io: any) => {
 
     setInterval(async () => {
         try {
-            const history = await tonweb.getTransactions(MASTER_WALLET_ADDRESS, 10);
-            if (history.length > 0) {
-                // console.log(`📡 Fetched ${history.length} transactions from blockchain.`);
-            } else {
-                console.log(`⚠️ No transactions returned from API for ${MASTER_WALLET_ADDRESS}`);
+            // Direct Fetch to bypass TonWeb's opaque error handling
+            const endpoint = `https://toncenter.com/api/v2/getTransactions?address=${MASTER_WALLET_ADDRESS}&limit=10&archival=true&api_key=${process.env.TONCENTER_API_KEY}`;
+
+            const res = await fetch(endpoint);
+            if (!res.ok) {
+                const text = await res.text();
+                console.error(`❌ TON API Error ${res.status}: ${text}`);
+                return; // Use return instead of continue in setInterval
             }
+
+            let data;
+            try {
+                data = await res.json();
+            } catch (jsonError) {
+                const text = await res.text();
+                console.error(`❌ TON API JSON Parse Error:`, jsonError);
+                console.error(`Raw API Response:`, text);
+                return; // Use return instead of continue in setInterval
+            }
+
+            if (!data.ok) {
+                console.error(`❌ TON API Logic Error:`, data);
+                return; // Use return instead of continue in setInterval
+            }
+
+            // TonCenter V2 returns { ok: true, result: [...] }
+            const history = data.result;
+
+            // Log success once to confirm it's working
+            // console.log(`✅ Fetched ${history.length} TXs via Fetch.`);
 
             for (const tx of history) {
                 const txHash = tx.transaction_id.hash;
