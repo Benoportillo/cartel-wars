@@ -1,6 +1,6 @@
 
-import { Rank } from './types.ts';
-import type { Weapon, RouletteResult } from './types.ts';
+import { Rank } from './types.js';
+import type { Weapon, RouletteResult } from './types.js';
 
 export const WEAPONS: Weapon[] = [
   {

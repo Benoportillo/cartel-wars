@@ -1,7 +1,7 @@
 import TonWeb from 'tonweb';
-import User from '../models/User.ts';
-import Transaction from '../models/Transaction.ts';
-import { MASTER_WALLET_ADDRESS } from '../constants.ts';
+import User from '../models/User.js';
+import Transaction from '../models/Transaction.js';
+import { MASTER_WALLET_ADDRESS } from '../constants.js';
 
 const TonWebClass = (TonWeb as any).default || TonWeb;
 

@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "ts-node-esm --project tsconfig.server.json server.ts",
+    "dev": "npx -y tsx server.ts",
     "build": "tsc --project tsconfig.server.json && next build",
     "start": "NODE_ENV=production node dist/server.js",
     "lint": "next lint"
