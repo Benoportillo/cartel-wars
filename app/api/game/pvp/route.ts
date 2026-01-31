@@ -19,6 +19,14 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'User or Rival not found' }, { status: 404 });
         }
 
+        // --- CRITICAL: UPDATE ECONOMY BEFORE BATTLE ---
+        // Ensure both Attacker (User) and Defender (Rival) have up-to-date balances
+        // based on their time passed, even if offline.
+        const { updatePendingResources } = await import('@/lib/gameLogic');
+        updatePendingResources(user);
+        updatePendingResources(rival);
+        // ----------------------------------------------
+
         // 1. Ammo Check
         if ((user.ammo || 0) < 1) {
             return NextResponse.json({ error: 'No ammo' }, { status: 400 });

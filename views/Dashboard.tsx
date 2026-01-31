@@ -652,19 +652,30 @@ const Dashboard: React.FC = () => {
         </div>
       )}
 
-      <section className={`bg-gradient-to-br from-zinc-900 to-black border ${isInGang ? 'border-red-900/40' : 'border-zinc-800 opacity-80'} rounded-2xl p-8 text-center shadow-[0_20px_40px_rgba(0,0,0,0.5)]`}>
-        <h2 className="text-red-600 font-marker text-2xl mb-6 tracking-widest">{t.laundering}</h2>
+      <section className={`bg-gradient-to-br from-zinc-900 to-black border ${isInGang ? 'border-green-900/40' : 'border-zinc-800 opacity-80'} rounded-2xl p-6 text-center shadow-[0_20px_40px_rgba(0,0,0,0.5)]`}>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-green-600 font-marker text-xl tracking-widest uppercase">
+            {isInGang ? "OPERACIÓN ACTIVA" : "OPERACIÓN LIMITADA"}
+          </h2>
+          <div className={`w-3 h-3 rounded-full ${isInGang ? "bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]" : "bg-red-500"}`}></div>
+        </div>
+
         {isInGang ? (
-          <div className="relative inline-block mb-6">
-            <div className="text-5xl font-black text-yellow-500">{user.unclaimedFarming.toLocaleString()}</div>
-            <span className="text-zinc-500 font-bold text-xs uppercase tracking-[0.3em] mt-2 block">CWARS LAVADOS</span>
+          <div className="flex flex-col gap-1">
+            <p className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">FLUJO DE CAJA (CWARS/HORA)</p>
+            <div className="text-4xl font-black text-white drop-shadow-lg">
+              +{((user.power || 0) * 10).toLocaleString()} <span className="text-xs text-zinc-600 align-middle">/ HR</span>
+            </div>
+            <p className="text-[9px] text-zinc-500 mt-2 bg-black/40 p-2 rounded-lg border border-zinc-800/50">
+              🚀 Los ingresos se depositan <span className="text-green-400 font-bold">AUTOMÁTICAMENTE</span> en tu cuenta cada vez que entras al barrio. ¡Gasta sin miedo!
+            </p>
           </div>
         ) : (
-          <p className="text-[10px] text-red-900 font-black uppercase mb-6">{t.mustBelongCartel}</p>
+          <div>
+            <p className="text-[10px] text-red-500 font-black uppercase mb-2">{t.mustBelongCartel}</p>
+            <p className="text-[9px] text-zinc-600">Únete a un cartel para activar el lavado de dinero automático.</p>
+          </div>
         )}
-        <button onClick={handleClaim} disabled={!isInGang || user.unclaimedFarming <= 0} className={`w-full py-5 rounded-2xl font-marker text-2xl uppercase transition-all ${isInGang && user.unclaimedFarming > 0 ? 'bg-red-700 hover:bg-red-600 gold-glow' : 'bg-zinc-800 text-zinc-600 opacity-50'}`}>
-          {t.claim} 💰
-        </button>
       </section>
 
       <section className="bg-zinc-950 border border-zinc-900 p-5 rounded-2xl flex items-center gap-5 italic text-zinc-400 text-sm">
