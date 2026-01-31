@@ -40,47 +40,59 @@ export const startTonWatcher = (io: any) => {
                 processedTxIds.add(txHash);
 
                 // Parse Memo (Comment) to get User ID
-                const msgBody = inMsg.message; // This usually requires parsing the cell, but TonWeb JSON API might simplify it
-                // For Toncenter V2, msg_data might be raw. 
-                // Let's assume standard text comment for now. 
-                // In a robust production app, we need to parse the body payload.
-                // However, Toncenter V2 often returns 'message' field if it's text.
-                // Let's look for the comment.
+                // --- ROBUST COMMENT EXTRACTION ---
+                let userId = "";
 
-                // NOTE: Parsing TON comments from raw body is complex without a library helper.
-                // For this MVP, we will assume the user puts the ID in the comment and Toncenter decodes it
-                // OR we rely on the fact that we are polling.
+                // debug log the entire inMsg to help us fix it if this fails
+                console.log(`🔍 Processing TX ${txHash.substring(0, 8)}... Value: ${inMsg.value}`);
+                // console.log('RAW MSG:', JSON.stringify(inMsg, null, 2)); // Uncomment if needed
 
-                // Let's try to extract the comment safely.
-                let comment = "";
-                if (inMsg.msg_data && inMsg.msg_data['@type'] === 'msg.dataText') {
-                    // Toncenter V2 format for text comments
-                    // It might be base64 encoded text or raw text depending on the endpoint.
-                    // Actually, msg_data.text is usually the decoded text.
-                    // Let's verify this structure.
-                    // If not available, we might skip for now or log it.
-                    // For MVP, let's assume we can get it.
-                    // If we can't parse it easily, we might need a better provider or library.
+                // Strategy 1: Check msg_data (Toncenter V2 Standard)
+                if (inMsg.msg_data) {
+                    if (inMsg.msg_data['@type'] === 'msg.dataText') {
+                        const rawText = inMsg.msg_data.text;
+                        if (rawText) {
+                            try {
+                                // Toncenter sometimes returns Base64, sometimes Raw.
+                                // If it assumes Base64, let's try to decode.
+                                // A pure numeric string like "12345" in base64 is "MTIzNDU=".
+                                // Cleaning it first:
+                                const buffer = Buffer.from(rawText, 'base64');
+                                const decoded = buffer.toString('utf-8');
 
-                    // Fallback: Use the 'message' field if present (some APIs provide it).
+                                // Heuristic: If decoded looks like a number, use it. If not, maybe it was already raw?
+                                if (/^\d+$/.test(decoded)) {
+                                    userId = decoded;
+                                    console.log(`🔓 Decoded Base64 Comment: ${userId}`);
+                                } else if (/^\d+$/.test(rawText)) {
+                                    userId = rawText;
+                                    console.log(`🔓 Found Raw Text Comment: ${userId}`);
+                                } else {
+                                    // Maybe it's not base64. Let's assume it is the ID if it fits format.
+                                    userId = rawText; // Fallback
+                                }
+                            } catch (e) {
+                                userId = rawText;
+                            }
+                        }
+                    } else if (inMsg.msg_data['@type'] === 'msg.dataRaw') {
+                        // Complex case, skip for MVP unless needed.
+                        console.log('⚠️ Body is Raw BOC, skipping complex parse.');
+                    }
                 }
 
-                // SIMPLIFICATION FOR MVP:
-                // Since parsing raw TON cells is hard in a simple script without proper setup,
-                // We will assume the user sends the ID.
-                // If we can't read the comment, we can't credit automatically.
-                // Let's try to read `inMsg.message` which TonWeb sometimes populates.
+                // Strategy 2: Fallback to 'message' field (TonWeb pre-parsed?)
+                if (!userId && inMsg.message && typeof inMsg.message === 'string') {
+                    userId = inMsg.message;
+                    console.log(`🔓 Found 'message' field: ${userId}`);
+                }
 
-                // If we can't get the user ID, we ignore it.
-                // But wait, the user wants AUTOMATION.
-                // Let's assume the user sends the ID as text.
+                console.log(`🧐 Extracted UserID: "${userId}"`);
 
-                // Mocking the extraction for now if we can't verify the structure:
-                // We will look for a numeric string in the message payload.
-
-                const userId = inMsg.message; // Hope this contains the text comment
-
-                if (!userId) continue;
+                if (!userId) {
+                    console.log('❌ Could not extract User ID from deposit.');
+                    continue;
+                }
 
                 const user = await User.findOne({ telegramId: userId });
                 if (!user) {
