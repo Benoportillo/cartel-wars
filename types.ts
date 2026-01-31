@@ -1,12 +1,14 @@
 
-export enum Rank {
-  INDEPENDIENTE = 'Independiente',
-  RECLUTA = 'Recluta del Cartel',
-  SOLDADO = 'Soldado',
-  SICARIO = 'Sicario',
-  TENIENTE = 'Teniente',
-  JEFE = 'Jefe de Cartel'
-}
+export const Rank = {
+  INDEPENDIENTE: 'Independiente',
+  RECLUTA: 'Recluta del Cartel',
+  SOLDADO: 'Soldado',
+  SICARIO: 'Sicario',
+  TENIENTE: 'Teniente',
+  JEFE: 'Jefe de Cartel'
+} as const;
+
+export type Rank = typeof Rank[keyof typeof Rank];
 
 export type Language = 'es' | 'en' | 'ru' | 'ar';
 
