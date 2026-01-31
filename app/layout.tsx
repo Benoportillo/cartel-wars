@@ -4,6 +4,7 @@ import { Inter, Permanent_Marker } from "next/font/google";
 import { GameProvider } from "../context/GameContext";
 import { TonConnectProvider } from '@/components/TonConnectProvider';
 import { SocketProvider } from '../context/SocketContext';
+import { ToastProvider } from '../context/ToastContext';
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -28,7 +29,9 @@ export default function RootLayout({
                 <TonConnectProvider>
                     <GameProvider>
                         <SocketProvider>
-                            {children}
+                            <ToastProvider>
+                                {children}
+                            </ToastProvider>
                         </SocketProvider>
                     </GameProvider>
                 </TonConnectProvider>

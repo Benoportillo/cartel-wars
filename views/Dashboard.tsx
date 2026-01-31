@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useToast } from '../context/ToastContext';
 import { UserProfile, Rank, Weapon, WeaponInstance, GlobalSettings, Transaction } from '../types';
 import { WEAPONS, MASTER_WALLET_ADDRESS } from '../constants';
 import { getMafiaFlavor } from '../geminiService';
@@ -104,6 +104,13 @@ const Dashboard: React.FC = () => {
   // Usamos Direct Mini App Link para abrir la app directamente sin pasar por el chat del bot
   // Formato: https://t.me/CartelWar_bot/cartel?startapp=ref123
   const referralLink = `https://t.me/${BOT_USERNAME}/${APP_NAME}?startapp=${user.telegramId || user.id}`;
+
+  const handleCopyLink = () => {
+    const link = `https://t.me/${BOT_USERNAME}/myapp?startapp=${user.telegramId}`;
+    navigator.clipboard.writeText(link).then(() => {
+      showToast(t.linkCopied || "Enlace copiado al portapapeles", 'success');
+    });
+  };
 
   useEffect(() => {
     if (lastFetchedRank.current !== user.rank) {

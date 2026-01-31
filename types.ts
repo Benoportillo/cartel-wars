@@ -135,7 +135,8 @@ export interface UserProfile {
   language: Language;
   basePower: number; // New: Stats gained/lost in battle
   baseStatus: number; // New: Respect gained/lost in battle
-  power: number; // Total Displayed Power
+  power: number; // Total Displayed Power (Production)
+  firepower: number; // Total Combat Power (PVP)
   status: number; // Total Displayed Respect
   inventory: Record<string, number>; // New: Buffs & Consumables
   ammo: number; // PvP Energy

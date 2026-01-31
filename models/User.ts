@@ -26,6 +26,7 @@ export interface IUser extends Document {
     status: number;
     basePower: number;
     baseStatus: number;
+    firepower: number; // Combat Power
     pendingReferralBonus: number;
     claimsCount: number;
     xp: number;
@@ -76,6 +77,7 @@ const UserSchema: Schema = new Schema({
     status: { type: Number, default: 5 },
     basePower: { type: Number, default: 0 },
     baseStatus: { type: Number, default: 0 },
+    firepower: { type: Number, default: 0 }, // Combat Power (PVP)
 
     // Stats for Dashboard
     totalFarmed: { type: Number, default: 0 },

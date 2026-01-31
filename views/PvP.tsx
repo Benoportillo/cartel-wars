@@ -342,8 +342,8 @@ const PvP: React.FC = () => {
 
         <div className="grid grid-cols-3 gap-2 mb-2">
           <div>
-            <p className="text-[9px] text-zinc-500 uppercase font-black tracking-widest mb-1">PODER</p>
-            <p className="text-2xl font-marker text-white">{user.power.toFixed(0)}</p>
+            <p className="text-[9px] text-zinc-500 uppercase font-black tracking-widest mb-1">{t.pvpAdvantage}</p>
+            <p className="text-2xl font-marker text-white">{user.firepower?.toFixed(0) || 0}</p>
           </div>
           <div>
             <p className="text-[9px] text-zinc-500 uppercase font-black tracking-widest mb-1">MUNICIÓN</p>

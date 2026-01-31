@@ -5,8 +5,11 @@ import { useGame } from '../context/GameContext';
 import { SHOP_ITEMS, WEAPONS } from '../constants';
 import { Weapon } from '../types';
 
+import { useToast } from '../context/ToastContext';
+
 const Shop: React.FC = () => {
     const { user, setUser } = useGame();
+    const { showToast } = useToast();
     const [loading, setLoading] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<'WEAPONS' | 'AMMO' | 'BLACK_MARKET'>('WEAPONS');
 
@@ -18,11 +21,11 @@ const Shop: React.FC = () => {
 
     const handleBuy = async (item: any, type: 'WEAPON' | 'AMMO' | 'ITEM') => {
         if (item.currency === 'TON' && user.balance < item.cost) {
-            alert("Saldo insuficiente en TON.");
+            showToast("Saldo insuficiente en TON.", 'error');
             return;
         }
         if (item.currency === 'CWARS' && user.cwarsBalance < item.cost) {
-            alert("Saldo insuficiente en CWARS.");
+            showToast("Saldo insuficiente en CWARS.", 'error');
             return;
         }
 

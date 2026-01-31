@@ -180,9 +180,17 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const weaponPower = profile.ownedWeapons.reduce((acc, instance) => {
             const baseWeapon = WEAPONS.find(w => w.id === instance.weaponId);
             if (!baseWeapon) return acc;
-            // FIX: Use miningPower (Economy) instead of firepower (Combat)
-            // Firepower is used specifically for PVP calculations elsewhere
+            // MINING POWER (Economy)
             return acc + (baseWeapon.miningPower || 0);
+        }, 0);
+
+        const weaponFirepower = profile.ownedWeapons.reduce((acc, instance) => {
+            const baseWeapon = WEAPONS.find(w => w.id === instance.weaponId);
+            if (!baseWeapon) return acc;
+            // FIREPOWER (Combat) - Including magazine upgrades
+            const magBonus = (instance.magazineLevel - 1) * 5;
+            const accBonus = (instance.accessoryLevel - 1) * 5;
+            return acc + (baseWeapon.firepower || 0) + magBonus + accBonus;
         }, 0);
 
         const weaponStatus = profile.ownedWeapons.reduce((acc, instance) => {
@@ -192,13 +200,15 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             return acc + baseWeapon.statusBonus + upgradeBonus;
         }, 0);
 
-        return { weaponPower, weaponStatus };
+        return { weaponPower, weaponStatus, weaponFirepower };
     };
 
     const setUser = useCallback((updatedUser: UserProfile) => {
-        const { weaponPower, weaponStatus } = calculateWeaponBonuses(updatedUser);
+        const { weaponPower, weaponStatus, weaponFirepower } = calculateWeaponBonuses(updatedUser);
 
         const finalPower = (updatedUser.basePower ?? 0) + weaponPower;
+        // Firepower calculation: Base (0) + Weapons
+        const finalFirepower = (updatedUser.basePower ?? 0) + weaponFirepower;
         const finalStatus = (updatedUser.baseStatus ?? 0) + weaponStatus;
 
         let finalRank = updatedUser.rank;
@@ -209,6 +219,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const finalUser = {
             ...updatedUser,
             power: finalPower,
+            firepower: finalFirepower,
             status: finalStatus,
             rank: finalRank
         };

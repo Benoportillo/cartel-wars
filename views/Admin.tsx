@@ -4,7 +4,12 @@ import React, { useState, useRef } from 'react';
 import { UserProfile, Transaction, GlobalSettings, Rank, PremiumMission } from '../types';
 import { useGame, useTranslation } from '../context/GameContext';
 
+import { useToast } from '../context/ToastContext';
+
+// ...
 const Admin: React.FC = () => {
+  const { showToast } = useToast();
+  // ...
   const {
     user,
     globalUsers: users,
