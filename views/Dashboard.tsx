@@ -295,8 +295,8 @@ const Dashboard: React.FC = () => {
       {/* GLOBAL TOAST NOTIFICATION */}
       {toast && (
         <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border backdrop-blur-md animate-in slide-in-from-top-4 duration-300 ${toast.type === 'success' ? 'bg-green-900/80 border-green-500 text-green-100' :
-            toast.type === 'error' ? 'bg-red-900/80 border-red-500 text-red-100' :
-              'bg-zinc-800/90 border-zinc-600 text-white'
+          toast.type === 'error' ? 'bg-red-900/80 border-red-500 text-red-100' :
+            'bg-zinc-800/90 border-zinc-600 text-white'
           }`}>
           <span className="text-2xl">{toast.type === 'success' ? '🤑' : toast.type === 'error' ? '🛑' : 'ℹ️'}</span>
           <div>
@@ -711,7 +711,7 @@ const Dashboard: React.FC = () => {
         <div className="flex flex-col gap-1">
           <p className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">FLUJO DE CAJA (CWARS/HORA)</p>
           <div className="text-4xl font-black text-white drop-shadow-lg">
-            +{((user.power || 0) * 10).toLocaleString()} <span className="text-xs text-zinc-600 align-middle">/ HR</span>
+            +{(user.power || 0).toLocaleString()} <span className="text-xs text-zinc-600 align-middle">/ HR</span>
           </div>
           <p className="text-[9px] text-zinc-500 mt-2 bg-black/40 p-2 rounded-lg border border-zinc-800/50">
             🚀 Producción contínua. Los ingresos se depositan <span className="text-green-400 font-bold">AUTOMÁTICAMENTE</span> incluso offline.

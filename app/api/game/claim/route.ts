@@ -29,7 +29,7 @@ export async function POST(req: Request) {
         user.ownedWeapons.forEach((w: any) => {
             const weaponDef = WEAPONS.find(def => def.id === w.weaponId);
             if (weaponDef) {
-                totalRate += weaponDef.protectionRate;
+                totalRate += weaponDef.miningPower;
             }
         });
 

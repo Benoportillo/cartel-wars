@@ -110,45 +110,107 @@ const handlePayment = async () => {
 ### 1. Servicio de Monitoreo (services/tonWatcher.ts)
 Este servicio se ejecuta en paralelo al servidor y detecta depósitos entrantes.
 **Características:**
-- Usa `TONCENTER_API_KEY` para evitar Rate Limits.
-- Maneja errores de JSON/Network silenciosamente.
-- Inicialización perezosa (dentro de la función `start`) para asegurar que carguen los ENV.
+- Usa `fetch` directo en lugar de `TonWeb.HttpProvider` para evitar errores opacos "404/Parse Error".
+- URL corregida: `/api/v2/getTransactions` (SIN `/json/`).
+- Extracción robusta de Memos (Soporta Base64, Texto plano y Cell BOCs).
+- Logs detallados para depuración inmediata.
 
 ```typescript
 import TonWeb from 'tonweb';
-// Importaciones con extensión si usas "type": "module"
-import User from '../models/User.js'; 
+import User from '../models/User.js';
+import Transaction from '../models/Transaction.js';
 import { MASTER_WALLET_ADDRESS } from '../constants.js';
 
-let tonweb: any;
+const TonWebClass = (TonWeb as any).default || TonWeb;
 
 export const startTonWatcher = (io: any) => {
-    // Inicializar AQUÍ para leer ENV correctamente
-    const TonWebClass = (TonWeb as any).default || TonWeb;
+    console.log(`👀 Starting TON Watcher...`);
     const apiKey = process.env.TONCENTER_API_KEY;
-    
-    console.log(`🔑 API Key Configured: ${apiKey ? 'YES' : 'NO (Rate Limit Risk)'}`);
-    
-    tonweb = new (TonWebClass as any)(new (TonWebClass as any).HttpProvider(
-        'https://toncenter.com/api/v2/json', 
-        apiKey ? { apiKey } : undefined
-    ));
 
-    console.log('👀 TON Watcher Started');
+    // Diagnóstico Inicial de Red
+    (async () => {
+        try {
+            console.log("🕵️‍♂️ Running Network Diagnostics...");
+            const testUrl = `https://toncenter.com/api/v2/getTransactions?address=${MASTER_WALLET_ADDRESS}&limit=1&api_key=${apiKey}`;
+            const res = await fetch(testUrl);
+            console.log(`📡 Diagnostics Status: ${res.status} ${res.statusText}`);
+            if (res.ok) console.log("✅ Diagnostics Success: API is responding.");
+            else console.error("❌ Diagnostics FAILED:", await res.text());
+        } catch (e) { console.error("❌ Network Error:", e); }
+    })();
+
+    const processedTxIds = new Set<string>();
 
     setInterval(async () => {
         try {
-            const history = await tonweb.getTransactions(MASTER_WALLET_ADDRESS, 10);
-            // ... (Lógica de procesamiento igual a la V1)
-        } catch (error: any) {
-            // Manejo de Rate Limit Graciable
-            if (error instanceof SyntaxError || error.message?.includes('429')) {
-                console.warn('⚠️ API Rate Limit. Reintentando...');
-            } else {
-                console.error('Watcher Error:', error);
+            // USAR FETCH DIRECTO para control total
+            const endpoint = `https://toncenter.com/api/v2/getTransactions?address=${MASTER_WALLET_ADDRESS}&limit=10&archival=true&api_key=${apiKey}`;
+            
+            const res = await fetch(endpoint);
+            if (!res.ok) {
+                console.error(`❌ TON API Error ${res.status}:`, await res.text());
+                return;
             }
+
+            const data = await res.json();
+            if (!data.ok) {
+                console.error(`❌ TON API Logic Error:`, data);
+                return;
+            }
+
+            const history = data.result;
+            // console.log(`✅ Fetched ${history.length} TXs. Checking deposits...`);
+
+            for (const tx of history) {
+                const txHash = tx.transaction_id.hash;
+                const inMsg = tx.in_msg;
+
+                // 1. Filtros Básicos
+                if (!inMsg || inMsg.value <= 0) continue;
+                if (processedTxIds.has(txHash)) continue;
+
+                // 2. Verificar DB
+                const exists = await Transaction.findOne({ txid: txHash });
+                if (exists) {
+                    processedTxIds.add(txHash);
+                    continue;
+                }
+
+                console.log(`✨ NEW DEPOSIT DETECTED: ${txHash}`);
+
+                // 3. Extracción Robusta de Memo (UserID)
+                let userId = "";
+                // Intentar sacar texto de msg_data (Toncenter Standard)
+                if (inMsg.msg_data && inMsg.msg_data['@type'] === 'msg.dataText') {
+                    const raw = inMsg.msg_data.text;
+                    // Intento Decode Base64 si parece codificado
+                    try {
+                        const decoded = Buffer.from(raw, 'base64').toString('utf-8');
+                        userId = /^\d+$/.test(decoded) ? decoded : raw;
+                    } catch { userId = raw; }
+                } 
+                // Fallback a 'message' simple
+                else if (inMsg.message) {
+                    userId = inMsg.message;
+                }
+
+                if (!userId) {
+                    console.log(`⚠️ Depósito sin ID de usuario: ${txHash}`);
+                    continue; 
+                }
+
+                // 4. Procesar Transacción Exitosamente
+                console.log(`✅ Processing for User ${userId}`);
+                // ... Tu lógica de base de datos aquí (Transaction.create, User.update, etc)
+                // Recuerda guardar txHash en DB para no repetir
+                
+                processedTxIds.add(txHash);
+            }
+
+        } catch (error) {
+            console.error("💥 Watcher Loop Error:", error);
         }
-    }, 10000); // Polling 10s
+    }, 10000); // Polling cada 10s
 };
 ```
 

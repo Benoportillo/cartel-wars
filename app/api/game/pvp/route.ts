@@ -35,15 +35,19 @@ export async function POST(req: Request) {
 
         // 2. Battle Logic
         // Calculate Total Power (Base + Weapons)
-        // Calculate Total Power (Base + Weapons)
-        const userWeaponPower = user.ownedWeapons.reduce((sum: number, w: any) => {
-            const weaponDef = WEAPONS.find(def => def.id === w.weaponId);
-            return sum + (weaponDef ? weaponDef.firepower : 0);
-        }, 0);
+        // 2. Battle Logic
+        // Calculate Battle Power Dynamically (Firepower * 100)
+        // Decoupled from Economy Power (Mining Rates)
+        const calculateBattlePower = (u: any) => {
+            const weaponPower = u.ownedWeapons.reduce((sum: number, w: any) => {
+                const def = WEAPONS.find(d => d.id === w.weaponId);
+                return sum + (def ? def.firepower : 0);
+            }, 0);
+            return (weaponPower * 100) + (u.baseStatus || 0);
+        };
 
-        // For now, let's use the stored `power` field which should be updated on purchase.
-        const userTotalPower = user.power || 100;
-        const rivalTotalPower = rival.power || 100;
+        const userTotalPower = calculateBattlePower(user);
+        const rivalTotalPower = calculateBattlePower(rival);
 
         // Terrain Bonus
         const terrain = TERRAINS[Math.floor(Math.random() * TERRAINS.length)];
