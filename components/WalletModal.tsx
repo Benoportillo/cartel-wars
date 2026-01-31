@@ -49,6 +49,11 @@ const WalletModal: React.FC<WalletModalProps> = ({ onClose }) => {
         try {
             setLoading(true);
             console.log("Starting transaction construction...");
+
+            if (!user.telegramId) {
+                throw new Error("User ID missing. Cannot link deposit to account.");
+            }
+
             console.log("User ID for Memo:", user.telegramId);
 
             // Construct payload with User ID as comment

@@ -96,8 +96,40 @@ export const startTonWatcher = (io: any) => {
                             }
                         }
                     } else if (inMsg.msg_data['@type'] === 'msg.dataRaw') {
-                        // Complex case, skip for MVP unless needed.
-                        console.log('⚠️ Body is Raw BOC, skipping complex parse.');
+                        console.log('⚠️ Body is Raw BOC, attempting to parse...');
+                        try {
+                            const body = inMsg.msg_data.body;
+                            // Convert Base64 to Bytes
+                            const bytes = TonWebClass.utils.base64ToBytes(body);
+                            // Parse Cell
+                            const cell = TonWebClass.boc.Cell.oneFromBoc(bytes);
+                            const slice = cell.beginParse();
+
+                            // Check OpCode (First 32 bits)
+                            // Note: Comments usually have OpCode 0.
+                            // If the payload is JUST a string without opcode 0, loadString directly might fail or return garbage if not careful.
+                            // But standard comments (like from WalletModal) use OpCode 0.
+                            if (slice.getRemainingBits() >= 32) {
+                                const opcode = slice.loadUint(32).toNumber();
+                                if (opcode === 0) {
+                                    const comment = slice.loadString();
+                                    userId = comment.trim(); // Clean it
+                                    console.log(`🔓 Decoded BOC Comment (OpCode 0): ${userId}`);
+                                } else {
+                                    console.log(`⚠️ Unknown OpCode in BOC: ${opcode}. Parsing remaining as text anyway...`);
+                                    // Fallback: maybe the whole thing is text? Or ignore?
+                                    // Let's try to read string just in case, but usually OpCode 0 is mandatory for text.
+                                }
+                            } else {
+                                // Maybe no OpCode? Just text?
+                                const comment = slice.loadString();
+                                userId = comment.trim();
+                                console.log(`🔓 Decoded BOC Comment (No OpCode): ${userId}`);
+                            }
+
+                        } catch (e) {
+                            console.error('❌ Failed to parse BOC body:', e);
+                        }
                     }
                 }
 
