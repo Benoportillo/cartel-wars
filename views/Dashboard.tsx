@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useState, useEffect, useRef } from 'react';
 import { useToast } from '../context/ToastContext';
 import { UserProfile, Rank, Weapon, WeaponInstance, GlobalSettings, Transaction } from '../types';
 import { WEAPONS, MASTER_WALLET_ADDRESS } from '../constants';
