@@ -109,8 +109,15 @@ export const startTonWatcher = (io: any) => {
                 });
             }
 
-        } catch (error) {
-            console.error('Watcher Error:', error);
+        } catch (error: any) {
+            // Handle expected API errors (Rate limiting or empty response)
+            if (error instanceof SyntaxError && error.message.includes('Unexpected end of JSON input')) {
+                console.warn('⚠️ TON API Rate Limit or Empty Response. Retrying next cycle...');
+            } else if (error?.message?.includes('fetch failed')) {
+                console.warn('⚠️ TON Network Connection Error. Retrying...');
+            } else {
+                console.error('Watcher Error:', error);
+            }
         }
     }, 10000); // Poll every 10 seconds
 };

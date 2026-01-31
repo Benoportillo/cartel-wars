@@ -1,9 +1,13 @@
 
 import type { Metadata } from "next";
+import { Inter, Permanent_Marker } from "next/font/google";
 import { GameProvider } from "../context/GameContext";
 import { TonConnectProvider } from '@/components/TonConnectProvider';
 import { SocketProvider } from '../context/SocketContext';
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"] });
+const marker = Permanent_Marker({ weight: "400", subsets: ["latin"], variable: "--font-marker" });
 
 export const metadata: Metadata = {
     title: "Cartel Wars",
@@ -17,7 +21,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body>
+            <body className={`${inter.className} ${marker.variable}`}>
                 <TonConnectProvider>
                     <GameProvider>
                         <SocketProvider>
