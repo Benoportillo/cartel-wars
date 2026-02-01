@@ -256,6 +256,24 @@ const Dashboard: React.FC = () => {
 
   const isInGang = !!(user.myGangId || user.joinedGangId);
 
+  // New: Calculate total firepower from owned weapons for display
+  const calculateTotalFirepower = () => {
+    if (!user.ownedWeapons || user.ownedWeapons.length === 0) return 0;
+    return user.ownedWeapons.reduce((total, instance) => {
+      const weapon = WEAPONS.find(w => w.id === instance.weaponId);
+      if (!weapon) return total;
+
+      // Formula: (Base Firepower * 100) + (Upgrades * 8)
+      // Upgrades = caliber + magazine + accessory - 3 (base levels are 1)
+      const upgradeLevels = (instance.caliberLevel || 1) + (instance.magazineLevel || 1) + (instance.accessoryLevel || 1) - 3;
+      const weaponPower = (weapon.firepower * 100) + (upgradeLevels * 8);
+
+      return total + weaponPower;
+    }, 0);
+  };
+
+  const totalCalculatedFirepower = calculateTotalFirepower();
+
   return (
     <div className="space-y-6 relative">
       {/* GLOBAL TOAST NOTIFICATION */}
@@ -305,7 +323,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-3 gap-3">
-          <StatBox label={t.power} value={(user.firepower || 0).toFixed(0)} color="text-red-500" icon="💀" />
+          <StatBox label={t.power} value={totalCalculatedFirepower.toFixed(0)} color="text-red-500" icon="💀" />
           <StatBox label={t.status} value={user.status.toFixed(0)} color="text-blue-500" icon="👑" />
           <StatBox label="Mafiosos" value={user.referrals.toString()} color="text-zinc-400" icon="👥" />
         </div>
