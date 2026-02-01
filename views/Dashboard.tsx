@@ -126,36 +126,7 @@ const Dashboard: React.FC = () => {
     }
   }, [settings.swapEnabled, activeTab]);
 
-  const handleClaim = async () => {
-    if (user.unclaimedFarming <= 0) return;
 
-    try {
-      const res = await fetch('/api/game/claim', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ telegramId: user.telegramId })
-      });
-
-      if (!res.ok) {
-        console.error("Claim failed");
-        return;
-      }
-
-      const data = await res.json();
-
-      setUser({
-        ...user,
-        cwarsBalance: data.newBalance,
-        unclaimedFarming: 0,
-        lastClaimDate: new Date(data.lastClaimDate)
-      });
-
-      getMafiaFlavor('claim', lang, `Amount: ${data.farmedAmount} CWARS`).then(setFlavor);
-
-    } catch (error) {
-      console.error("Claim error:", error);
-    }
-  };
 
   const handleNameChange = () => {
     if (!newName.trim() || user.nameChanged) return;
@@ -358,7 +329,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-3 gap-3">
-          <StatBox label={t.power} value={user.power.toFixed(0)} color="text-red-500" icon="💀" />
+          <StatBox label={t.power} value={(user.firepower || 0).toFixed(0)} color="text-red-500" icon="💀" />
           <StatBox label={t.status} value={user.status.toFixed(0)} color="text-blue-500" icon="👑" />
           <StatBox label="Mafiosos" value={user.referrals.toString()} color="text-zinc-400" icon="👥" />
         </div>

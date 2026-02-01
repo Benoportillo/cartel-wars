@@ -203,7 +203,7 @@ const PvP: React.FC = () => {
         level: data.newLevel || user.level, // Optimistic Level
         inventory: newInventory,
         completedMissions: [...(user.completedMissions || []), 'attack_rival'],
-        pvpHistory: [{ won: data.won, rival: target.name, powerDiff: (user.power || 0) - (target.power || 0), timestamp: Date.now() }, ...(user.pvpHistory || [])].slice(0, 5)
+        pvpHistory: [{ won: data.won, rival: target.name, powerDiff: (user.firepower || 0) - (target.firepower || target.power || 0), timestamp: Date.now() }, ...(user.pvpHistory || [])].slice(0, 5)
       });
 
       setResult({

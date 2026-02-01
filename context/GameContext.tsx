@@ -249,12 +249,13 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const t = translations[user.language] || translations.en;
 
-    // Farming Loop
+    // Farming Client Loop (Visual)
     useEffect(() => {
         if (!isLoaded) return;
         const interval = setInterval(() => {
             setUserState(prev => {
                 if (!prev.id) return prev;
+                // ... (logic remains same)
                 if (!prev.myGangId && !prev.joinedGangId) {
                     return { ...prev, unclaimedFarming: 0 };
                 }
@@ -270,11 +271,44 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 const diffHours = diffMs / (1000 * 60 * 60);
                 const effectiveHours = Math.min(diffHours, 24);
                 const newFarming = totalRate * effectiveHours;
-                return { ...prev, unclaimedFarming: Math.floor(newFarming) }; // CWARS son enteros
+                return { ...prev, unclaimedFarming: Math.floor(newFarming) };
             });
         }, 5000);
         return () => clearInterval(interval);
     }, [isLoaded]);
+
+    // AUTO-SYNC TO SERVER (Persistence) - Every 10 Seconds
+    useEffect(() => {
+        if (!isLoaded || !user.id || !user.telegramId) return;
+
+        const syncInterval = setInterval(async () => {
+            // Only sync if there is something to sync (though route handles small diffs)
+            // We just hit the endpoint to keep DB fresh for PVP
+            try {
+                const res = await fetch('/api/game/auto-sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ telegramId: user.telegramId })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.farmedAmount > 0) {
+                        setUserState(prev => ({
+                            ...prev,
+                            cwarsBalance: data.newBalance,
+                            totalFarmed: (prev.totalFarmed || 0) + data.farmedAmount,
+                            lastClaimDate: new Date(data.lastClaimDate),
+                            unclaimedFarming: 0 // Reset local counter as server processed it
+                        }));
+                    }
+                }
+            } catch (e) {
+                console.error("Auto-sync failed", e);
+            }
+        }, 10000); // 10 seconds
+
+        return () => clearInterval(syncInterval);
+    }, [isLoaded, user.id, user.telegramId]);
 
     const handleIntroComplete = (lang: Language) => {
         localStorage.setItem('cartel_intro_seen', 'true');
