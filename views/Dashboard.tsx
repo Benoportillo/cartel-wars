@@ -16,6 +16,7 @@ const APP_NAME = "cartel"; // ⚠️ IMPORTANTE: Debes crear esto en BotFather c
 const Dashboard: React.FC = () => {
   const { user, setUser, settings, logout: onLogout, t, lang } = useGame();
   const { socket } = useSocket();
+  const { showToast } = useToast();
   const userRef = useRef(user);
 
   // Keep ref synced with user state to avoid stale closures in socket listeners
@@ -31,17 +32,6 @@ const Dashboard: React.FC = () => {
   const [selectedWeaponToBuy, setSelectedWeaponToBuy] = useState<Weapon | null>(null);
   const [showWallet, setShowWallet] = useState(false);
 
-  // Toast State
-  const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' | 'info' } | null>(null);
-
-  // Auto-dismiss toast
-  useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => setToast(null), 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast]);
-
   // Socket Listener for Real-Time Balance Updates
   useEffect(() => {
     if (!socket) return;
@@ -52,7 +42,7 @@ const Dashboard: React.FC = () => {
         setUser({ ...userRef.current, balance: data.newBalance });
       }
       // SHOW TOAST INSTEAD OF ALERT
-      setToast({ message: data.message, type: 'success' });
+      showToast(data.message, 'success');
 
       // Also play a sound effect if possible (optional enhancement)
       try {
@@ -70,10 +60,7 @@ const Dashboard: React.FC = () => {
 
   // ... (rest of state definitions)
 
-  // Helper to show styled toast
-  const showToast = (msg: string, type: 'success' | 'error' | 'info' = 'info') => {
-    setToast({ message: msg, type });
-  };
+
 
   // Replace alerts with showToast in handlers
   // (Assuming I should do a full replace or just the specific ones requested. 
@@ -172,7 +159,7 @@ const Dashboard: React.FC = () => {
 
   const processDeposit = () => {
     if (!depositTxid.trim()) {
-      alert(t.errEmpty);
+      showToast(t.errEmpty, 'error');
       return;
     }
 
@@ -182,7 +169,7 @@ const Dashboard: React.FC = () => {
     // Check for duplicate TXID
     const isDuplicate = txs.some(tx => tx.txid.toLowerCase() === depositTxid.trim().toLowerCase());
     if (isDuplicate) {
-      alert(t.duplicateTxidErr);
+      showToast(t.duplicateTxidErr, 'error');
       return;
     }
 
@@ -203,12 +190,12 @@ const Dashboard: React.FC = () => {
     setShowDepositModal(false);
     setSelectedWeaponToBuy(null);
     setDepositTxid("");
-    alert(t.depositReview);
+    showToast(t.depositReview, 'info');
   };
 
   const handleSwap = () => {
     if (user.cwarsBalance < swapAmount) {
-      alert(t.insufficientCwars);
+      showToast(t.insufficientCwars, 'error');
       return;
     }
     const usdtValue = swapAmount / 1000;
@@ -217,21 +204,21 @@ const Dashboard: React.FC = () => {
       cwarsBalance: user.cwarsBalance - swapAmount,
       balance: user.balance + usdtValue
     });
-    alert(`${t.swapSuccess} Recibiste ${usdtValue.toFixed(2)} TON equivalente.`);
+    showToast(`${t.swapSuccess} Recibiste ${usdtValue.toFixed(2)} TON equivalente.`, 'success');
   };
 
   const handleWithdrawal = () => {
     const amount = parseFloat(withdrawAmount);
     if (isNaN(amount) || amount < 1.0) {
-      alert(t.withdrawLimit);
+      showToast(t.withdrawLimit, 'error');
       return;
     }
     if (!withdrawAddress.trim()) {
-      alert(t.invalidAddress);
+      showToast(t.invalidAddress, 'error');
       return;
     }
     if (user.balance < amount + 0.1) {
-      alert(t.insufficientFunds);
+      showToast(t.insufficientFunds, 'error');
       return;
     }
 
@@ -263,7 +250,7 @@ const Dashboard: React.FC = () => {
       setIsProcessingWithdrawal(false);
       setWithdrawAmount("1.0");
       setWithdrawAddress("");
-      alert(t.withdrawSuccess);
+      showToast(t.withdrawSuccess, 'success');
     }, 2000);
   };
 
@@ -272,19 +259,8 @@ const Dashboard: React.FC = () => {
   return (
     <div className="space-y-6 relative">
       {/* GLOBAL TOAST NOTIFICATION */}
-      {toast && (
-        <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border backdrop-blur-md animate-in slide-in-from-top-4 duration-300 ${toast.type === 'success' ? 'bg-green-900/80 border-green-500 text-green-100' :
-          toast.type === 'error' ? 'bg-red-900/80 border-red-500 text-red-100' :
-            'bg-zinc-800/90 border-zinc-600 text-white'
-          }`}>
-          <span className="text-2xl">{toast.type === 'success' ? '🤑' : toast.type === 'error' ? '🛑' : 'ℹ️'}</span>
-          <div>
-            <p className="font-marker uppercase tracking-widest text-sm">{toast.type === 'success' ? 'TRANSACCIÓN CONFIRMADA' : 'NOTIFICACIÓN'}</p>
-            <p className="text-xs font-mono opacity-90">{toast.message}</p>
-          </div>
-          <button onClick={() => setToast(null)} className="ml-2 text-white/50 hover:text-white">✕</button>
-        </div>
-      )}
+      {/* GLOBAL TOAST NOTIFICATION REMOVED - USING CONTEXT */}
+
       <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 p-4 opacity-10">
           <img src="https://i.ibb.co/JFB1dy5G/logo-cartel-wars-removebg-preview.png" className="w-24 rotate-12" />

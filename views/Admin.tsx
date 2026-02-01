@@ -58,13 +58,13 @@ const Admin: React.FC = () => {
 
   const createMission = () => {
     if (!newMission.title || !newMission.link || !newMission.logo) {
-      alert("Faltan datos para la misión");
+      showToast("Faltan datos para la misión", 'error');
       return;
     }
 
     const rewardVal = parseFloat(newMission.reward);
     if (isNaN(rewardVal) || rewardVal <= 0) {
-      alert("La recompensa debe ser un número válido mayor a 0");
+      showToast("La recompensa debe ser un número válido mayor a 0", 'error');
       return;
     }
 
@@ -81,7 +81,7 @@ const Admin: React.FC = () => {
 
     setSettings({ ...settings, premiumMissions: [mission, ...(settings.premiumMissions || [])] });
     setNewMission({ title: '', link: '', waitTime: '60', reward: '0.1', maxUsers: '100', logo: '' });
-    alert("Misión creada con éxito");
+    showToast("Misión creada con éxito", 'success');
   };
 
   const deleteMission = (id: string) => {
@@ -121,7 +121,7 @@ const Admin: React.FC = () => {
       return u;
     }));
     setBalanceInputs(prev => ({ ...prev, [targetUserId]: '' }));
-    alert(isGive ? `Inyectados ${amount} TON` : `Confiscados ${amount} TON`);
+    showToast(isGive ? `Inyectados ${amount} TON` : `Confiscados ${amount} TON`, 'info');
   };
 
   const toggleBan = (targetUserId: string) => {

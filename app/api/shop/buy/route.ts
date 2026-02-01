@@ -51,15 +51,16 @@ export async function POST(req: Request) {
                 caliberLevel: 1,
                 magazineLevel: 1,
                 accessoryLevel: 1,
-                skin: 'default'
+                skin: 'default',
+                miningPower: weaponDef.miningPower,
+                firepower: weaponDef.firepower,
+                statusBonus: weaponDef.statusBonus
             });
 
-            // Recalculate Power (Mining Rate)
-            const weaponPower = user.ownedWeapons.reduce((sum: number, w: any) => {
-                const def = WEAPONS.find(def => def.id === w.weaponId);
-                return sum + (def?.miningPower || 0);
-            }, 0);
-
+            // Recalculate Power (Mining Rate) is now redundant for persistence but good for User model 'power' field
+            // But we should rely on gameContext/logic to sum these. 
+            // Updating user.power (Economy) just in case
+            const weaponPower = user.ownedWeapons.reduce((sum: number, w: any) => sum + (w.miningPower || 0), 0);
             user.power = (user.basePower || 0) + weaponPower;
 
         } else if (type === 'AMMO') {

@@ -31,7 +31,7 @@ const Shop: React.FC = () => {
 
         // Check if weapon is already owned
         if (type === 'WEAPON' && user.ownedWeapons.some((w: any) => w.weaponId === item.id)) {
-            alert("Ya tienes esta arma.");
+            showToast("Ya tienes esta arma.", 'warning');
             return;
         }
 
@@ -53,7 +53,7 @@ const Shop: React.FC = () => {
 
             if (!res.ok) {
                 const err = await res.json();
-                alert(err.error || "Error en la compra.");
+                showToast(err.error || "Error en la compra.", 'error');
                 setLoading(null);
                 return;
             }
@@ -69,11 +69,11 @@ const Shop: React.FC = () => {
                 ammo: data.newAmmo !== undefined ? data.newAmmo : user.ammo
             });
 
-            alert(`¡Compra exitosa! Has recibido ${item.name}`);
+            showToast(`¡Compra exitosa! Has recibido ${item.name}`, 'success');
 
         } catch (error) {
             console.error("Shop Buy Error:", error);
-            alert("Error de conexión.");
+            showToast("Error de conexión.", 'error');
         } finally {
             setLoading(null);
         }

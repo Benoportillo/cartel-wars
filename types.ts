@@ -34,6 +34,10 @@ export interface WeaponInstance {
   magazineLevel: number;
   accessoryLevel: number;
   skin: string;
+  // Persisted Stats (Denormalization)
+  miningPower?: number;
+  firepower?: number;
+  statusBonus?: number;
 }
 
 export interface GangMember {
