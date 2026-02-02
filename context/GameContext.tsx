@@ -308,10 +308,19 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                         const serverTime = new Date(data.lastClaimDate || new Date());
 
                         setUserState(prev => {
-                            // If Server says 0, and we have > 100, log warning but accept (Server Authority? Or reject?)
-                            // Let's accept but Log.
-                            if (data.newBalance === 0 && (prev.cwarsBalance || 0) > 10) {
-                                console.warn("⚠️ Server returned 0 balance while local had", prev.cwarsBalance);
+                            // If Server says 0, and we have > 100, might be a connection glitch on server side treating user as new?
+                            // But API returns "User not found" if not found.
+                            // If balance is 0, it means user has 0.
+                            if (data.newBalance === 0 && (prev.cwarsBalance || 0) > 1000) {
+                                console.warn("⚠️ Server returned 0 balance while local had", prev.cwarsBalance, "Ignoring sync to prevent data loss.");
+                                return prev;
+                            }
+
+                            // Calculate actual farmed amount for debug/toast
+                            const gained = data.newBalance - (prev.cwarsBalance || 0);
+                            if (gained > 0 && gained > (prev.power || 0) / 60) {
+                                // If gained more than 1 minute of production, implies offline earning
+                                console.log(`[Auto-Sync] Offline/Server Earning Synced: +${gained.toFixed(2)} CWARS`);
                             }
 
                             return {

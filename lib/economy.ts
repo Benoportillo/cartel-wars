@@ -47,12 +47,15 @@ export class Economy {
      * Use this when saving to DB to "crystallize" the earnings.
      */
     static crystallizeEarnings(user: any, now: Date = new Date()): any {
+        const oldBalance = user.cwarsBalance || 0;
         const currentBalance = this.getProjectedBalance(user, now);
+
+        const earned = currentBalance - oldBalance;
 
         // Update user object
         user.cwarsBalance = currentBalance;
         user.lastClaimDate = now;
-        user.totalFarmed = (user.totalFarmed || 0) + (currentBalance - (user.cwarsBalance || 0)); // Approx logic, better to track total differently if needed
+        user.totalFarmed = (user.totalFarmed || 0) + earned;
 
         return user;
     }
