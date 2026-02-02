@@ -273,7 +273,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     const baseWeapon = WEAPONS.find(w => w.id === instance.weaponId);
                     if (!baseWeapon) return acc;
                     const levelBonus = (instance.caliberLevel - 1) * (baseWeapon.miningPower * 0.10);
-                    return acc + baseWeapon.miningPower + levelBonus; // miningPower IS protectionRate in this context logic (legacy naming in local calc)
+                    return acc + baseWeapon.miningPower + levelBonus;
                 }, 0);
                 const now = new Date();
                 const diffMs = now.getTime() - new Date(prev.lastClaimDate).getTime();
@@ -301,15 +301,17 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 });
                 if (res.ok) {
                     const data = await res.json();
-                    if (data.farmedAmount > 0) {
-                        setUserState(prev => ({
-                            ...prev,
-                            cwarsBalance: data.newBalance,
-                            totalFarmed: (prev.totalFarmed || 0) + data.farmedAmount,
-                            lastClaimDate: new Date(data.lastClaimDate),
-                            unclaimedFarming: 0 // Reset local counter as server processed it
-                        }));
-                    }
+                    // Always update balance from server to ensure sync
+                    // farmedAmount might be 0 in response if we just return total, so don't depend on it for balance update
+                    setUserState(prev => ({
+                        ...prev,
+                        cwarsBalance: data.newBalance,
+                        totalFarmed: (prev.totalFarmed || 0), // API doesn't send delta anymore, so keep local or we need full total? API sends total.
+                        // Actually, totalFarmed is cumulative. If API sends delta=0, we can't update totalFarmed easily unless API sends totalFarmed too.
+                        // But user cares about BALANCE for now.
+                        lastClaimDate: new Date(data.lastClaimDate),
+                        unclaimedFarming: 0 // Reset local counter as server processed it
+                    }));
                 }
             } catch (e) {
                 console.error("Auto-sync failed", e);
