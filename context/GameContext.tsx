@@ -282,7 +282,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 const newFarming = totalRate * effectiveHours;
                 return { ...prev, unclaimedFarming: Math.floor(newFarming) };
             });
-        }, 5000);
+        }, 1000);
         return () => clearInterval(interval);
     }, [isLoaded]);
 

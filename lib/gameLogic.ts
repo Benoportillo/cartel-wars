@@ -1,25 +1,36 @@
+import { WEAPONS } from '@/constants';
+
 export const updatePendingResources = (user: any) => {
     // Basic validation
     if (!user) return user;
 
     // --- AUTO-FARMING LOGIC ---
     // Calculate pending CWARS and credit immediately
-    // Rate: (Power * 10) CWARS per Hour.
-    // Example: 35 Power -> 350 CWARS/hr = ~0.1 CWARS/sec
+    // Rate is now calculated dynamically from WEAPONS + Caliber Bonus (10% per level)
     const now = new Date();
     const lastClaim = new Date(user.lastClaimDate || now);
     const secondsElapsed = (now.getTime() - lastClaim.getTime()) / 1000;
 
     if (secondsElapsed > 0) {
-        // Must belong to Gang/Cartel constraint? 
-        // User said: "MUST BELONG TO A CARTEL TO COLLECT..." in UI previously.
-        // But for "Automatic", maybe we relax this or enforce it here.
-        // If we strictly enforce "Must belong", then "Lone Wolves" generate nothing?
-        // User said: "connected or not... should continue summing".
-        // Let's assume production happens ANYWAY, but maybe 'storage' is capped?
-        // For now, let's keep it simple: Production is always active.
+        let totalRatePerHr = 0;
 
-        const ratePerSecond = (user.power || 0) * 10 / 3600;
+        // Calculate Total Rate based on owned weapons
+        if (user.ownedWeapons && user.ownedWeapons.length > 0) {
+            totalRatePerHr = user.ownedWeapons.reduce((acc: number, instance: any) => {
+                const baseWeapon = WEAPONS.find(w => w.id === instance.weaponId);
+                if (!baseWeapon) return acc;
+
+                // Formula: Base + (Level - 1) * (10% of Base)
+                // Note: miningPower is the base rate
+                const levelBonus = (instance.caliberLevel - 1) * (baseWeapon.miningPower * 0.10);
+                return acc + baseWeapon.miningPower + levelBonus;
+            }, 0);
+        }
+
+        // Apply any global multipliers here if needed (User Level, etc.)
+        // For now, raw weapon output.
+
+        const ratePerSecond = totalRatePerHr / 3600;
         const farmed = Math.floor(secondsElapsed * ratePerSecond);
 
         if (farmed > 0) {
