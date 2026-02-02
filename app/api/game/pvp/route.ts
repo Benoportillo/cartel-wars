@@ -186,6 +186,17 @@ export async function POST(req: Request) {
         await user.save();
         await rival.save();
 
+        // Notify Rival (Defender) via Socket
+        const io = (global as any).io;
+        if (io) {
+            io.to(`user_${rival.telegramId}`).emit('balance_update', {
+                newCwars: rival.cwarsBalance,
+                message: won
+                    ? `⚠️ ¡TE ESTÁN ROBANDO! ${user.name} atacó y se llevó ${rewardAmount} CWARS.`
+                    : `🛡️ ¡DEFENSA EXITOSA! ${user.name} falló el ataque contra ti.`
+            });
+        }
+
         return NextResponse.json({
             success: true,
             won,

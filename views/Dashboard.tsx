@@ -36,10 +36,13 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     if (!socket) return;
 
-    const handleBalanceUpdate = (data: { newBalance: number, message: string }) => {
+    const handleBalanceUpdate = (data: { newBalance?: number, newCwars?: number, message: string }) => {
       console.log('💰 Balance Update Received:', data);
       if (userRef.current) {
-        setUser({ ...userRef.current, balance: data.newBalance });
+        let updatedUser = { ...userRef.current };
+        if (data.newBalance !== undefined) updatedUser.balance = data.newBalance;
+        if (data.newCwars !== undefined) updatedUser.cwarsBalance = data.newCwars;
+        setUser(updatedUser);
       }
       // SHOW TOAST INSTEAD OF ALERT
       showToast(data.message, 'success');

@@ -181,7 +181,9 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const baseWeapon = WEAPONS.find(w => w.id === instance.weaponId);
             if (!baseWeapon) return acc;
             // MINING POWER (Economy)
-            return acc + (baseWeapon.miningPower || 0);
+            // Caliber: +10% Base Mining Power per level
+            const caliberBonus = (instance.caliberLevel - 1) * ((baseWeapon.miningPower || 0) * 0.10);
+            return acc + (baseWeapon.miningPower || 0) + caliberBonus;
         }, 0);
 
         const weaponFirepower = profile.ownedWeapons.reduce((acc, instance) => {
@@ -276,11 +278,19 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     return acc + baseWeapon.miningPower + levelBonus;
                 }, 0);
                 const now = new Date();
-                const diffMs = now.getTime() - new Date(prev.lastClaimDate).getTime();
-                const diffHours = diffMs / (1000 * 60 * 60);
-                const effectiveHours = Math.min(diffHours, 24);
-                const newFarming = totalRate * effectiveHours;
-                return { ...prev, unclaimedFarming: Math.floor(newFarming) };
+                // 1 second increment based on rate
+                // Rate is per hour, so per second is Rate/3600
+                // We add this directly to balance to make it "alive"
+                // When sync happens (every 10s), it will overwrite this with server truth, preventing drift.
+                const ratePerSecond = totalRate / 3600;
+
+                // We add ratePerSecond. Since interval is 1000ms, it's exactly ratePerSecond.
+                // We use Math.floor() for display, but keep decimals internally? 
+                // User.cwarsBalance is number.
+                // Let's keep decimals significant for smoothness if needed, but UI usually shows int.
+                // If we floor every second, we lose fractional gains.
+                // Better to add full float and floor in UI.
+                return { ...prev, cwarsBalance: prev.cwarsBalance + ratePerSecond };
             });
         }, 1000);
         return () => clearInterval(interval);
