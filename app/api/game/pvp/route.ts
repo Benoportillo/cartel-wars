@@ -22,9 +22,9 @@ export async function POST(req: Request) {
         // --- CRITICAL: UPDATE ECONOMY BEFORE BATTLE ---
         // Ensure both Attacker (User) and Defender (Rival) have up-to-date balances
         // based on their time passed, even if offline.
-        const { updatePendingResources } = await import('@/lib/gameLogic');
-        updatePendingResources(user);
-        updatePendingResources(rival);
+        const { Economy } = await import('@/lib/economy');
+        Economy.crystallizeEarnings(user, new Date());
+        Economy.crystallizeEarnings(rival, new Date());
         // ----------------------------------------------
 
         // 1. Ammo Check

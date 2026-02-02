@@ -22,9 +22,9 @@ export async function POST(req: Request) {
             }
 
             // --- AUTO-FARMING LOGIC ---
-            // Use shared logic to ensure consistency across all endpoints
-            const { updatePendingResources } = await import('@/lib/gameLogic');
-            updatePendingResources(user);
+            // Use Universal Economy Logic (Isomorphic)
+            const { Economy } = await import('@/lib/economy');
+            Economy.crystallizeEarnings(user, new Date());
             await user.save();
             // --------------------------
 

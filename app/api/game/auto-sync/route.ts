@@ -18,15 +18,10 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
-        // Use shared logic to calculate farming
-        const { updatePendingResources } = await import('@/lib/gameLogic');
-        updatePendingResources(user);
+        // Use Universal Economy Logic to calculate farming
+        const { Economy } = await import('@/lib/economy');
+        Economy.crystallizeEarnings(user, new Date());
 
-        // Calculate farmed amount is now hidden inside updatePendingResources helper
-        // We return 0 for farmDelta since we don't calculate it explicitly here anymore
-        // Frontend mostly cares about newBalance.
-
-        // Ensure manual save happens here (updatePendingResources sets values but caller saves)
         await user.save();
 
         return NextResponse.json({

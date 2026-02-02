@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 import { UserProfile, Rank, Language, GlobalSettings, Transaction, WeaponInstance } from '../types';
 import { INITIAL_USER, WEAPONS } from '../constants';
 import { translations } from '../translations';
+import { Economy } from '../lib/economy';
 
 interface GameContextType {
     user: UserProfile;
@@ -260,37 +261,20 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const t = translations[user.language] || translations.en;
 
-    // Farming Client Loop (Visual)
+    // Farming Client Loop (Visual) - Uses Economy Library for Precision
     useEffect(() => {
         if (!isLoaded) return;
         const interval = setInterval(() => {
             setUserState(prev => {
                 if (!prev.id) return prev;
-                // ... (logic remains same)
-                if (!prev.myGangId && !prev.joinedGangId) {
-                    return { ...prev, unclaimedFarming: 0 };
-                }
-                if (prev.ownedWeapons.length === 0) return prev;
-                const totalRate = prev.ownedWeapons.reduce((acc, instance) => {
-                    const baseWeapon = WEAPONS.find(w => w.id === instance.weaponId);
-                    if (!baseWeapon) return acc;
-                    const levelBonus = (instance.caliberLevel - 1) * (baseWeapon.miningPower * 0.10);
-                    return acc + baseWeapon.miningPower + levelBonus;
-                }, 0);
-                const now = new Date();
-                // 1 second increment based on rate
-                // Rate is per hour, so per second is Rate/3600
-                // We add this directly to balance to make it "alive"
-                // When sync happens (every 10s), it will overwrite this with server truth, preventing drift.
-                const ratePerSecond = totalRate / 3600;
+                // Deep copy to modify
+                const nextUser = { ...prev };
 
-                // We add ratePerSecond. Since interval is 1000ms, it's exactly ratePerSecond.
-                // We use Math.floor() for display, but keep decimals internally? 
-                // User.cwarsBalance is number.
-                // Let's keep decimals significant for smoothness if needed, but UI usually shows int.
-                // If we floor every second, we lose fractional gains.
-                // Better to add full float and floor in UI.
-                return { ...prev, cwarsBalance: prev.cwarsBalance + ratePerSecond };
+                // Use Universal Economy Logic to update state (time-delta based)
+                // This updates cwarsBalance and lastClaimDate to NOW
+                Economy.crystallizeEarnings(nextUser, new Date());
+
+                return nextUser;
             });
         }, 1000);
         return () => clearInterval(interval);
