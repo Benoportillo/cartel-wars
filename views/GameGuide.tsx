@@ -36,12 +36,7 @@ const GameGuide: React.FC<Props> = ({ onFinish }) => {
       icon: "💀",
       accent: "from-zinc-600 to-zinc-900"
     },
-    {
-      title: t.guideSyndicate,
-      text: t.guideSyndicateText,
-      icon: "🤝",
-      accent: "from-red-600 to-red-900"
-    }
+
   ];
 
   const currentStep = guideSteps[step];

@@ -188,8 +188,17 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const baseWeapon = WEAPONS.find(w => w.id === instance.weaponId);
             if (!baseWeapon) return acc;
             // FIREPOWER (Combat) - Including magazine upgrades
-            const magBonus = (instance.magazineLevel - 1) * 5;
-            const accBonus = (instance.accessoryLevel - 1) * 5;
+            // Magazine adds Daily Attacks (handled in Ammo logic), but let's keep a small flat bonus or remove it?
+            // User request only mentioned Accessories increasing "Natural Strength". 
+            // Let's remove Magazine power bonus if it's purely for ammo now? 
+            // Or keep it small. The prompt focused on Accessories = Firepower.
+            // Let's implement Accessories = 10% Firepower Bonus.
+
+            const magBonus = (instance.magazineLevel - 1) * 0; // Magazine is now Utility (Ammo), removing power bonus to distinguish roles? Or keep small? Let's remove to be clean or keep flat. Let's keep flat 5 or 0. Sticking to prompt: "Accessories... increases the natural strength".
+
+            // Accessories: +10% Base Firepower per level
+            const accBonus = (instance.accessoryLevel - 1) * ((baseWeapon.firepower || 0) * 0.10);
+
             return acc + (baseWeapon.firepower || 0) + magBonus + accBonus;
         }, 0);
 
@@ -263,8 +272,8 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 const totalRate = prev.ownedWeapons.reduce((acc, instance) => {
                     const baseWeapon = WEAPONS.find(w => w.id === instance.weaponId);
                     if (!baseWeapon) return acc;
-                    const levelBonus = (instance.caliberLevel - 1) * 0.005;
-                    return acc + baseWeapon.protectionRate + levelBonus;
+                    const levelBonus = (instance.caliberLevel - 1) * (baseWeapon.miningPower * 0.10);
+                    return acc + baseWeapon.miningPower + levelBonus; // miningPower IS protectionRate in this context logic (legacy naming in local calc)
                 }, 0);
                 const now = new Date();
                 const diffMs = now.getTime() - new Date(prev.lastClaimDate).getTime();

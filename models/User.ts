@@ -49,6 +49,8 @@ export interface IUser extends Document {
     isBanned: boolean;
     isAdmin: boolean;
     pvpHistory: BattleRecord[];
+    pvpBattlesPlayed?: number; // New: Track battles for referral requirement
+    referrerBonusPaid?: boolean; // New: Track if referrer has been paid
     lastTicketDate?: Date;
     nameChanged?: boolean;
     lastRaceDate?: Date;
@@ -105,6 +107,8 @@ const UserSchema: Schema = new Schema({
     isBanned: { type: Boolean, default: false },
     isAdmin: { type: Boolean, default: false },
     pvpHistory: { type: Array, default: [] },
+    pvpBattlesPlayed: { type: Number, default: 0 },
+    referrerBonusPaid: { type: Boolean, default: false },
     lastTicketDate: { type: Date },
     nameChanged: { type: Boolean, default: false },
     lastRaceDate: { type: Date },

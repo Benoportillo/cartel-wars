@@ -9,7 +9,7 @@ const Garage: React.FC = () => {
     const { user, setUser, t } = useGame();
     const [selectedWeaponIdx, setSelectedWeaponIdx] = useState(0);
 
-    const upgradeWeapon = (type: 'caliber' | 'magazine' | 'accessory') => {
+    const upgradeWeapon = async (type: 'caliber' | 'magazine' | 'accessory') => {
         const weapon = user.ownedWeapons[selectedWeaponIdx];
         if (weapon.weaponId === 'starter') return;
 
@@ -18,15 +18,36 @@ const Garage: React.FC = () => {
 
         if (user.balance < cost || level >= 10) return;
 
-        const updatedOwned = [...user.ownedWeapons];
-        const updatedWeapon = { ...updatedOwned[selectedWeaponIdx] };
+        // Optimistic UI Update (optional, but safer to wait for server here for economy)
+        try {
+            const res = await fetch('/api/game/upgrade', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    telegramId: user.telegramId,
+                    weaponIndex: selectedWeaponIdx,
+                    upgradeType: type,
+                    cost: cost
+                })
+            });
 
-        if (type === 'caliber') updatedWeapon.caliberLevel++;
-        if (type === 'magazine') updatedWeapon.magazineLevel++;
-        if (type === 'accessory') updatedWeapon.accessoryLevel++;
+            const data = await res.json();
+            if (data.success) {
+                // Update local state with server response to ensure sync
+                setUser({
+                    ...user,
+                    balance: data.newBalance,
+                    ownedWeapons: data.ownedWeapons
+                });
 
-        updatedOwned[selectedWeaponIdx] = updatedWeapon;
-        setUser({ ...user, balance: user.balance - cost, ownedWeapons: updatedOwned });
+                // Play success sound or visual feedback here if needed
+            } else {
+                console.error("Upgrade failed:", data.error);
+                // Optionally show error toast
+            }
+        } catch (e) {
+            console.error("Upgrade request failed", e);
+        }
     };
 
     const currentInstance = user.ownedWeapons[selectedWeaponIdx];
@@ -81,9 +102,20 @@ const Garage: React.FC = () => {
 
                         {!isStarter ? (
                             <div className="grid grid-cols-1 w-full gap-4">
-                                <UpgradeRow label={t.engine} level={currentInstance.caliberLevel} cost={0.5 * currentInstance.caliberLevel} onUpgrade={() => upgradeWeapon('caliber')} balance={user.balance} />
-                                <UpgradeRow label={t.tires} level={currentInstance.magazineLevel} cost={0.5 * currentInstance.magazineLevel} onUpgrade={() => upgradeWeapon('magazine')} balance={user.balance} />
-                                <UpgradeRow label={t.startup} level={currentInstance.accessoryLevel} cost={0.5 * currentInstance.accessoryLevel} onUpgrade={() => upgradeWeapon('accessory')} balance={user.balance} />
+                                <div className="space-y-4">
+                                    <div>
+                                        <UpgradeRow label={t.engine} level={currentInstance.caliberLevel} cost={0.5 * currentInstance.caliberLevel} onUpgrade={() => upgradeWeapon('caliber')} balance={user.balance} />
+                                        <p className="text-[9px] text-zinc-500 text-right mt-1 italic pr-2">Aumenta Producción (+10% CWARS/Hr)</p>
+                                    </div>
+                                    <div>
+                                        <UpgradeRow label={t.tires} level={currentInstance.magazineLevel} cost={0.5 * currentInstance.magazineLevel} onUpgrade={() => upgradeWeapon('magazine')} balance={user.balance} />
+                                        <p className="text-[9px] text-zinc-500 text-right mt-1 italic pr-2">Aumenta Ataques Diarios (+1)</p>
+                                    </div>
+                                    <div>
+                                        <UpgradeRow label={t.startup} level={currentInstance.accessoryLevel} cost={0.5 * currentInstance.accessoryLevel} onUpgrade={() => upgradeWeapon('accessory')} balance={user.balance} />
+                                        <p className="text-[9px] text-zinc-500 text-right mt-1 italic pr-2">Aumenta Daño Crítico (+10%)</p>
+                                    </div>
+                                </div>
                             </div>
                         ) : (
                             <div className="w-full p-8 bg-black/40 border border-zinc-800 rounded-3xl text-center">

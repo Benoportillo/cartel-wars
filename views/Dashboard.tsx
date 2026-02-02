@@ -80,7 +80,7 @@ const Dashboard: React.FC = () => {
   const [showReferralInfo, setShowReferralInfo] = useState(false);
 
   // Swap State
-  const [swapAmount, setSwapAmount] = useState(100);
+  const [swapAmount, setSwapAmount] = useState(100000);
 
   // Withdrawal State
   const [withdrawAmount, setWithdrawAmount] = useState<string>("1.0");
@@ -198,7 +198,7 @@ const Dashboard: React.FC = () => {
       showToast(t.insufficientCwars, 'error');
       return;
     }
-    const usdtValue = swapAmount / 1000;
+    const usdtValue = swapAmount / 100000;
     setUser({
       ...user,
       cwarsBalance: user.cwarsBalance - swapAmount,
@@ -273,6 +273,82 @@ const Dashboard: React.FC = () => {
   };
 
   const totalCalculatedFirepower = calculateTotalFirepower();
+
+  // REFERRAL & SYNC LOGIC
+  const [referrals, setReferrals] = useState<{ telegramId: string, name: string, rank: string, pvpBattlesPlayed: number, referrerBonusPaid: boolean }[]>([]);
+  const [loadingReferrals, setLoadingReferrals] = useState(false);
+
+  useEffect(() => {
+    // Fetch Referrals
+    const fetchReferrals = async () => {
+      if (!user.telegramId) return;
+      setLoadingReferrals(true);
+      try {
+        const res = await fetch('/api/referrals/list', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ telegramId: user.telegramId })
+        });
+        const data = await res.json();
+        if (data.success) {
+          setReferrals(data.referrals);
+        }
+      } catch (e) {
+        console.error("Failed to fetch referrals", e);
+      } finally {
+        setLoadingReferrals(false);
+      }
+    };
+
+    fetchReferrals();
+
+    // Auto-Sync Production
+    const syncInterval = setInterval(async () => {
+      if (!user.telegramId) return;
+      try {
+        const res = await fetch('/api/game/auto-sync', {
+          method: 'POST',
+          body: JSON.stringify({ telegramId: user.telegramId })
+        });
+        const data = await res.json();
+        if (data.success) {
+          // Update balance silently to match server
+          // Only update if difference is significant to avoid jitter?
+          // Use userRef.current to avoid stale closure issues in interval
+          if (userRef.current) {
+            setUser({
+              ...userRef.current,
+              cwarsBalance: data.newBalance,
+              totalFarmed: (userRef.current.totalFarmed || 0) + (data.farmedAmount || 0)
+            });
+          }
+        }
+      } catch (e) { }
+    }, 10000); // 10 seconds
+
+    return () => clearInterval(syncInterval);
+  }, [user.telegramId, setUser]); // Added setUser to deps
+
+  const claimReferralBonus = async (refId: string) => {
+    try {
+      const res = await fetch('/api/referrals/claim', {
+        method: 'POST',
+        body: JSON.stringify({ telegramId: user.telegramId, referralTelegramId: refId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`¡Bonus de 5000 CWARS reclamado!`, 'success');
+        // Update local state
+        setReferrals(prev => prev.map(r => r.telegramId === refId ? { ...r, referrerBonusPaid: true } : r));
+        // Use current user state for the update
+        setUser({ ...user, cwarsBalance: data.newCwars });
+      } else {
+        showToast(data.error, 'error');
+      }
+    } catch (e) {
+      showToast("Error de conexión", 'error');
+    }
+  };
 
   return (
     <div className="space-y-6 relative">
@@ -400,6 +476,42 @@ const Dashboard: React.FC = () => {
             {((user.totalFarmed || 0) + (user.totalPvPWon || 0) - (user.totalPvPLost || 0)).toLocaleString(undefined, { maximumFractionDigits: 2 })}
           </p>
         </div>
+      </section>
+
+      {/* ACTIVE GANGSTERS (REFERRAL TRACKING) */}
+      <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl relative overflow-hidden mt-6">
+        <h2 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] mb-4">ACTIVE GANGSTERS (10 BATTLES REQUIRED)</h2>
+
+        {loadingReferrals ? (
+          <p className="text-zinc-500 text-xs text-center animate-pulse">Cargando red de sicarios...</p>
+        ) : referrals.length === 0 ? (
+          <p className="text-zinc-600 text-[10px] text-center italic">No tienes reclutas activos.</p>
+        ) : (
+          <div className="space-y-3">
+            {referrals.map(ref => (
+              <div key={ref.telegramId} className="bg-black/40 border border-zinc-800 p-3 rounded-xl flex items-center justify-between">
+                <div>
+                  <p className="text-white text-xs font-bold uppercase">{ref.name}</p>
+                  <p className="text-[9px] text-zinc-500">{ref.rank} • {ref.pvpBattlesPlayed || 0}/10 Batallas</p>
+                </div>
+                {ref.referrerBonusPaid ? (
+                  <span className="text-[9px] text-zinc-500 font-black uppercase bg-zinc-800 px-2 py-1 rounded">PAGADO</span>
+                ) : (
+                  <button
+                    onClick={() => claimReferralBonus(ref.telegramId)}
+                    disabled={(ref.pvpBattlesPlayed || 0) < 10}
+                    className={`px-3 py-1.5 rounded text-[9px] font-black uppercase transition-all ${(ref.pvpBattlesPlayed || 0) >= 10
+                      ? 'bg-yellow-600 text-black hover:bg-yellow-500 shadow-lg animate-pulse'
+                      : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
+                      }`}
+                  >
+                    {(ref.pvpBattlesPlayed || 0) >= 10 ? 'RECLAMAR 5000' : 'EN PROGRESO'}
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {showWallet && <WalletModal onClose={() => setShowWallet(false)} />}
@@ -551,7 +663,7 @@ const Dashboard: React.FC = () => {
                 />
                 <div className="flex items-center justify-center gap-2 mt-2">
                   <span className="text-zinc-600 text-[9px] font-black">≈</span>
-                  <span className="text-yellow-500 font-bold">{(swapAmount / 1000).toFixed(2)} TON</span>
+                  <span className="text-yellow-500 font-bold">{(swapAmount / 100000).toFixed(2)} TON</span>
                 </div>
               </div>
               <button

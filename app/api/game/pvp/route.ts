@@ -179,6 +179,9 @@ export async function POST(req: Request) {
         };
         rival.pvpHistory = [rivalRecord, ...(rival.pvpHistory || [])].slice(0, 20);
 
+        // Increment Battle Count
+        user.pvpBattlesPlayed = (user.pvpBattlesPlayed || 0) + 1;
+
         // Save
         await user.save();
         await rival.save();
