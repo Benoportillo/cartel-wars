@@ -312,16 +312,17 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 if (res.ok) {
                     const data = await res.json();
                     // Always update balance from server to ensure sync
-                    // farmedAmount might be 0 in response if we just return total, so don't depend on it for balance update
-                    setUserState(prev => ({
-                        ...prev,
-                        cwarsBalance: data.newBalance,
-                        totalFarmed: (prev.totalFarmed || 0), // API doesn't send delta anymore, so keep local or we need full total? API sends total.
-                        // Actually, totalFarmed is cumulative. If API sends delta=0, we can't update totalFarmed easily unless API sends totalFarmed too.
-                        // But user cares about BALANCE for now.
-                        lastClaimDate: new Date(data.lastClaimDate),
-                        unclaimedFarming: 0 // Reset local counter as server processed it
-                    }));
+                    // Validation: Ensure newBalance is valid number to avoid resetting to NaN or similar
+                    if (typeof data.newBalance === 'number') {
+                        console.log('✅ Auto-Sync Success:', data.newBalance);
+                        setUserState(prev => ({
+                            ...prev,
+                            cwarsBalance: data.newBalance,
+                            totalFarmed: (prev.totalFarmed || 0),
+                            lastClaimDate: new Date(data.lastClaimDate || new Date()),
+                            unclaimedFarming: 0
+                        }));
+                    }
                 }
             } catch (e) {
                 console.error("Auto-sync failed", e);

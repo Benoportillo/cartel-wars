@@ -305,32 +305,8 @@ const Dashboard: React.FC = () => {
 
     fetchReferrals();
 
-    // Auto-Sync Production
-    const syncInterval = setInterval(async () => {
-      if (!user.telegramId) return;
-      try {
-        const res = await fetch('/api/game/auto-sync', {
-          method: 'POST',
-          body: JSON.stringify({ telegramId: user.telegramId })
-        });
-        const data = await res.json();
-        if (data.success) {
-          // Update balance silently to match server
-          // Only update if difference is significant to avoid jitter?
-          // Use userRef.current to avoid stale closure issues in interval
-          if (userRef.current) {
-            setUser({
-              ...userRef.current,
-              cwarsBalance: data.newBalance,
-              totalFarmed: (userRef.current.totalFarmed || 0) + (data.farmedAmount || 0)
-            });
-          }
-        }
-      } catch (e) { }
-    }, 10000); // 10 seconds
-
-    return () => clearInterval(syncInterval);
-  }, [user.telegramId, setUser]); // Added setUser to deps
+    // Auto-Sync Logic was removed from here.
+  }, [user.telegramId]);
 
   const claimReferralBonus = async (refId: string) => {
     try {
