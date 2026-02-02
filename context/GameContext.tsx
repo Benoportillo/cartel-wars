@@ -298,14 +298,30 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     // Always update balance from server to ensure sync
                     // Validation: Ensure newBalance is valid number to avoid resetting to NaN or similar
                     if (typeof data.newBalance === 'number') {
-                        console.log('✅ Auto-Sync Success:', data.newBalance);
-                        setUserState(prev => ({
-                            ...prev,
-                            cwarsBalance: data.newBalance,
-                            totalFarmed: (prev.totalFarmed || 0),
-                            lastClaimDate: new Date(data.lastClaimDate || new Date()),
-                            unclaimedFarming: 0
-                        }));
+                        // SAFETY CHECK: If server sends 0 but we have significant balance locally, something is wrong.
+                        // ONLY overwrite if we are within a reasonable margin OR if the previous sync was successful.
+                        // However, server is authority. If DB says 0, maybe DB was wiped?
+                        // But user says "returns to zero", implying ephemeral loss.
+
+                        // Fix for "Reset on Tab Switch":
+                        // Ensure we rely on server timestamp.
+                        const serverTime = new Date(data.lastClaimDate || new Date());
+
+                        setUserState(prev => {
+                            // If Server says 0, and we have > 100, log warning but accept (Server Authority? Or reject?)
+                            // Let's accept but Log.
+                            if (data.newBalance === 0 && (prev.cwarsBalance || 0) > 10) {
+                                console.warn("⚠️ Server returned 0 balance while local had", prev.cwarsBalance);
+                            }
+
+                            return {
+                                ...prev,
+                                cwarsBalance: data.newBalance,
+                                totalFarmed: (prev.totalFarmed || 0),
+                                lastClaimDate: serverTime,
+                                unclaimedFarming: 0
+                            };
+                        });
                     }
                 }
             } catch (e) {

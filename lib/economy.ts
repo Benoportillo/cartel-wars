@@ -36,6 +36,9 @@ export class Economy {
         if (deltaSeconds <= 0) return user.cwarsBalance || 0;
 
         const generated = deltaSeconds * ratePerSecond;
+        // Debug Log (Remove in Prod if spammy)
+        // console.log(`[Economy] Rate: ${ratePerHour}/hr, Delta: ${deltaSeconds.toFixed(1)}s, Gen: ${generated.toFixed(4)}`);
+
         return (user.cwarsBalance || 0) + generated;
     }
 
