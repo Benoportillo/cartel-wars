@@ -308,6 +308,41 @@ const Dashboard: React.FC = () => {
     // Auto-Sync Logic was removed from here.
   }, [user.telegramId]);
 
+  // AUTO-SYNC LOGIC (3 Seconds Heartbeat)
+  useEffect(() => {
+    if (!user.telegramId) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch('/api/game/auto-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ telegramId: user.telegramId })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          // Update user balance silently to avoid re-renders interrupting interactions if possible,
+          // but we need to update the ref/state for the visual counter to stay accurate.
+          // validamos si hubo cambio real para no spammear actualizaciones de estado si no es necesario
+          if (userRef.current && data.newBalance !== userRef.current.cwarsBalance) {
+            const updatedUser = {
+              ...userRef.current,
+              cwarsBalance: data.newBalance,
+              totalFarmed: data.totalFarmed
+            };
+            setUser(updatedUser);
+            console.log('✅ Balance Synced:', data.newBalance.toFixed(2));
+          }
+        }
+      } catch (e) {
+        console.error("Auto-Sync failed", e);
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [user.telegramId, setUser]);
+
   const claimReferralBonus = async (refId: string) => {
     try {
       const res = await fetch('/api/referrals/claim', {
@@ -821,23 +856,20 @@ const Dashboard: React.FC = () => {
 // Si initialBalance cambia (por socket), se resetea la base.
 const LiveProductionCounter: React.FC<{ userPower: number, initialBalance: number }> = ({ userPower, initialBalance }) => {
   const [displayBalance, setDisplayBalance] = useState(initialBalance);
-  // Ref para guardar el tiempo del último tick para suavizar la animación si fuera necesario, 
-  // pero mantendremos la lógica simple de intervalo para "efecto visual" sin desviarse demasiado.
 
   useEffect(() => {
-    // Si el balance real cambia (ej. recibimos socket update), actualizamos inmediatamente.
     setDisplayBalance(initialBalance);
   }, [initialBalance]);
 
   useEffect(() => {
     if (userPower <= 0) return;
 
-    // Tasa de producción por intervalo (100ms)
-    const productionPerInterval = (userPower / 3600) * 0.1;
+    // Producción por segundo: Power (CWARS/Hora) / 3600
+    const productionPerSecond = userPower / 3600;
 
     const interval = setInterval(() => {
-      setDisplayBalance(prev => prev + productionPerInterval);
-    }, 100);
+      setDisplayBalance(prev => prev + productionPerSecond);
+    }, 1000); // Actualización cada segundo como solicitado
 
     return () => clearInterval(interval);
   }, [userPower]);
