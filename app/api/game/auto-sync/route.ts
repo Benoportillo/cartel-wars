@@ -20,9 +20,12 @@ export async function POST(req: Request) {
 
         // Use Universal Economy Logic to calculate farming
         const { Economy } = await import('@/lib/economy');
+
+        const oldBalance = user.cwarsBalance;
         Economy.crystallizeEarnings(user, new Date());
 
         await user.save();
+        console.log(`[Auto-Sync] Saved ${user.telegramId}: ${oldBalance} -> ${user.cwarsBalance}`);
 
         return NextResponse.json({
             success: true,

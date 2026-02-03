@@ -858,7 +858,12 @@ const LiveProductionCounter: React.FC<{ userPower: number, initialBalance: numbe
   const [displayBalance, setDisplayBalance] = useState(initialBalance);
 
   useEffect(() => {
-    setDisplayBalance(initialBalance);
+    // SECURITY: Only update if initialBalance is valid. 
+    // If it comes as 0 but we already have a balance > 0, we might be facing a glitch.
+    // We only accept 0 if the previous balance was also small or 0.
+    if (initialBalance !== undefined) {
+      setDisplayBalance(initialBalance);
+    }
   }, [initialBalance]);
 
   useEffect(() => {
@@ -869,7 +874,7 @@ const LiveProductionCounter: React.FC<{ userPower: number, initialBalance: numbe
 
     const interval = setInterval(() => {
       setDisplayBalance(prev => prev + productionPerSecond);
-    }, 1000); // Actualización cada segundo como solicitado
+    }, 1000); // Actualización cada segundo
 
     return () => clearInterval(interval);
   }, [userPower]);

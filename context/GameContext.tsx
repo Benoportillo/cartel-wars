@@ -265,67 +265,19 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // We now rely on the Dashboard's visual counter for immediate feedback
     // and the 10s Auto-Sync for actual state updates.
 
-    // AUTO-SYNC TO SERVER (Persistence) - Every 10 Seconds
+    // AUTO-SYNC TO SERVER (Persistence) - REMOVED to avoid conflict with Dashboard 3s sync
+    // The Dashboard now handles the authoritative sync loop.
+    /*
     useEffect(() => {
         if (!isLoaded || !user.id || !user.telegramId) return;
 
         const syncInterval = setInterval(async () => {
-            // Only sync if there is something to sync (though route handles small diffs)
-            // We just hit the endpoint to keep DB fresh for PVP
-            try {
-                const res = await fetch('/api/game/auto-sync', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ telegramId: user.telegramId })
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    // Always update balance from server to ensure sync
-                    // Validation: Ensure newBalance is valid number to avoid resetting to NaN or similar
-                    if (typeof data.newBalance === 'number') {
-                        // SAFETY CHECK: If server sends 0 but we have significant balance locally, something is wrong.
-                        // ONLY overwrite if we are within a reasonable margin OR if the previous sync was successful.
-                        // However, server is authority. If DB says 0, maybe DB was wiped?
-                        // But user says "returns to zero", implying ephemeral loss.
-
-                        // Fix for "Reset on Tab Switch":
-                        // Ensure we rely on server timestamp.
-                        const serverTime = new Date(data.lastClaimDate || new Date());
-
-                        setUserState(prev => {
-                            // If Server says 0, and we have > 100, might be a connection glitch on server side treating user as new?
-                            // But API returns "User not found" if not found.
-                            // If balance is 0, it means user has 0.
-                            if (data.newBalance === 0 && (prev.cwarsBalance || 0) > 1000) {
-                                console.warn("⚠️ Server returned 0 balance while local had", prev.cwarsBalance, "Ignoring sync to prevent data loss.");
-                                return prev;
-                            }
-
-                            // Calculate actual farmed amount for debug/toast
-                            const gained = data.newBalance - (prev.cwarsBalance || 0);
-                            if (gained > 0 && gained > (prev.power || 0) / 60) {
-                                // If gained more than 1 minute of production, implies offline earning
-                                console.log(`[Auto-Sync] Offline/Server Earning Synced: +${gained.toFixed(2)} CWARS`);
-                            }
-
-                            return {
-                                ...prev,
-                                cwarsBalance: data.newBalance,
-                                // Sync totalFarmed from server if available, otherwise keep local (fallback)
-                                totalFarmed: (data.totalFarmed !== undefined) ? data.totalFarmed : (prev.totalFarmed || 0),
-                                lastClaimDate: serverTime,
-                                unclaimedFarming: 0
-                            };
-                        });
-                    }
-                }
-            } catch (e) {
-                console.error("Auto-sync failed", e);
-            }
-        }, 10000); // 10 seconds
+             // Logic moved/handled by Dashboard
+        }, 10000); 
 
         return () => clearInterval(syncInterval);
     }, [isLoaded, user.id, user.telegramId]);
+    */
 
     const handleIntroComplete = (lang: Language) => {
         localStorage.setItem('cartel_intro_seen', 'true');
