@@ -282,8 +282,8 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
           inventory: {},
           ammo: 10,
           lastDailyAmmo: new Date(),
-          xp: 0,
-          level: 1,
+          dailyHeistsLeft: 5,
+          lastHeistDate: new Date(),
           isBanned: false
         } as UserProfile);
         setIsLoading(false);
