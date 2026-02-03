@@ -27,7 +27,7 @@ export async function POST(req: Request) {
         return NextResponse.json({
             success: true,
             newBalance: user.cwarsBalance,
-            farmedAmount: 0,
+            totalFarmed: user.totalFarmed,
             lastClaimDate: user.lastClaimDate
         });
 

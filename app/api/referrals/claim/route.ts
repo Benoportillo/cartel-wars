@@ -36,6 +36,9 @@ export async function POST(req: Request) {
         user.cwarsBalance = (user.cwarsBalance || 0) + 5000;
         user.totalReferralBonus = (user.totalReferralBonus || 0) + 5000;
 
+        // Add to Historical Total (Cwars Lavados)
+        user.totalFarmed = (user.totalFarmed || 0) + 5000;
+
         referral.referrerBonusPaid = true;
 
         await user.save();

@@ -132,6 +132,10 @@ export async function POST(req: Request) {
             // Apply
             rival.cwarsBalance = Math.max(0, (rival.cwarsBalance || 0) - baseLoot);
             user.cwarsBalance = (user.cwarsBalance || 0) + winnerShare;
+            user.totalPvPWon = (user.totalPvPWon || 0) + winnerShare;
+
+            // Add to Historical Total (Cwars Lavados)
+            user.totalFarmed = (user.totalFarmed || 0) + winnerShare;
 
             rewardAmount = winnerShare;
             eventLog.push(`🏆 ¡VICTORIA! Robaste ${winnerShare} CWARS.`);

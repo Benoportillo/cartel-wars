@@ -326,7 +326,8 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                             return {
                                 ...prev,
                                 cwarsBalance: data.newBalance,
-                                totalFarmed: (prev.totalFarmed || 0),
+                                // Sync totalFarmed from server if available, otherwise keep local (fallback)
+                                totalFarmed: (data.totalFarmed !== undefined) ? data.totalFarmed : (prev.totalFarmed || 0),
                                 lastClaimDate: serverTime,
                                 unclaimedFarming: 0
                             };
