@@ -458,10 +458,10 @@ const Dashboard: React.FC = () => {
           <div className="bg-gradient-to-r from-yellow-900/40 to-black p-3 rounded-xl border border-yellow-900/30 flex items-center justify-between">
             <div>
               <p className="text-[8px] text-yellow-500 font-black uppercase tracking-widest">CWARS PRODUCTION</p>
-              <p className="text-xl font-marker text-white">{displayCwars.toLocaleString(undefined, { maximumFractionDigits: 1 })} <span className="text-xs">CWARS</span></p>
+              <p className="text-xl font-marker text-white">{displayCwars.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs">CWARS</span></p>
               <p className="text-[7px] text-yellow-600 font-bold uppercase">+{totalMiningPower.toFixed(1)} / hr</p>
             </div>
-            <div className="w-8 h-8 flex items-center justify-center bg-yellow-600 rounded-full text-black shadow-lg animate-pulse">⛏️</div>
+            <div className="w-8 h-8 flex items-center justify-center bg-yellow-600 rounded-full text-black shadow-lg animate-pulse">🔫</div>
           </div>
 
           <div className="bg-zinc-900 p-3 rounded-xl border border-zinc-800 flex flex-col justify-center col-span-2">
