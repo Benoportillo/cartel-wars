@@ -21,6 +21,21 @@ export async function POST(req: Request) {
         // Use Universal Economy Logic to calculate farming
         const { Economy } = await import('@/lib/economy');
 
+        // SELF-HEALING: Ensure user has at least the starter weapon (Navaja)
+        // This solves the issue where users existed but had 0 production because they lacked the item in DB.
+        if (!user.ownedWeapons || user.ownedWeapons.length === 0) {
+            console.log(`🚑 Self-Healing: User ${user.telegramId} has no weapons. Granting Navaja.`);
+            user.ownedWeapons = [{
+                weaponId: 'starter',
+                caliberLevel: 1,
+                magazineLevel: 1,
+                accessoryLevel: 1,
+                skin: '#333333'
+            }];
+            // We save immediately so the Economy calc below picks it up (via the user object)
+            // Note: Economy.crystallizeEarnings uses the passed user object, so it will see the new weapon.
+        }
+
         const oldBalance = user.cwarsBalance;
         Economy.crystallizeEarnings(user, new Date());
 

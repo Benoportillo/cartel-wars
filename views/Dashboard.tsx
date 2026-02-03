@@ -128,24 +128,49 @@ const Dashboard: React.FC = () => {
     setShowNameEdit(false);
   };
 
-  const buyWeapon = (weapon: Weapon) => {
+  const buyWeapon = async (weapon: Weapon) => {
     if (user.balance < weapon.price) {
       setSelectedWeaponToBuy(weapon);
       setShowDepositModal(true);
       return;
     }
-    const newInstance: WeaponInstance = {
-      weaponId: weapon.id,
-      caliberLevel: 1,
-      magazineLevel: 1,
-      accessoryLevel: 1,
-      skin: '#333333'
-    };
-    setUser({
-      ...user,
-      balance: user.balance - weapon.price,
-      ownedWeapons: [...user.ownedWeapons, newInstance]
-    });
+
+    // Optimistic UI update (optional, but safer to wait for server here since it's a purchase)
+    const prevBalance = user.balance;
+
+    try {
+      showToast('Procesando compra en el mercado negro...', 'info');
+
+      const res = await fetch('/api/game/buy-weapon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ telegramId: user.telegramId, weaponId: weapon.id })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        // Sync full state from server response to ensure we have the exact DB state
+        setUser({
+          ...user,
+          balance: data.newBalance,
+          ownedWeapons: data.ownedWeapons
+        });
+        showToast(data.message || 'Compra exitosa', 'success');
+
+        // Play sound
+        try {
+          new Audio('/assets/sounds/reload.mp3').play().catch(() => { });
+        } catch (e) { }
+
+      } else {
+        showToast(data.error || 'Error en la compra', 'error');
+      }
+
+    } catch (error) {
+      console.error('Buy Weapon Error:', error);
+      showToast('Error de conexión con el traficante', 'error');
+    }
   };
 
   const copyWallet = () => {
