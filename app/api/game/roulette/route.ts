@@ -36,7 +36,6 @@ export async function POST(req: Request) {
 
         // 2. Apply Result
         user.tickets -= 1;
-        user.totalRouletteSpent = (user.totalRouletteSpent || 0) + 0.1; // Tracking approximate TON value
         user.lastTicketDate = new Date(); // Reset timer logic if needed
 
         if (selectedItem.type === 'TON') {

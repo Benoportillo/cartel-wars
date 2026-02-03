@@ -81,8 +81,6 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 lastTicketDate: parsed.lastTicketDate ? new Date(parsed.lastTicketDate) : new Date(Date.now() - 86400000),
                 language: parsed.language || 'en',
                 pvpHistory: parsed.pvpHistory || [],
-                cwarsBalance: parsed.cwarsBalance || 0,
-                completedMissions: parsed.completedMissions || [],
                 basePower: parsed.basePower ?? 0,
                 baseStatus: parsed.baseStatus ?? 0,
                 hasSeenGuide: parsed.hasSeenGuide ?? true

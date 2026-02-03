@@ -14,21 +14,8 @@ export interface IUser extends Document {
     tickets: number;
     referrals: number;
     referredBy?: string;
-    referralStats?: {
-        level1Count: number;
-        level2Count: number;
-        level3Count: number;
-        level1Earnings: number;
-        level2Earnings: number;
-        level3Earnings: number;
-    };
-
-    status: number;
     basePower: number;
     baseStatus: number;
-    firepower: number; // Combat Power
-    pendingReferralBonus: number;
-    claimsCount: number;
     xp: number;
     level: number;
 
@@ -42,7 +29,6 @@ export interface IUser extends Document {
 
     totalPvPWon: number;
     totalPvPLost: number;
-    totalRouletteSpent: number;
 
     totalReferralBonus: number; // New: Tracks CWARS earned from referrals
     isBanned: boolean;
@@ -75,35 +61,22 @@ const UserSchema: Schema = new Schema({
     referrals: { type: Number, default: 0 },
     referredBy: { type: String },
 
-    status: { type: Number, default: 5 },
     basePower: { type: Number, default: 0 },
     baseStatus: { type: Number, default: 0 },
-    firepower: { type: Number, default: 0 }, // Combat Power (PVP)
 
     // Stats for Dashboard
 
     totalPvPWon: { type: Number, default: 0 },
     totalPvPLost: { type: Number, default: 0 },
-    totalRouletteSpent: { type: Number, default: 0 },
     totalReferralBonus: { type: Number, default: 0 },
 
     // Anti-Fraud & Referral System
-    pendingReferralBonus: { type: Number, default: 0 }, // Bonus locked until activity
-    claimsCount: { type: Number, default: 0 }, // Activity tracker
 
     inventory: { type: Map, of: Number, default: {} },
     ammo: { type: Number, default: 10 },
     lastDailyAmmo: { type: Date, default: Date.now },
     lastEarningsUpdate: { type: Date, default: Date.now },
     ownedWeapons: { type: Array, default: [] },
-    referralStats: {
-        level1Count: { type: Number, default: 0 },
-        level2Count: { type: Number, default: 0 },
-        level3Count: { type: Number, default: 0 },
-        level1Earnings: { type: Number, default: 0 },
-        level2Earnings: { type: Number, default: 0 },
-        level3Earnings: { type: Number, default: 0 }
-    },
     isBanned: { type: Boolean, default: false },
     isAdmin: { type: Boolean, default: false },
     pvpHistory: { type: Array, default: [] },

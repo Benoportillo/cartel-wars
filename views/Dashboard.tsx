@@ -302,6 +302,41 @@ const Dashboard: React.FC = () => {
 
   const totalCalculatedFirepower = calculateTotalFirepower();
 
+  // New: Calculate total mining power from owned weapons
+  const calculateTotalMiningPower = () => {
+    if (!user.ownedWeapons || user.ownedWeapons.length === 0) return 0;
+    return user.ownedWeapons.reduce((total, instance) => {
+      // Use miningPower from instance snapshot first
+      if (instance.miningPower !== undefined) return total + instance.miningPower;
+
+      // Fallback to constants if snapshot is missing
+      const weapon = WEAPONS.find(w => w.id === instance.weaponId);
+      return total + (weapon?.miningPower || 0);
+    }, 0);
+  };
+
+  const totalMiningPower = calculateTotalMiningPower();
+
+  // LIVE CWARS COUNTER EFFECT
+  const [displayCwars, setDisplayCwars] = useState(user.cwarsBalance);
+
+  useEffect(() => {
+    setDisplayCwars(user.cwarsBalance);
+  }, [user.cwarsBalance]);
+
+  useEffect(() => {
+    if (totalMiningPower <= 0) return;
+
+    const interval = setInterval(() => {
+      // Calculate production per 100ms
+      const productionPerSecond = totalMiningPower / 3600;
+      const productionPerTick = productionPerSecond / 10;
+      setDisplayCwars(prev => prev + productionPerTick);
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [totalMiningPower]);
+
   // REFERRAL & SYNC LOGIC
   const [referrals, setReferrals] = useState<{ telegramId: string, name: string, rank: string, pvpBattlesPlayed: number, referrerBonusPaid: boolean }[]>([]);
   const [loadingReferrals, setLoadingReferrals] = useState(false);
@@ -410,7 +445,7 @@ const Dashboard: React.FC = () => {
           <StatBox label="Mafiosos" value={user.referrals.toString()} color="text-zinc-400" icon="👥" />
         </div>
 
-        {/* TON BALANCE & BUFFS */}
+        {/* BALANCES & PRODUCTION */}
         <div className="grid grid-cols-2 gap-3 mt-3">
           <div className="bg-gradient-to-r from-blue-900/40 to-black p-3 rounded-xl border border-blue-900/30 flex items-center justify-between">
             <div>
@@ -419,7 +454,17 @@ const Dashboard: React.FC = () => {
             </div>
             <button onClick={() => setShowWallet(true)} className="w-8 h-8 flex items-center justify-center bg-blue-600 rounded-full text-white shadow-lg hover:scale-110 transition-transform">+</button>
           </div>
-          <div className="bg-zinc-900 p-3 rounded-xl border border-zinc-800 flex flex-col justify-center">
+
+          <div className="bg-gradient-to-r from-yellow-900/40 to-black p-3 rounded-xl border border-yellow-900/30 flex items-center justify-between">
+            <div>
+              <p className="text-[8px] text-yellow-500 font-black uppercase tracking-widest">CWARS PRODUCTION</p>
+              <p className="text-xl font-marker text-white">{displayCwars.toLocaleString(undefined, { maximumFractionDigits: 1 })} <span className="text-xs">CWARS</span></p>
+              <p className="text-[7px] text-yellow-600 font-bold uppercase">+{totalMiningPower.toFixed(1)} / hr</p>
+            </div>
+            <div className="w-8 h-8 flex items-center justify-center bg-yellow-600 rounded-full text-black shadow-lg animate-pulse">⛏️</div>
+          </div>
+
+          <div className="bg-zinc-900 p-3 rounded-xl border border-zinc-800 flex flex-col justify-center col-span-2">
             <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">SUPPLIES ACTIVOS</p>
             <div className="flex gap-2">
               {(!user.inventory || Object.keys(user.inventory).length === 0) ? (
@@ -457,8 +502,8 @@ const Dashboard: React.FC = () => {
         <div className="grid grid-cols-2 gap-4">
 
           <div className="bg-black/40 p-3 rounded-xl border border-zinc-800/50">
-            <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">VICIOS (TON)</p>
-            <p className="text-lg font-marker text-purple-500">-{user.totalRouletteSpent?.toFixed(2) || '0.00'}</p>
+            <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">MISIONES (CWARS)</p>
+            <p className="text-lg font-marker text-purple-500">+{user.cwarsBalance?.toFixed(0) || '0'}</p>
           </div>
           <div className="bg-black/40 p-3 rounded-xl border border-zinc-800/50">
             <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">ROBOS (PVP)</p>
@@ -565,23 +610,7 @@ const Dashboard: React.FC = () => {
           </button>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 mt-6 pt-4 border-t border-zinc-800">
-          <div className="text-center">
-            <p className="text-[7px] text-zinc-600 font-black uppercase">Nivel 1 (7%)</p>
-            <p className="text-sm font-marker text-white">{user.referralStats?.level1Count || 0}</p>
-            <p className="text-[8px] text-yellow-600 font-bold">{(user.referralStats?.level1Earnings || 0).toFixed(2)} TON</p>
-          </div>
-          <div className="text-center border-l border-zinc-800">
-            <p className="text-[7px] text-zinc-600 font-black uppercase">Nivel 2 (2%)</p>
-            <p className="text-sm font-marker text-white">{user.referralStats?.level2Count || 0}</p>
-            <p className="text-[8px] text-yellow-600 font-bold">{(user.referralStats?.level2Earnings || 0).toFixed(2)} TON</p>
-          </div>
-          <div className="text-center border-l border-zinc-800">
-            <p className="text-[7px] text-zinc-600 font-black uppercase">Nivel 3 (1%)</p>
-            <p className="text-sm font-marker text-white">{user.referralStats?.level3Count || 0}</p>
-            <p className="text-[8px] text-yellow-600 font-bold">{(user.referralStats?.level3Earnings || 0).toFixed(2)} TON</p>
-          </div>
-        </div>
+
       </section>
 
       {/* Referral Info Modal */}

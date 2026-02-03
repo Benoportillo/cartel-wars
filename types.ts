@@ -21,6 +21,7 @@ export interface Weapon {
   protectionRate: number;
 
   firepower: number;
+  miningPower: number;
   statusBonus: number;
   isLimited?: boolean;
   image: string;
@@ -147,8 +148,6 @@ export interface UserProfile {
   inventory: Record<string, number>; // New: Buffs & Consumables
   ammo: number; // PvP Energy
   lastDailyAmmo: Date; // For daily reset
-  pendingReferralBonus: number; // Anti-Fraud
-  claimsCount: number; // Anti-Fraud
   xp: number; // RPG
   level: number; // RPG
   myGangId?: string;
@@ -161,18 +160,8 @@ export interface UserProfile {
   lastMissionDate?: string;
   completedMissions?: string[];
   hasSeenGuide?: boolean;
-  referralStats?: {
-    level1Count: number;
-    level2Count: number;
-    level3Count: number;
-    level1Earnings: number;
-    level2Earnings: number;
-    level3Earnings: number;
-  };
-
   totalPvPWon?: number;
   totalPvPLost?: number;
-  totalRouletteSpent?: number;
   totalReferralBonus?: number; // New: Tracks CWARS earned from referrals
 }
 
