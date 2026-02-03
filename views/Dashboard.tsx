@@ -782,9 +782,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         <div className="flex flex-col gap-1">
-          <p className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">FLUJO DE CAJA</p>
-
-          {/* LIVE COUNTER */}
+          {/* LIVE COUNTER - Now strictly LiveProductionCounter which uses cwarsBalance */}
           <LiveProductionCounter userPower={user.power || 0} initialBalance={user.cwarsBalance || 0} />
 
           <div className="flex justify-center gap-4 mt-2">
@@ -818,20 +816,29 @@ const Dashboard: React.FC = () => {
 
 // COMPONENTE DE CONTADOR EN VIVO
 // Se asegura de usar cwarsBalance como base y simular la producción
+// COMPONENTE DE CONTADOR EN VIVO
+// Muestra el balance real (cwarsBalance) y anima la producción localmente solo para efecto visual.
+// Si initialBalance cambia (por socket), se resetea la base.
 const LiveProductionCounter: React.FC<{ userPower: number, initialBalance: number }> = ({ userPower, initialBalance }) => {
   const [displayBalance, setDisplayBalance] = useState(initialBalance);
+  // Ref para guardar el tiempo del último tick para suavizar la animación si fuera necesario, 
+  // pero mantendremos la lógica simple de intervalo para "efecto visual" sin desviarse demasiado.
 
-  // Update state when initialBalance (prop) changes from parent (socket update)
   useEffect(() => {
+    // Si el balance real cambia (ej. recibimos socket update), actualizamos inmediatamente.
     setDisplayBalance(initialBalance);
   }, [initialBalance]);
 
   useEffect(() => {
     if (userPower <= 0) return;
-    const cwarsPerSecond = userPower / 3600;
+
+    // Tasa de producción por intervalo (100ms)
+    const productionPerInterval = (userPower / 3600) * 0.1;
+
     const interval = setInterval(() => {
-      setDisplayBalance(prev => prev + (cwarsPerSecond * 0.1)); // Update every 100ms
+      setDisplayBalance(prev => prev + productionPerInterval);
     }, 100);
+
     return () => clearInterval(interval);
   }, [userPower]);
 
