@@ -14,7 +14,7 @@ const BOT_USERNAME = "CartelWar_bot";
 const APP_NAME = "cartel"; // ⚠️ IMPORTANTE: Debes crear esto en BotFather con /newapp y poner este nombre exacto
 
 const Dashboard: React.FC = () => {
-  const { user, setUser, settings, logout: onLogout, t, lang } = useGame();
+  const { user, setUser, settings, logout: onLogout, t, lang, displayCwars, totalMiningPower } = useGame();
   const { socket } = useSocket();
   const { showToast } = useToast();
   const userRef = useRef(user);
@@ -302,40 +302,7 @@ const Dashboard: React.FC = () => {
 
   const totalCalculatedFirepower = calculateTotalFirepower();
 
-  // New: Calculate total mining power from owned weapons
-  const calculateTotalMiningPower = () => {
-    if (!user.ownedWeapons || user.ownedWeapons.length === 0) return 0;
-    return user.ownedWeapons.reduce((total, instance) => {
-      // Use miningPower from instance snapshot first
-      if (instance.miningPower !== undefined) return total + instance.miningPower;
 
-      // Fallback to constants if snapshot is missing
-      const weapon = WEAPONS.find(w => w.id === instance.weaponId);
-      return total + (weapon?.miningPower || 0);
-    }, 0);
-  };
-
-  const totalMiningPower = calculateTotalMiningPower();
-
-  // LIVE CWARS COUNTER EFFECT
-  const [displayCwars, setDisplayCwars] = useState(user.cwarsBalance);
-
-  useEffect(() => {
-    setDisplayCwars(user.cwarsBalance);
-  }, [user.cwarsBalance]);
-
-  useEffect(() => {
-    if (totalMiningPower <= 0) return;
-
-    const interval = setInterval(() => {
-      // Calculate production per 100ms
-      const productionPerSecond = totalMiningPower / 3600;
-      const productionPerTick = productionPerSecond / 10;
-      setDisplayCwars(prev => prev + productionPerTick);
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, [totalMiningPower]);
 
   // REFERRAL & SYNC LOGIC
   const [referrals, setReferrals] = useState<{ telegramId: string, name: string, rank: string, pvpBattlesPlayed: number, referrerBonusPaid: boolean }[]>([]);
@@ -435,13 +402,12 @@ const Dashboard: React.FC = () => {
             )}
           </div>
           <div className="text-right flex flex-col items-end gap-2 max-w-[50%]">
-            <span className="text-red-600 font-marker text-lg md:text-xl uppercase animate-pulse truncate w-full text-right" title={user.rank}>{user.rank}</span>
+            <span className="text-red-600 font-marker text-lg md:text-xl uppercase animate-pulse truncate w-full text-right">EN LAS SOMBRAS</span>
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <StatBox label={t.power} value={totalCalculatedFirepower.toFixed(0)} color="text-red-500" icon="💀" />
-          <StatBox label={t.status} value={user.status.toFixed(0)} color="text-blue-500" icon="👑" />
           <StatBox label="Mafiosos" value={user.referrals.toString()} color="text-zinc-400" icon="👥" />
         </div>
 

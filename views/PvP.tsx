@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { UserProfile, Weapon, Rank, BattleRecord, GlobalSettings, PremiumMission } from '../types';
-import { WEAPONS } from '../constants';
+import { WEAPONS, HEIST_MISSIONS } from '../constants';
 import { getMafiaFlavor } from '../geminiService';
 import { useGame, useTranslation } from '../context/GameContext';
 import { useRouter } from 'next/navigation';
@@ -57,16 +57,12 @@ const PvP: React.FC = () => {
   const [result, setResult] = useState<{
     won: boolean,
     rival: string,
-    rivalLevel?: number,
     flavor: string,
     powerDiff?: number,
     reward?: number,
     respectReward?: number,
     powerReward?: number,
-    terrainId?: number,
-    xpGain?: number,
-    leveledUp?: boolean,
-    newLevel?: number
+    terrainId?: number
   } | null>(null);
 
   // Sistema de Toasts para mensajes del Cartel
@@ -79,6 +75,7 @@ const PvP: React.FC = () => {
 
   // Battle Prep Modal State
   const [battlePrep, setBattlePrep] = useState<{ rival: UserProfile } | null>(null);
+  const [heistPrep, setHeistPrep] = useState<{ heist: any } | null>(null);
   const [selectedBuffs, setSelectedBuffs] = useState<string[]>([]);
 
   // Mostrar toast
@@ -147,28 +144,40 @@ const PvP: React.FC = () => {
     setSelectedBuffs([]); // Reset buffs
   };
 
+  const runHeistMission = (heistId: string) => {
+    if (user.isAdmin || (user.dailyHeistsLeft || 0) <= 0 || racing) return;
+    const heist = HEIST_MISSIONS.find(h => h.id === heistId);
+    if (!heist) return;
+    setHeistPrep({ heist });
+    setSelectedBuffs([]);
+  };
+
   const executeAttack = async () => {
-    if (!battlePrep) return;
-    const target = battlePrep.rival;
-    setBattlePrep(null); // Close modal
+    const isHeist = !!heistPrep;
+    const target = isHeist ? heistPrep?.heist : battlePrep?.rival;
+    if (!target) return;
+
+    setBattlePrep(null);
+    setHeistPrep(null);
     setRacing(true);
     setResult(null);
 
-    if ((user.ammo || 0) <= 0) {
+    // Heists don't consume ammo, only attempts
+    if (!isHeist && (user.ammo || 0) <= 0) {
       showCartelMessage("¡Sin munición! Compra más en el Mercado Negro.", 'error');
-      // Optional: Redirect to Shop
+      setRacing(false);
       return;
     }
 
     try {
-      // API Call for PvP Logic
       const res = await fetch('/api/game/pvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: user.telegramId,
-          rivalId: target.telegramId,
-          usedBuffs: selectedBuffs
+          rivalId: isHeist ? target.id : (target.telegramId || target.id || target._id),
+          usedBuffs: selectedBuffs,
+          type: isHeist ? 'heist' : 'pvp'
         })
       });
 
@@ -199,8 +208,7 @@ const PvP: React.FC = () => {
         balance: data.newBalance,
         cwarsBalance: data.newCwars, // Update CWARS
         ammo: data.newAmmo, // Update Ammo
-        xp: (user.xp || 0) + data.xpGain, // Optimistic XP
-        level: data.newLevel || user.level, // Optimistic Level
+        dailyHeistsLeft: data.heistsLeft !== undefined ? data.heistsLeft : user.dailyHeistsLeft,
         inventory: newInventory,
         completedMissions: [...(user.completedMissions || []), 'attack_rival'],
         pvpHistory: [{ won: data.won, rival: target.name, powerDiff: (user.firepower || 0) - (target.firepower || 0), timestamp: Date.now() }, ...(user.pvpHistory || [])].slice(0, 5)
@@ -209,15 +217,11 @@ const PvP: React.FC = () => {
       setResult({
         won: data.won,
         rival: target.name,
-        rivalLevel: data.rivalLevel,
         flavor: flavorText,
         reward: data.reward,
         powerReward: data.powerReward,
         respectReward: data.respectReward,
-        terrainId: data.terrainId,
-        xpGain: data.xpGain,
-        leveledUp: data.leveledUp,
-        newLevel: data.newLevel
+        terrainId: data.terrainId
       });
 
     } catch (error) {
@@ -332,8 +336,8 @@ const PvP: React.FC = () => {
       )}
 
       <div className="flex bg-zinc-900 p-1 rounded-xl border border-zinc-800 gap-1 overflow-x-auto">
-        <ModeBtn active={mode === 'pvp'} onClick={() => setMode('pvp')}>{t.pvpMode}</ModeBtn>
-        <ModeBtn active={mode === 'ai'} onClick={() => setMode('ai')}>{t.aiMode}</ModeBtn>
+        <ModeBtn active={mode === 'pvp'} onClick={() => setMode('pvp')}>GUERRA</ModeBtn>
+        <ModeBtn active={mode === 'ai'} onClick={() => setMode('ai')}>{t.dailyHeists}</ModeBtn>
         <ModeBtn active={mode === 'premium'} onClick={() => setMode('premium')}>{t.premiumMode}</ModeBtn>
       </div>
 
@@ -351,14 +355,11 @@ const PvP: React.FC = () => {
               {user.ammo || 0} <span className="text-xs">/ 5</span>
             </p>
           </div>
-          <div>
-            <p className="text-[9px] text-zinc-500 uppercase font-black tracking-widest mb-1">NIVEL {user.level || 1}</p>
-            <div className="w-full bg-black h-2 rounded-full mt-2 border border-zinc-800 relative overflow-hidden">
-              <div
-                className="h-full bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.5)] transition-all duration-1000"
-                style={{ width: `${Math.min(100, ((user.xp || 0) / ((user.level || 1) * 500)) * 100)}%` }}
-              ></div>
-            </div>
+          <div className="col-span-1">
+            <p className="text-[9px] text-zinc-500 uppercase font-black tracking-widest mb-1">ATRACOS HOY</p>
+            <p className={`text-2xl font-marker ${user.dailyHeistsLeft > 0 ? 'text-green-500' : 'text-zinc-600'}`}>
+              {user.dailyHeistsLeft || 0} <span className="text-xs">/ 5</span>
+            </p>
           </div>
         </div>
 
@@ -386,8 +387,8 @@ const PvP: React.FC = () => {
             <div className="grid grid-cols-1 gap-4">
               <MissionCard
                 id="attack_rival"
-                title={t.attackRivalGang}
-                rewardRange="+10% Poder / -30% Riesgo"
+                title="Operación Táctica"
+                rewardRange="Botín Variable (Hasta 500 CWARS)"
                 isCompleted={!!user.completedMissions?.includes('attack_rival')}
                 onExecute={() => runPvPMission('attack_rival')}
                 t={t}

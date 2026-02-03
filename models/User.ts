@@ -16,8 +16,8 @@ export interface IUser extends Document {
     referredBy?: string;
     basePower: number;
     baseStatus: number;
-    xp: number;
-    level: number;
+    dailyHeistsLeft: number;
+    lastHeistDate: Date;
 
     ammo: number;
     lastDailyAmmo: Date;
@@ -91,6 +91,8 @@ const UserSchema: Schema = new Schema({
     pendingFeeLock: { type: Number },
     lastMissionDate: { type: Date },
     completedMissions: { type: [String], default: [] },
+    dailyHeistsLeft: { type: Number, default: 5 },
+    lastHeistDate: { type: Date, default: Date.now },
     hasSeenGuide: { type: Boolean, default: false }
 }, { timestamps: true });
 

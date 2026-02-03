@@ -20,7 +20,7 @@ import Auth from '../views/Auth';
 import Intro from '../views/Intro';
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
-    const { user, globalUsers, changeLang, logout, t, showIntro, setShowIntro, showAuth, setShowAuth, handleIntroComplete, handleAuthComplete } = useGame();
+    const { user, globalUsers, changeLang, logout, t, showIntro, setShowIntro, showAuth, setShowAuth, handleIntroComplete, handleAuthComplete, displayCwars } = useGame();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [langDropdownOpen, setLangDropdownOpen] = useState(false);
     const pathname = usePathname();
@@ -84,7 +84,9 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
                             <span className="text-[8px] font-bold text-gray-400 uppercase">TON</span>
                         </div>
                         <div className="flex items-center justify-end gap-1">
-                            <span className="text-red-500 font-bold text-sm">{user.cwarsBalance.toFixed(0)}</span>
+                            <span className="text-red-500 font-bold text-sm">
+                                {displayCwars.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
                             <span className="text-[8px] font-bold text-gray-400 uppercase">CWARS</span>
                         </div>
                     </div>

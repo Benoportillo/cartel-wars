@@ -152,8 +152,8 @@ export const INITIAL_USER: any = {
   ammo: 10,
   inventory: {},
   lastDailyAmmo: new Date(),
-  xp: 0,
-  level: 1,
+  dailyHeistsLeft: 5,
+  lastHeistDate: new Date(),
   pvpBattlesPlayed: 0,
   pvpHistory: [],
   language: 'en'
@@ -180,3 +180,54 @@ export const SHOP_ITEMS = [
 
 export const MASTER_WALLET_ADDRESS = "UQDZDP9qAdglpsThm7XFhSGKjFhx98nJj6IzGI0yh-rop7H7";
 export const WITHDRAWAL_WALLET_ADDRESS = "UQD-h3pdcJlGjyWqG9d7QZszZqjMz9IxRqdkSjaVOzqC5O01";
+
+export const HEIST_MISSIONS = [
+  {
+    id: 'heist-1',
+    name: 'Atraco a Licorería',
+    description: 'Un golpe rápido para empezar. Poco riesgo, botín sencillo.',
+    firepower: 25,
+    reward: 150,
+    flavor: 'El cajero ni siquiera opuso resistencia.'
+  },
+  {
+    id: 'heist-2',
+    name: 'Cobro de Protección',
+    description: 'Ve a recordarle a los comerciantes locales quién manda.',
+    firepower: 80,
+    reward: 300,
+    flavor: 'Pagaron con gusto después de ver tu hierro.'
+  },
+  {
+    id: 'heist-3',
+    name: 'Asalto a Camión Blindado',
+    description: 'Un transporte de efectivo sin escolta pesada. Dinero fácil.',
+    firepower: 250,
+    reward: 400,
+    flavor: 'Los guardias corrieron al primer disparo.'
+  },
+  {
+    id: 'heist-4',
+    name: 'Incursión a Almacén',
+    description: 'El cartel rival guarda mercancía valiosa aquí. Limpia el lugar.',
+    firepower: 600,
+    reward: 450,
+    flavor: 'Ahora saben que este territorio tiene dueño.'
+  },
+  {
+    id: 'heist-5',
+    name: 'Golpe a la Bóveda Central',
+    description: 'El mayor tesoro de la ciudad. Solo para los más audaces.',
+    firepower: 1200,
+    reward: 500,
+    flavor: '¡Historia pura! El nombre del cartel resonará por semanas.'
+  }
+];
+
+export const PVP_BOTS = [
+  { id: 'bot-1', name: 'Rata de Alcantarilla', firepower: 30, cwarsBalance: 50, isBot: true },
+  { id: 'bot-2', name: 'Matón Novato', firepower: 75, cwarsBalance: 150, isBot: true },
+  { id: 'bot-3', name: 'Sicario de Barrio', firepower: 150, cwarsBalance: 500, isBot: true },
+  { id: 'bot-4', name: 'Guardaespaldas Corrupto', firepower: 350, cwarsBalance: 1200, isBot: true },
+  { id: 'bot-5', name: 'Teniente del Cartel Rival', firepower: 800, cwarsBalance: 5000, isBot: true }
+];

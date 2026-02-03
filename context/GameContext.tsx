@@ -26,6 +26,8 @@ interface GameContextType {
     handleIntroComplete: (lang: Language) => void;
     handleAuthComplete: (profile: UserProfile) => void;
     handleGuideFinish: () => void;
+    displayCwars: number;
+    totalMiningPower: number;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -288,6 +290,34 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return () => clearInterval(syncInterval);
     }, [isLoaded, user.id, user.telegramId]);
 
+    // --- NEW: Global Live CWARS Counter ---
+    const calculateTotalMiningPower = useCallback(() => {
+        if (!user.ownedWeapons || user.ownedWeapons.length === 0) return 0;
+        return user.ownedWeapons.reduce((total, instance) => {
+            if (instance.miningPower !== undefined) return total + instance.miningPower;
+            const weapon = WEAPONS.find(w => w.id === instance.weaponId);
+            return total + (weapon?.miningPower || 0);
+        }, 0);
+    }, [user.ownedWeapons]);
+
+    const totalMiningPower = calculateTotalMiningPower();
+    const [displayCwars, setDisplayCwars] = useState(user.cwarsBalance);
+
+    useEffect(() => {
+        setDisplayCwars(user.cwarsBalance);
+    }, [user.cwarsBalance]);
+
+    useEffect(() => {
+        if (totalMiningPower <= 0) return;
+        const interval = setInterval(() => {
+            const productionPerSecond = totalMiningPower / 3600;
+            const productionPerTick = productionPerSecond / 10;
+            setDisplayCwars(prev => prev + productionPerTick);
+        }, 100);
+        return () => clearInterval(interval);
+    }, [totalMiningPower]);
+    // ------------------------------------
+
     const handleIntroComplete = (lang: Language) => {
         localStorage.setItem('cartel_intro_seen', 'true');
         setUser({ ...user, language: lang });
@@ -328,7 +358,9 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             showAuth, setShowAuth,
             handleIntroComplete,
             handleAuthComplete,
-            handleGuideFinish
+            handleGuideFinish,
+            displayCwars,
+            totalMiningPower
         }}>
             {children}
         </GameContext.Provider>

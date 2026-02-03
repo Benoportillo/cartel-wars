@@ -82,7 +82,7 @@ export interface BattleRecord {
   won: boolean;
   rival: string;
   rivalId?: string; // Added for Revenge
-  powerDiff: number;
+  powerDiff?: number;
   timestamp: number;
 }
 
@@ -148,8 +148,8 @@ export interface UserProfile {
   inventory: Record<string, number>; // New: Buffs & Consumables
   ammo: number; // PvP Energy
   lastDailyAmmo: Date; // For daily reset
-  xp: number; // RPG
-  level: number; // RPG
+  dailyHeistsLeft: number; // Daily mission attempts
+  lastHeistDate: Date; // For daily heist reset
   myGangId?: string;
   joinedGangId?: string;
   appliedGangId?: string;
