@@ -47,10 +47,8 @@ export async function POST(req: Request) {
                 if (!recruiterL1.referralStats) recruiterL1.referralStats = { level1Count: 0, level2Count: 0, level3Count: 0, level1Earnings: 0, level2Earnings: 0, level3Earnings: 0 };
                 recruiterL1.referralStats.level1Count += 1;
 
-                // BONUS: 5,000 CWARS for invite
-                const bonus = 5000;
-                recruiterL1.cwarsBalance = (recruiterL1.cwarsBalance || 0) + bonus;
-                recruiterL1.totalReferralBonus = (recruiterL1.totalReferralBonus || 0) + bonus;
+                // NOTE: Bonus is now CLAIMABLE only after 10 PvP battles via /api/referrals/claim
+                // We do NOT add balance here anymore.
 
                 await recruiterL1.save();
 

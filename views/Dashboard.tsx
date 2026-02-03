@@ -455,43 +455,48 @@ const Dashboard: React.FC = () => {
             {((user.totalFarmed || 0) + (user.totalPvPWon || 0) - (user.totalPvPLost || 0)).toLocaleString(undefined, { maximumFractionDigits: 2 })}
           </p>
         </div>
-      </section>
 
-      {/* ACTIVE GANGSTERS (REFERRAL TRACKING) */}
-      <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl relative overflow-hidden mt-6">
-        <h2 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] mb-4">ACTIVE GANGSTERS (10 BATTLES REQUIRED)</h2>
+        {/* ACTIVE GANGSTERS (REFERRAL TRACKING) - MOVED INSIDE FINANCIAL REPORT */}
+        <div className="mt-6 pt-6 border-t border-zinc-800/50">
+          <h2 className="text-zinc-500 text-[9px] font-black uppercase tracking-[0.3em] mb-4">DESCENDIENTES (10 BATALLAS PARA COBRAR)</h2>
 
-        {loadingReferrals ? (
-          <p className="text-zinc-500 text-xs text-center animate-pulse">Cargando red de sicarios...</p>
-        ) : referrals.length === 0 ? (
-          <p className="text-zinc-600 text-[10px] text-center italic">No tienes reclutas activos.</p>
-        ) : (
-          <div className="space-y-3">
-            {referrals.map(ref => (
-              <div key={ref.telegramId} className="bg-black/40 border border-zinc-800 p-3 rounded-xl flex items-center justify-between">
-                <div>
-                  <p className="text-white text-xs font-bold uppercase">{ref.name}</p>
-                  <p className="text-[9px] text-zinc-500">{ref.rank} • {ref.pvpBattlesPlayed || 0}/10 Batallas</p>
+          {loadingReferrals ? (
+            <p className="text-zinc-500 text-xs text-center animate-pulse">Cargando red de sicarios...</p>
+          ) : referrals.length === 0 ? (
+            <p className="text-zinc-600 text-[10px] text-center italic">No tienes reclutas activos.</p>
+          ) : (
+            <div className="space-y-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+              {referrals.map(ref => (
+                <div key={ref.telegramId} className="bg-black/20 border border-zinc-800/50 p-2 rounded-xl flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs">👤</div>
+                    <div>
+                      <p className="text-zinc-300 text-[10px] font-bold uppercase">{ref.name}</p>
+                      <p className="text-[8px] text-zinc-600">{ref.rank} • {ref.pvpBattlesPlayed || 0}/10 Batallas</p>
+                    </div>
+                  </div>
+                  {ref.referrerBonusPaid ? (
+                    <span className="text-[8px] text-green-900/50 font-black uppercase bg-green-500/10 border border-green-500/20 px-2 py-1 rounded">COBRADO</span>
+                  ) : (
+                    <button
+                      onClick={() => claimReferralBonus(ref.telegramId)}
+                      disabled={(ref.pvpBattlesPlayed || 0) < 10}
+                      className={`px-3 py-1.5 rounded text-[8px] font-black uppercase transition-all ${(ref.pvpBattlesPlayed || 0) >= 10
+                        ? 'bg-yellow-600 text-black hover:bg-yellow-500 shadow-lg animate-pulse'
+                        : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
+                        }`}
+                    >
+                      {(ref.pvpBattlesPlayed || 0) >= 10 ? 'RECLAMAR 5000' : 'EN PROGRESO'}
+                    </button>
+                  )}
                 </div>
-                {ref.referrerBonusPaid ? (
-                  <span className="text-[9px] text-zinc-500 font-black uppercase bg-zinc-800 px-2 py-1 rounded">PAGADO</span>
-                ) : (
-                  <button
-                    onClick={() => claimReferralBonus(ref.telegramId)}
-                    disabled={(ref.pvpBattlesPlayed || 0) < 10}
-                    className={`px-3 py-1.5 rounded text-[9px] font-black uppercase transition-all ${(ref.pvpBattlesPlayed || 0) >= 10
-                      ? 'bg-yellow-600 text-black hover:bg-yellow-500 shadow-lg animate-pulse'
-                      : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
-                      }`}
-                  >
-                    {(ref.pvpBattlesPlayed || 0) >= 10 ? 'RECLAMAR 5000' : 'EN PROGRESO'}
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </section>
+
+      {/* ACTIVE GANGSTERS SECTION REMOVED (MOVED TO FINANCIAL REPORT) */}
 
       {showWallet && <WalletModal onClose={() => setShowWallet(false)} />}
 
@@ -812,9 +817,11 @@ const Dashboard: React.FC = () => {
 };
 
 // COMPONENTE DE CONTADOR EN VIVO
+// Se asegura de usar cwarsBalance como base y simular la producción
 const LiveProductionCounter: React.FC<{ userPower: number, initialBalance: number }> = ({ userPower, initialBalance }) => {
   const [displayBalance, setDisplayBalance] = useState(initialBalance);
 
+  // Update state when initialBalance (prop) changes from parent (socket update)
   useEffect(() => {
     setDisplayBalance(initialBalance);
   }, [initialBalance]);
