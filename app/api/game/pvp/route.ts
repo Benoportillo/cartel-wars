@@ -19,9 +19,13 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'User or Rival not found' }, { status: 404 });
         }
 
-
-
-        // 1. Ammo Check
+        // --- ECONOMY SYNC (CRITICAL) ---
+        // Ensure both players have up-to-date balances before battle
+        const { Economy } = await import('@/lib/economy');
+        Economy.crystallizeEarnings(user, new Date());
+        Economy.crystallizeEarnings(rival, new Date());
+        // We don't save yet, we save at the end of the transaction to minimize writes
+        // -------------------------------
         if ((user.ammo || 0) < 1) {
             return NextResponse.json({ error: 'No ammo' }, { status: 400 });
         }
@@ -35,7 +39,9 @@ export async function POST(req: Request) {
         const calculateBattlePower = (u: any) => {
             const weaponPower = u.ownedWeapons.reduce((sum: number, w: any) => {
                 const def = WEAPONS.find(d => d.id === w.weaponId);
-                return sum + (def ? def.firepower : 0);
+                // Use Snapshot Firepower if available, else fallback to constant
+                const power = w.firepower !== undefined ? w.firepower : (def ? def.firepower : 0);
+                return sum + power;
             }, 0);
             return (weaponPower * 100) + (u.baseStatus || 0);
         };

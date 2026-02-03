@@ -21,7 +21,12 @@ export async function POST(req: Request) {
                 return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
             }
 
-
+            // --- PASSIVE INCOME SYNC ---
+            // Only sync if logging in successfully
+            const { Economy } = await import('@/lib/economy');
+            Economy.crystallizeEarnings(user, new Date());
+            await user.save();
+            // ---------------------------
 
             return NextResponse.json({ user });
         } else {

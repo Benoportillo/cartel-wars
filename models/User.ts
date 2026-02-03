@@ -38,6 +38,7 @@ export interface IUser extends Document {
     ownedWeapons: WeaponInstance[]; // Define stricter schema if needed
     createdAt: Date;
     lastLogin: Date;
+    lastEarningsUpdate: Date;
 
     totalPvPWon: number;
     totalPvPLost: number;
@@ -93,6 +94,7 @@ const UserSchema: Schema = new Schema({
     inventory: { type: Map, of: Number, default: {} },
     ammo: { type: Number, default: 10 },
     lastDailyAmmo: { type: Date, default: Date.now },
+    lastEarningsUpdate: { type: Date, default: Date.now },
     ownedWeapons: { type: Array, default: [] },
     referralStats: {
         level1Count: { type: Number, default: 0 },

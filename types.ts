@@ -136,6 +136,7 @@ export interface UserProfile {
   lastRaceDate: Date | null;
   ownedWeapons: WeaponInstance[];
   lastTicketDate: Date;
+  lastEarningsUpdate?: Date; // For mining sync tracking
 
   language: Language;
   basePower: number; // New: Stats gained/lost in battle

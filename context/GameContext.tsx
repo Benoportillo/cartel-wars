@@ -253,19 +253,42 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // We now rely on the Dashboard's visual counter for immediate feedback
     // and the 10s Auto-Sync for actual state updates.
 
-    // AUTO-SYNC TO SERVER (Persistence) - REMOVED to avoid conflict with Dashboard 3s sync
-    // The Dashboard now handles the authoritative sync loop.
-    /*
+    // AUTO-SYNC TO SERVER (Persistence) - RE-ENABLED PER USER REQUEST
     useEffect(() => {
         if (!isLoaded || !user.id || !user.telegramId) return;
 
         const syncInterval = setInterval(async () => {
-             // Logic moved/handled by Dashboard
-        }, 10000); 
+            try {
+                const res = await fetch('/api/game/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ telegramId: user.telegramId })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success && data.cwarsBalance !== undefined) {
+                        // Silent update - maintain local state consistency
+                        // We do NOT use setUser here to avoid re-rendering loop issues or aggressive overriding
+                        // But since we want to show the balance, we act carefully.
+                        // Ideally, we just update the specific fields.
+                        // setUserState(prev => ({ ...prev, cwarsBalance: data.cwarsBalance, lastEarningsUpdate: data.lastEarningsUpdate }));
+
+                        // Actually, let's allow it to update full state for consistency
+                        setUserState(prev => ({
+                            ...prev,
+                            cwarsBalance: data.cwarsBalance,
+                            lastEarningsUpdate: data.lastEarningsUpdate ? new Date(data.lastEarningsUpdate) : prev.lastEarningsUpdate
+                        }));
+                    }
+                }
+            } catch (err) {
+                console.error("Auto-Sync Failed:", err);
+            }
+        }, 10000);
 
         return () => clearInterval(syncInterval);
     }, [isLoaded, user.id, user.telegramId]);
-    */
 
     const handleIntroComplete = (lang: Language) => {
         localStorage.setItem('cartel_intro_seen', 'true');

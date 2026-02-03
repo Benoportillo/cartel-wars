@@ -17,6 +17,11 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
+        // --- ECONOMY SYNC ---
+        const { Economy } = await import('@/lib/economy');
+        Economy.crystallizeEarnings(user, new Date());
+        // --------------------
+
         // 1. Fetch Item from DB
         const item = await Item.findOne({ id: itemId });
         if (!item) {
