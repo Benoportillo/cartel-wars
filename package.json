@@ -12,6 +12,7 @@
   "dependencies": {
     "@tonconnect/sdk": "^3.4.0",
     "@tonconnect/ui-react": "^2.4.0",
+    "mongodb": "^7.0.0",
     "mongoose": "^9.1.2",
     "next": "14.1.0",
     "react": "^18.2.0",

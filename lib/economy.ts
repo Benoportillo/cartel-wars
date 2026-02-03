@@ -1,12 +1,19 @@
 import { WEAPONS } from '@/constants';
-import { UserProfile } from '@/types';
+import { WeaponInstance } from '@/types';
+
+// Minimal interface compatible with both UserProfile (Frontend) and IUser (Backend/Mongoose)
+interface EconomyUser {
+    ownedWeapons?: WeaponInstance[];
+    cwarsBalance?: number;
+    lastClaimDate?: Date | string;
+}
 
 export class Economy {
     /**
      * Calculates the mining rate (CWARS per hour) for a given user profile.
      * Formula: BaseWeaponMining + (CaliberLevel - 1) * (10% of BaseWeaponMining)
      */
-    static calculateMiningRate(user: Partial<UserProfile>): number {
+    static calculateMiningRate(user: EconomyUser): number {
         if (!user.ownedWeapons || user.ownedWeapons.length === 0) return 0;
 
         return user.ownedWeapons.reduce((total, instance) => {
@@ -22,7 +29,7 @@ export class Economy {
      * Calculates the total balance at a specific point in time.
      * Formula: StoredBalance + (TargetTime - LastClaimTime) * RatePerSecond
      */
-    static getProjectedBalance(user: Partial<UserProfile>, targetDate: Date = new Date()): number {
+    static getProjectedBalance(user: EconomyUser, targetDate: Date = new Date()): number {
         if (!user.lastClaimDate) return user.cwarsBalance || 0;
 
         const ratePerHour = this.calculateMiningRate(user);

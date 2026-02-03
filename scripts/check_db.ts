@@ -16,8 +16,14 @@ if (!MONGODB_URI) {
 async function checkDB() {
     console.log('Connecting to:', MONGODB_URI?.split('@')[1]); // Hide creds
     try {
-        const conn = await mongoose.connect(MONGODB_URI!);
+        const conn = await mongoose.connect(MONGODB_URI!, { family: 4 });
         console.log('Connected!');
+
+        if (!conn.connection.db) {
+            console.error('Database object is undefined');
+            return;
+        }
+
         console.log('Database Name:', conn.connection.db.databaseName);
 
         const collections = await conn.connection.db.listCollections().toArray();
