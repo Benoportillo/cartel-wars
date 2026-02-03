@@ -134,7 +134,6 @@ export const INITIAL_USER: any = {
   referrals: 0,
   lastRaceDate: null,
   ownedWeapons: [{ weaponId: 'starter', caliberLevel: 1, magazineLevel: 1, accessoryLevel: 1, skin: '#333333' }],
-  lastClaimDate: new Date(),
   lastTicketDate: new Date(),
 
   basePower: 0,

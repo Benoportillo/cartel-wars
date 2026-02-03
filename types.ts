@@ -135,7 +135,6 @@ export interface UserProfile {
   referredBy?: string; // ID of the user who recruited this hitman
   lastRaceDate: Date | null;
   ownedWeapons: WeaponInstance[];
-  lastClaimDate: Date;
   lastTicketDate: Date;
 
   language: Language;

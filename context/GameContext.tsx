@@ -77,7 +77,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const parsed = JSON.parse(savedUser);
             setUserState({
                 ...parsed,
-                lastClaimDate: new Date(parsed.lastClaimDate),
+                ...parsed,
                 lastTicketDate: parsed.lastTicketDate ? new Date(parsed.lastTicketDate) : new Date(Date.now() - 86400000),
                 language: parsed.language || 'en',
                 pvpHistory: parsed.pvpHistory || [],

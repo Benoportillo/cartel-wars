@@ -38,7 +38,6 @@ export interface IUser extends Document {
     ownedWeapons: WeaponInstance[]; // Define stricter schema if needed
     createdAt: Date;
     lastLogin: Date;
-    lastClaimDate?: Date;
 
     totalPvPWon: number;
     totalPvPLost: number;
