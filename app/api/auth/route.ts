@@ -21,12 +21,7 @@ export async function POST(req: Request) {
                 return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
             }
 
-            // --- AUTO-FARMING LOGIC ---
-            // Use Universal Economy Logic (Isomorphic)
-            const { Economy } = await import('@/lib/economy');
-            Economy.crystallizeEarnings(user, new Date());
-            await user.save();
-            // --------------------------
+
 
             return NextResponse.json({ user });
         } else {
