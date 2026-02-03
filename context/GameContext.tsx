@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 import { UserProfile, Rank, Language, GlobalSettings, Transaction, WeaponInstance } from '../types';
 import { INITIAL_USER, WEAPONS } from '../constants';
 import { translations } from '../translations';
-import { Economy } from '../lib/economy';
+
 
 interface GameContextType {
     user: UserProfile;
@@ -178,47 +178,36 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, []);
 
     const calculateWeaponBonuses = (profile: UserProfile) => {
-        const weaponPower = profile.ownedWeapons.reduce((acc, instance) => {
-            const baseWeapon = WEAPONS.find(w => w.id === instance.weaponId);
-            if (!baseWeapon) return acc;
-            // MINING POWER (Economy)
-            // Caliber: +10% Base Mining Power per level
-            const caliberBonus = (instance.caliberLevel - 1) * ((baseWeapon.miningPower || 0) * 0.10);
-            return acc + (baseWeapon.miningPower || 0) + caliberBonus;
-        }, 0);
+
 
         const weaponFirepower = profile.ownedWeapons.reduce((acc, instance) => {
             const baseWeapon = WEAPONS.find(w => w.id === instance.weaponId);
-            if (!baseWeapon) return acc;
-            // FIREPOWER (Combat) - Including magazine upgrades
-            // Magazine adds Daily Attacks (handled in Ammo logic), but let's keep a small flat bonus or remove it?
-            // User request only mentioned Accessories increasing "Natural Strength". 
-            // Let's remove Magazine power bonus if it's purely for ammo now? 
-            // Or keep it small. The prompt focused on Accessories = Firepower.
-            // Let's implement Accessories = 10% Firepower Bonus.
 
-            const magBonus = (instance.magazineLevel - 1) * 0; // Magazine is now Utility (Ammo), removing power bonus to distinguish roles? Or keep small? Let's remove to be clean or keep flat. Let's keep flat 5 or 0. Sticking to prompt: "Accessories... increases the natural strength".
+            // Prefer Snapshot Data from Instance
+            const baseFirepower = instance.firepower !== undefined ? instance.firepower : (baseWeapon?.firepower || 0);
 
             // Accessories: +10% Base Firepower per level
-            const accBonus = (instance.accessoryLevel - 1) * ((baseWeapon.firepower || 0) * 0.10);
+            const accBonus = (instance.accessoryLevel - 1) * (baseFirepower * 0.10);
 
-            return acc + (baseWeapon.firepower || 0) + magBonus + accBonus;
+            return acc + baseFirepower + accBonus;
         }, 0);
 
         const weaponStatus = profile.ownedWeapons.reduce((acc, instance) => {
             const baseWeapon = WEAPONS.find(w => w.id === instance.weaponId);
-            if (!baseWeapon) return acc;
+
+            // Prefer Snapshot Data from Instance
+            const baseStatusBonus = instance.statusBonus !== undefined ? instance.statusBonus : (baseWeapon?.statusBonus || 0);
+
             const upgradeBonus = (instance.caliberLevel + instance.magazineLevel + instance.accessoryLevel - 3) * 5;
-            return acc + baseWeapon.statusBonus + upgradeBonus;
+            return acc + baseStatusBonus + upgradeBonus;
         }, 0);
 
-        return { weaponPower, weaponStatus, weaponFirepower };
+        return { weaponStatus, weaponFirepower };
     };
 
     const setUser = useCallback((updatedUser: UserProfile) => {
-        const { weaponPower, weaponStatus, weaponFirepower } = calculateWeaponBonuses(updatedUser);
+        const { weaponStatus, weaponFirepower } = calculateWeaponBonuses(updatedUser);
 
-        const finalPower = (updatedUser.basePower ?? 0) + weaponPower;
         // Firepower calculation: Base (0) + Weapons
         const finalFirepower = (updatedUser.basePower ?? 0) + weaponFirepower;
         const finalStatus = (updatedUser.baseStatus ?? 0) + weaponStatus;
@@ -230,7 +219,6 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         const finalUser = {
             ...updatedUser,
-            power: finalPower,
             firepower: finalFirepower,
             status: finalStatus,
             rank: finalRank

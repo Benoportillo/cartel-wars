@@ -4,52 +4,7 @@ export const updatePendingResources = (user: any) => {
     // Basic validation
     if (!user) return user;
 
-    // --- AUTO-FARMING LOGIC ---
-    // Calculate pending CWARS and credit immediately
-    // Rate is now calculated dynamically from WEAPONS + Caliber Bonus (10% per level)
     const now = new Date();
-    const lastClaim = new Date(user.lastClaimDate || now);
-    const secondsElapsed = (now.getTime() - lastClaim.getTime()) / 1000;
-
-    if (secondsElapsed > 0) {
-        let totalRatePerHr = 0;
-
-        // Calculate Total Rate based on owned weapons
-        if (user.ownedWeapons && user.ownedWeapons.length > 0) {
-            totalRatePerHr = user.ownedWeapons.reduce((acc: number, instance: any) => {
-                const baseWeapon = WEAPONS.find(w => w.id === instance.weaponId);
-                if (!baseWeapon) return acc;
-
-                // Formula: Base + (Level - 1) * (10% of Base)
-                // Note: miningPower is the base rate
-                const levelBonus = (instance.caliberLevel - 1) * (baseWeapon.miningPower * 0.10);
-                return acc + baseWeapon.miningPower + levelBonus;
-            }, 0);
-        }
-
-        // Apply any global multipliers here if needed (User Level, etc.)
-        // For now, raw weapon output.
-
-        const ratePerSecond = totalRatePerHr / 3600;
-        const farmed = Math.floor(secondsElapsed * ratePerSecond);
-
-        if (farmed > 0) {
-            user.cwarsBalance = (user.cwarsBalance || 0) + farmed;
-            user.totalFarmed = (user.totalFarmed || 0) + farmed;
-            user.lastClaimDate = now;
-
-            // Console log for debugging (optional, can be noisy)
-            // console.log(`[Economy] User ${user.name} farmed ${farmed} CWARS over ${secondsElapsed.toFixed(0)}s`);
-        } else {
-            // Update timestamp anyway to prevent drift/redundant small checks
-            // Actually, if we farm 0, we shouldn't reset time unless we want to lose 'fractional' progress.
-            // Better to only update if farmed > 0 OR if significant time passed.
-            // But strict 'now' update is safer to prevent exploits.
-            if (secondsElapsed > 60) {
-                user.lastClaimDate = now;
-            }
-        }
-    }
 
     // --- DAILY AMMO REFILL LOGIC (GMT 0) ---
     const lastAmmoReset = new Date(user.lastDailyAmmo || 0);

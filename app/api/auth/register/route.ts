@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import User from '@/models/User';
+import Item from '@/models/Item';
 import { INITIAL_USER } from '@/constants';
 
 export async function POST(req: Request) {
@@ -76,6 +77,30 @@ export async function POST(req: Request) {
             }
         }
 
+        // Fetch Starter Weapon from DB
+        const starterWeapon = await Item.findOne({ id: 'starter' });
+
+        // Define starter weapons array with full stats from DB if available
+        // Fallback to minimal if DB fetch fails (should not happen if seeded)
+        const initialWeapons = starterWeapon ? [{
+            weaponId: starterWeapon.id,
+            name: starterWeapon.name, // Snapshot name (?) - Schema says ownedWeapons is array. 
+            // User schema defines ownedWeapons as WeaponInstance[] which has specific fields.
+            // Let's ensure we match what the user wants: "datos completos de los stats"
+            // We'll trust the WeaponInstance interface mostly or expand it.
+            // But if we just store ID, we lose snapshotting. 
+            // Mongoose Schema ownedWeapons is just 'Array'. 
+            // We will snapshot the stats here.
+            caliberLevel: 1,
+            magazineLevel: 1,
+            accessoryLevel: 1,
+            skin: 'default',
+            firepower: starterWeapon.firepower || 0.35,
+            miningPower: starterWeapon.miningPower || 1.0, // Default 1.0 CWARS/hr
+            statusBonus: starterWeapon.statusBonus || 5,
+            image: starterWeapon.image
+        }] : [{ weaponId: 'starter', caliberLevel: 1, magazineLevel: 1, accessoryLevel: 1, skin: 'default' }];
+
         const newUser = new User({
             ...INITIAL_USER,
             telegramId: telegramId || Math.floor(100000000 + Math.random() * 900000000).toString(),
@@ -83,7 +108,7 @@ export async function POST(req: Request) {
             password,
             name: name || `Sicario_${telegramId}`,
             referredBy: validReferredBy,
-            ownedWeapons: INITIAL_USER.ownedWeapons
+            ownedWeapons: initialWeapons
         });
 
         await newUser.save();

@@ -19,13 +19,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'User or Rival not found' }, { status: 404 });
         }
 
-        // --- CRITICAL: UPDATE ECONOMY BEFORE BATTLE ---
-        // Ensure both Attacker (User) and Defender (Rival) have up-to-date balances
-        // based on their time passed, even if offline.
-        const { Economy } = await import('@/lib/economy');
-        Economy.crystallizeEarnings(user, new Date());
-        Economy.crystallizeEarnings(rival, new Date());
-        // ----------------------------------------------
+
 
         // 1. Ammo Check
         if ((user.ammo || 0) < 1) {
@@ -134,8 +128,7 @@ export async function POST(req: Request) {
             user.cwarsBalance = (user.cwarsBalance || 0) + winnerShare;
             user.totalPvPWon = (user.totalPvPWon || 0) + winnerShare;
 
-            // Add to Historical Total (Cwars Lavados)
-            user.totalFarmed = (user.totalFarmed || 0) + winnerShare;
+
 
             rewardAmount = winnerShare;
             eventLog.push(`🏆 ¡VICTORIA! Robaste ${winnerShare} CWARS.`);
@@ -167,7 +160,7 @@ export async function POST(req: Request) {
             won,
             rival: rival.name,
             rivalId: rival._id.toString(), // Save Rival ID for Revenge
-            powerDiff: finalUserPower - (rival.power || 100),
+            powerDiff: finalUserPower - (rivalTotalPower || 100),
             timestamp: Date.now()
         };
 
@@ -178,7 +171,7 @@ export async function POST(req: Request) {
             won: !won,
             rival: user.name,
             rivalId: user._id.toString(), // Save Attacker ID for Revenge
-            powerDiff: (rival.power || 100) - finalUserPower,
+            powerDiff: (rivalTotalPower || 100) - finalUserPower,
             timestamp: Date.now()
         };
         rival.pvpHistory = [rivalRecord, ...(rival.pvpHistory || [])].slice(0, 20);

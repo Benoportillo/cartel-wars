@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
 import User from '@/models/User';
+import Item from '@/models/Item'; // New DB Model
 import dbConnect from '@/lib/dbConnect';
-import { WEAPONS } from '@/constants';
 
 export async function POST(req: Request) {
     try {
         await dbConnect();
-        const { telegramId, itemId, cost, type, currency, amount } = await req.json();
+        const { telegramId, itemId } = await req.json();
 
-        if (!telegramId || !itemId || cost === undefined || !type) {
+        if (!telegramId || !itemId) {
             return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
         }
 
@@ -17,13 +17,21 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
-        // 1. Validate Balance & Deduct
+        // 1. Fetch Item from DB
+        const item = await Item.findOne({ id: itemId });
+        if (!item) {
+            return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+        }
+
+        const cost = item.price;
+        const currency = item.currency || 'CWARS';
+
+        // 2. Validate Balance & Deduct
         if (currency === 'CWARS') {
             if ((user.cwarsBalance || 0) < cost) {
                 return NextResponse.json({ error: 'Insufficient CWARS balance' }, { status: 402 });
             }
             user.cwarsBalance -= cost;
-            // CWARS spent here are effectively BURNED (removed from circulation)
         } else {
             // TON
             if (user.balance < cost) {
@@ -32,53 +40,44 @@ export async function POST(req: Request) {
             user.balance -= cost;
         }
 
-        // 2. Deliver Item
-        if (type === 'WEAPON') {
+        // 3. Deliver Item based on Type
+        if (item.type === 'WEAPON') {
             // Check if already owned
             const alreadyOwned = user.ownedWeapons.some((w: any) => w.weaponId === itemId);
             if (alreadyOwned) {
                 return NextResponse.json({ error: 'Weapon already owned' }, { status: 400 });
             }
 
-            // Find weapon details to get default stats
-            const weaponDef = WEAPONS.find(w => w.id === itemId);
-            if (!weaponDef) {
-                return NextResponse.json({ error: 'Invalid weapon ID' }, { status: 400 });
-            }
-
             user.ownedWeapons.push({
                 weaponId: itemId,
+                name: item.name, // Snapshot
                 caliberLevel: 1,
                 magazineLevel: 1,
                 accessoryLevel: 1,
                 skin: 'default',
-                miningPower: weaponDef.miningPower,
-                firepower: weaponDef.firepower,
-                statusBonus: weaponDef.statusBonus
+                firepower: item.firepower || 0,
+                miningPower: item.miningPower || 0,
+                statusBonus: item.statusBonus || 0,
+                image: item.image
             });
 
-            // Recalculate Power (Mining Rate) is now redundant for persistence but good for User model 'power' field
-            // But we should rely on gameContext/logic to sum these. 
-            // Updating user.power (Economy) just in case
-            const weaponPower = user.ownedWeapons.reduce((sum: number, w: any) => sum + (w.miningPower || 0), 0);
-            user.power = (user.basePower || 0) + weaponPower;
+            // Production Power / user.power updates REMOVED
 
-        } else if (type === 'AMMO') {
-            const ammoAmount = amount || 5; // Default to 5 if not specified
+        } else if (item.type === 'AMMO') {
+            // Parse amount from name/desc or assume ID mapping if 'amount' field is not on helper items yet. 
+            // Better to assume fixed amounts based on ID for now or use description parsing?
+            // Seed script didn't explicitly put helper 'amount' locally.
+            // Let's hardcode IDs for safety until schema is richer.
+            let ammoAmount = 5;
+            if (itemId === 'ammo_20') ammoAmount = 20;
+            if (itemId === 'ammo_50') ammoAmount = 50;
+
             user.ammo = (user.ammo || 0) + ammoAmount;
 
-        } else if (type === 'ITEM' || type === 'BUFF') {
+        } else if (item.type === 'BUFF' || item.type === 'ITEM') {
             if (!user.inventory) user.inventory = {};
             user.inventory[itemId] = (user.inventory[itemId] || 0) + 1;
             user.markModified('inventory');
-
-        } else if (type === 'TICKET') {
-            const ticketAmount = itemId === 'ticket_1' ? 1 : itemId === 'ticket_5' ? 5 : 10;
-            user.tickets += ticketAmount;
-
-        } else if (type === 'CWARS_PACK') {
-            const cwarsAmount = itemId === 'pack_small' ? 10000 : itemId === 'pack_medium' ? 50000 : 250000;
-            user.cwarsBalance = (user.cwarsBalance || 0) + cwarsAmount;
         }
 
         await user.save();
@@ -87,10 +86,10 @@ export async function POST(req: Request) {
             success: true,
             newBalance: user.balance,
             newCwars: user.cwarsBalance,
-            newTickets: user.tickets,
             newWeapons: user.ownedWeapons,
             newInventory: user.inventory,
-            newAmmo: user.ammo
+            newAmmo: user.ammo,
+            message: `¡Compraste ${item.name}!`
         });
 
     } catch (error) {

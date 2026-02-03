@@ -32,12 +32,31 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Referral has not completed 10 PvP battles' }, { status: 400 });
         }
 
-        // Process Claim
-        user.cwarsBalance = (user.cwarsBalance || 0) + 5000;
-        user.totalReferralBonus = (user.totalReferralBonus || 0) + 5000;
+        // Calculate Bonus Tier
+        // Count how many referrals have already been paid for this user
+        const paidReferralsCount = await User.countDocuments({
+            referredBy: telegramId,
+            referrerBonusPaid: true
+        });
 
-        // Add to Historical Total (Cwars Lavados)
-        user.totalFarmed = (user.totalFarmed || 0) + 5000;
+        const currentReferralIndex = paidReferralsCount + 1;
+        let bonusAmount = 0;
+
+        if (currentReferralIndex <= 3) {
+            bonusAmount = 50;
+        } else if (currentReferralIndex <= 10) {
+            bonusAmount = 80;
+        } else if (currentReferralIndex <= 15) {
+            bonusAmount = 150;
+        } else {
+            return NextResponse.json({ error: 'Maximum referral limit reached (15)' }, { status: 400 });
+        }
+
+        // Process Claim
+        user.cwarsBalance = (user.cwarsBalance || 0) + bonusAmount;
+        user.totalReferralBonus = (user.totalReferralBonus || 0) + bonusAmount;
+
+
 
         referral.referrerBonusPaid = true;
 

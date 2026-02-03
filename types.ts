@@ -19,7 +19,7 @@ export interface Weapon {
   level: number;
   price: number;
   protectionRate: number;
-  miningPower: number; // New: Decoupled Economy Stat
+
   firepower: number;
   statusBonus: number;
   isLimited?: boolean;
@@ -35,8 +35,10 @@ export interface WeaponInstance {
   accessoryLevel: number;
   skin: string;
   // Persisted Stats (Denormalization)
-  miningPower?: number;
+  name?: string;
+  image?: string;
   firepower?: number;
+  miningPower?: number;
   statusBonus?: number;
 }
 
@@ -135,11 +137,11 @@ export interface UserProfile {
   ownedWeapons: WeaponInstance[];
   lastClaimDate: Date;
   lastTicketDate: Date;
-  unclaimedFarming: number;
+
   language: Language;
   basePower: number; // New: Stats gained/lost in battle
   baseStatus: number; // New: Respect gained/lost in battle
-  power: number; // Total Displayed Power (Production)
+
   firepower: number; // Total Combat Power (PVP)
   status: number; // Total Displayed Respect
   inventory: Record<string, number>; // New: Buffs & Consumables
@@ -167,7 +169,7 @@ export interface UserProfile {
     level2Earnings: number;
     level3Earnings: number;
   };
-  totalFarmed?: number;
+
   totalPvPWon?: number;
   totalPvPLost?: number;
   totalRouletteSpent?: number;

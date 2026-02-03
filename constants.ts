@@ -10,7 +10,7 @@ export const WEAPONS: Weapon[] = [
     level: 1,
     price: 0,
     protectionRate: 10, // ROI: Infinito (Gratis)
-    miningPower: 350, // Baseline: 350 CWARS/hr
+
     firepower: 0.35,
     statusBonus: 5,
     image: 'https://i.ibb.co/GQr1W2vH/1000521621-removebg-preview.png',
@@ -24,7 +24,7 @@ export const WEAPONS: Weapon[] = [
     level: 1,
     price: 1.5,
     protectionRate: 125, // ROI: 31 Days
-    miningPower: 1000, // 1,000 CWARS/hr
+
     firepower: 0.45,
     statusBonus: 12,
     image: 'https://i.ibb.co/cc8ykq1G/Gemini-Generated-Image-704fwm704fwm704f-removebg-preview.png',
@@ -37,7 +37,7 @@ export const WEAPONS: Weapon[] = [
     level: 1,
     price: 2.0,
     protectionRate: 180, // ROI: 27 Days
-    miningPower: 1500, // 1,500 CWARS/hr
+
     firepower: 0.52,
     statusBonus: 25,
     image: 'https://i.ibb.co/XZxm3H2M/Gemini-Generated-Image-ei522vei522vei52-removebg-preview.png',
@@ -50,7 +50,7 @@ export const WEAPONS: Weapon[] = [
     level: 2,
     price: 6.5,
     protectionRate: 650, // ROI: 27 Days
-    miningPower: 5000, // 5,000 CWARS/hr
+
     firepower: 0.58,
     statusBonus: 80,
     image: 'https://i.ibb.co/Zpr95hr2/Gemini-Generated-Image-frz2wzfrz2wzfrz2-removebg-preview.png',
@@ -63,7 +63,7 @@ export const WEAPONS: Weapon[] = [
     level: 3,
     price: 15.0,
     protectionRate: 1600, // ROI: 26 Days
-    miningPower: 12000, // 12,000 CWARS/hr
+
     firepower: 0.72,
     statusBonus: 250,
     image: 'https://i.ibb.co/W7CVQDy/Gemini-Generated-Image-x8tndox8tndox8tn-removebg-preview.png',
@@ -76,7 +76,7 @@ export const WEAPONS: Weapon[] = [
     level: 4,
     price: 35.0,
     protectionRate: 4000, // ROI: ~21 Days
-    miningPower: 35000, // 35,000 CWARS/hr
+
     firepower: 0.85,
     statusBonus: 400,
     image: 'https://i.ibb.co/ZRHxGykr/Gemini-Generated-Image-n39pmdn39pmdn39p-removebg-preview.png',
@@ -89,7 +89,7 @@ export const WEAPONS: Weapon[] = [
     level: 4,
     price: 50.0,
     protectionRate: 6000, // ROI: ~20 Days
-    miningPower: 50000, // 50,000 CWARS/hr
+
     firepower: 0.92,
     statusBonus: 600,
     image: 'https://i.ibb.co/1YhPCYsT/Gemini-Generated-Image-ajl2viajl2viajl2-removebg-preview.png',
@@ -102,7 +102,7 @@ export const WEAPONS: Weapon[] = [
     level: 4,
     price: 80.0,
     protectionRate: 11000, // ROI: 20 Days (Best Yield)
-    miningPower: 80000, // 80,000 CWARS/hr
+
     firepower: 0.98,
     statusBonus: 1000,
     isLimited: true,
@@ -136,10 +136,10 @@ export const INITIAL_USER: any = {
   ownedWeapons: [{ weaponId: 'starter', caliberLevel: 1, magazineLevel: 1, accessoryLevel: 1, skin: '#333333' }],
   lastClaimDate: new Date(),
   lastTicketDate: new Date(),
-  unclaimedFarming: 0,
+
   basePower: 0,
   baseStatus: 0,
-  power: 350, // Initial Mining Power (Starter Knife)
+
   firepower: 0,
   status: 5,
   pvpHistory: [],

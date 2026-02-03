@@ -333,40 +333,7 @@ const Dashboard: React.FC = () => {
     // Auto-Sync Logic was removed from here.
   }, [user.telegramId]);
 
-  // AUTO-SYNC LOGIC (3 Seconds Heartbeat)
-  useEffect(() => {
-    if (!user.telegramId) return;
 
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch('/api/game/auto-sync', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ telegramId: user.telegramId })
-        });
-        const data = await res.json();
-
-        if (data.success) {
-          // Update user balance silently to avoid re-renders interrupting interactions if possible,
-          // but we need to update the ref/state for the visual counter to stay accurate.
-          // validamos si hubo cambio real para no spammear actualizaciones de estado si no es necesario
-          if (userRef.current && data.newBalance !== userRef.current.cwarsBalance) {
-            const updatedUser = {
-              ...userRef.current,
-              cwarsBalance: data.newBalance,
-              totalFarmed: data.totalFarmed
-            };
-            setUser(updatedUser);
-            console.log('✅ Balance Synced:', data.newBalance.toFixed(2));
-          }
-        }
-      } catch (e) {
-        console.error("Auto-Sync failed", e);
-      }
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [user.telegramId, setUser]);
 
   const claimReferralBonus = async (refId: string) => {
     try {
@@ -488,10 +455,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-black/40 p-3 rounded-xl border border-zinc-800/50">
-            <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">CWARS LAVADOS</p>
-            <p className="text-lg font-marker text-green-500">+{user.totalFarmed?.toLocaleString(undefined, { maximumFractionDigits: 2 }) || 0}</p>
-          </div>
+
           <div className="bg-black/40 p-3 rounded-xl border border-zinc-800/50">
             <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">VICIOS (TON)</p>
             <p className="text-lg font-marker text-purple-500">-{user.totalRouletteSpent?.toFixed(2) || '0.00'}</p>
@@ -511,8 +475,8 @@ const Dashboard: React.FC = () => {
 
         <div className="mt-4 pt-4 border-t border-zinc-800 flex justify-between items-center">
           <p className="text-[9px] text-zinc-500 font-black uppercase tracking-widest">NET PROFIT (CWARS)</p>
-          <p className={`text-xl font-marker ${(user.totalFarmed || 0) + (user.totalPvPWon || 0) - (user.totalPvPLost || 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-            {((user.totalFarmed || 0) + (user.totalPvPWon || 0) - (user.totalPvPLost || 0)).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+          <p className={`text-xl font-marker ${(user.totalPvPWon || 0) - (user.totalPvPLost || 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+            {((user.totalPvPWon || 0) - (user.totalPvPLost || 0)).toLocaleString(undefined, { maximumFractionDigits: 2 })}
           </p>
         </div>
 
@@ -670,19 +634,33 @@ const Dashboard: React.FC = () => {
             </div>
           ) : (
             user.ownedWeapons.map((instance, idx) => {
-              const weapon = WEAPONS.find(w => w.id === instance.weaponId);
-              if (!weapon) return null;
-              const totalPower = (weapon.firepower * 100) + (instance.caliberLevel + instance.magazineLevel + instance.accessoryLevel - 3) * 8;
-              const totalRespect = weapon.statusBonus + (instance.caliberLevel + instance.magazineLevel + instance.accessoryLevel - 3) * 5;
+              // Try to find base weapon, but fallback to instance data if possible
+              const baseWeapon = WEAPONS.find(w => w.id === instance.weaponId);
+
+              // Resolve Display Data (Snapshot > Constant)
+              const displayName = instance.name || baseWeapon?.name || 'Arma Desconocida';
+              const displayImage = instance.image || baseWeapon?.image || '/assets/weapons/default.png';
+
+              // Resolve Stats (Snapshot > Constant)
+              const baseFirepower = instance.firepower ?? baseWeapon?.firepower ?? 0;
+              const baseStatus = instance.statusBonus ?? baseWeapon?.statusBonus ?? 0;
+
+              // Calculate Totals including upgrades
+              // Note: Formula might need adjustment if using raw numbers now, but keeping consistent structure
+              // Assuming firepower is small float (0.35 etc) -> x100 convention for UI? 
+              // Previous: (weapon.firepower * 100)
+              const totalPower = (baseFirepower * 100) + (instance.caliberLevel + instance.magazineLevel + instance.accessoryLevel - 3) * 8;
+              const totalRespect = baseStatus + (instance.caliberLevel + instance.magazineLevel + instance.accessoryLevel - 3) * 5;
+
               return (
                 <div key={idx} className="bg-zinc-950 border border-zinc-800 rounded-2xl p-5 flex gap-6 items-center hover:border-red-600 transition-colors">
-                  <img src={weapon.image} className="w-24 h-24 object-contain filter drop-shadow-[0_8px_12px_rgba(220,38,38,0.3)]" />
+                  <img src={displayImage} className="w-24 h-24 object-contain filter drop-shadow-[0_8px_12px_rgba(220,38,38,0.3)]" alt={displayName} />
                   <div className="flex-1">
-                    <h4 className="font-marker text-zinc-100 text-xl uppercase tracking-tighter">{weapon.name}</h4>
+                    <h4 className="font-marker text-zinc-100 text-xl uppercase tracking-tighter">{displayName}</h4>
                     <div className="flex flex-col gap-1 mt-1">
                       <p className="text-red-500 font-bold text-xs flex items-center gap-1">💀 {totalPower.toFixed(2)} <span className="text-[8px] opacity-60 uppercase">{t.power}</span></p>
                       <p className="text-blue-500 font-bold text-xs flex items-center gap-1">👑 {totalRespect.toFixed(0)} <span className="text-[8px] opacity-60 uppercase">{t.status}</span></p>
-                      <p className="text-green-500 font-bold text-xs flex items-center gap-1">💸 +{weapon.miningPower.toLocaleString()} <span className="text-[8px] opacity-60 uppercase">CWARS/HR</span></p>
+
                     </div>
                   </div>
                 </div>
@@ -833,38 +811,7 @@ const Dashboard: React.FC = () => {
         </div>
       )}
 
-      <section className={`bg-gradient-to-br from-zinc-900 to-black border border-green-900/40 rounded-2xl p-6 text-center shadow-[0_20px_40px_rgba(0,0,0,0.5)]`}>
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-green-600 font-marker text-xl tracking-widest uppercase">
-            OPERACIÓN ACTIVA
-          </h2>
-          <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]"></div>
-        </div>
 
-        <div className="flex flex-col gap-1">
-          {/* LIVE COUNTER - Now strictly LiveProductionCounter which uses cwarsBalance */}
-          <LiveProductionCounter userPower={user.power || 0} initialBalance={user.cwarsBalance || 0} />
-
-          <div className="flex justify-center gap-4 mt-2">
-            <div className="text-center">
-              <p className="text-2xl font-black text-white drop-shadow-lg">
-                +{(user.power || 0).toLocaleString()}
-              </p>
-              <p className="text-[8px] text-zinc-600 uppercase font-bold">CWARS / HORA</p>
-            </div>
-            <div className="text-center border-l border-zinc-800 pl-4">
-              <p className="text-lg font-black text-green-500 drop-shadow-lg">
-                +{((user.power || 0) / 60).toFixed(2)}
-              </p>
-              <p className="text-[8px] text-zinc-600 uppercase font-bold">CWARS / MIN</p>
-            </div>
-          </div>
-
-          <p className="text-[9px] text-zinc-500 mt-2 bg-black/40 p-2 rounded-lg border border-zinc-800/50">
-            🚀 Producción contínua. Los ingresos se depositan <span className="text-green-400 font-bold">AUTOMÁTICAMENTE</span> incluso offline.
-          </p>
-        </div>
-      </section>
 
       <section className="bg-zinc-950 border border-zinc-900 p-5 rounded-2xl flex items-center gap-5 italic text-zinc-400 text-sm">
         <div className="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center text-2xl border border-zinc-800">🚬</div>
