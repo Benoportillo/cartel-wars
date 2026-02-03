@@ -261,24 +261,9 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const t = translations[user.language] || translations.en;
 
-    // Farming Client Loop (Visual) - Uses Economy Library for Precision
-    useEffect(() => {
-        if (!isLoaded) return;
-        const interval = setInterval(() => {
-            setUserState(prev => {
-                if (!prev.id) return prev;
-                // Deep copy to modify
-                const nextUser = { ...prev };
-
-                // Use Universal Economy Logic to update state (time-delta based)
-                // This updates cwarsBalance and lastClaimDate to NOW
-                Economy.crystallizeEarnings(nextUser, new Date());
-
-                return nextUser;
-            });
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [isLoaded]);
+    // Farming Client Loop REMOVED to prevent clock skew issues.
+    // We now rely on the Dashboard's visual counter for immediate feedback
+    // and the 10s Auto-Sync for actual state updates.
 
     // AUTO-SYNC TO SERVER (Persistence) - Every 10 Seconds
     useEffect(() => {
