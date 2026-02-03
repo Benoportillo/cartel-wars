@@ -203,7 +203,7 @@ const PvP: React.FC = () => {
         level: data.newLevel || user.level, // Optimistic Level
         inventory: newInventory,
         completedMissions: [...(user.completedMissions || []), 'attack_rival'],
-        pvpHistory: [{ won: data.won, rival: target.name, powerDiff: (user.firepower || 0) - (target.firepower || target.power || 0), timestamp: Date.now() }, ...(user.pvpHistory || [])].slice(0, 5)
+        pvpHistory: [{ won: data.won, rival: target.name, powerDiff: (user.firepower || 0) - (target.firepower || 0), timestamp: Date.now() }, ...(user.pvpHistory || [])].slice(0, 5)
       });
 
       setResult({
@@ -691,7 +691,7 @@ const PvP: React.FC = () => {
             <div className="bg-black/50 p-4 rounded-xl border border-zinc-800 mb-4 text-center">
               <p className="text-[9px] text-zinc-500 font-black uppercase tracking-widest">OBJETIVO</p>
               <h4 className="text-xl font-marker text-red-500">{battlePrep.rival.name}</h4>
-              <p className="text-xs text-zinc-400">Poder de Fuego: <span className="text-white font-bold">{battlePrep.rival.firepower?.toFixed(0) || battlePrep.rival.power.toFixed(0)}</span></p>
+              <p className="text-xs text-zinc-400">Poder de Fuego: <span className="text-white font-bold">{battlePrep.rival.firepower?.toFixed(0) || 0}</span></p>
             </div>
 
             <div className="space-y-2 mb-6">
