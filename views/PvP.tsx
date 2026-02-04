@@ -452,9 +452,12 @@ const PvP: React.FC = () => {
             {user.isAdmin ? t.adminOnly : "Misión de Asalto: Ejecutando inteligencia táctica..."}
           </p>
           <button
-            onClick={() => { }}
-            disabled={user.isAdmin || user.balance < 0.02 || user.ownedWeapons.length === 0 || racing}
-            className={`w-full py-4 rounded-lg font-marker text-xl uppercase tracking-widest transition-all ${!user.isAdmin && user.balance >= 0.02 && user.ownedWeapons.length > 0
+            onClick={() => {
+              const randomHeist = HEIST_MISSIONS[Math.floor(Math.random() * HEIST_MISSIONS.length)];
+              runHeistMission(randomHeist.id);
+            }}
+            disabled={user.isAdmin || user.dailyHeistsLeft <= 0 || user.balance < 0.02 || user.ownedWeapons.length === 0 || racing}
+            className={`w-full py-4 rounded-lg font-marker text-xl uppercase tracking-widest transition-all ${!user.isAdmin && user.dailyHeistsLeft > 0 && user.balance >= 0.02 && user.ownedWeapons.length > 0
               ? 'bg-red-600 gold-glow hover:bg-red-500 active:scale-95 shadow-[0_10px_30px_rgba(220,38,38,0.4)]'
               : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
               }`}

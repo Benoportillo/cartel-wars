@@ -40,7 +40,7 @@ export async function POST(req: Request) {
 
             // Battle Logic (Simple power check with variance)
             const calculateBattlePower = (u: any) => {
-                const weaponPower = u.ownedWeapons.reduce((sum: number, w: any) => {
+                const weaponPower = (u.ownedWeapons || []).reduce((sum: number, w: any) => {
                     const def = WEAPONS.find(d => d.id === w.weaponId);
                     const power = w.firepower !== undefined ? w.firepower : (def ? def.firepower : 0);
                     return sum + power;
@@ -97,7 +97,7 @@ export async function POST(req: Request) {
         user.ammo = (user.ammo || 0) - 1;
 
         const calculateBattlePower = (u: any) => {
-            const weaponPower = u.ownedWeapons.reduce((sum: number, w: any) => {
+            const weaponPower = (u.ownedWeapons || []).reduce((sum: number, w: any) => {
                 const def = WEAPONS.find(d => d.id === w.weaponId);
                 const power = w.firepower !== undefined ? w.firepower : (def ? def.firepower : 0);
                 return sum + power;
