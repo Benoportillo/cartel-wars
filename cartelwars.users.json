@@ -1,0 +1,131 @@
+[{
+  "_id": {
+    "$oid": "698245d2fe55eedd9677048e"
+  },
+  "telegramId": "7096841895",
+  "email": "forexbotiam@gmail.com",
+  "password": "42532880**",
+  "name": "AntonioxRoV",
+  "rank": "Independiente",
+  "balance": 0.2,
+  "cwarsBalance": 24.748591944444463,
+  "tonWithdrawn": 0,
+  "tickets": 1,
+  "referrals": 1,
+  "basePower": 0,
+  "baseStatus": 0,
+  "totalPvPWon": 0,
+  "totalPvPLost": 0,
+  "totalReferralBonus": 0,
+  "inventory": {},
+  "ammo": 10,
+  "lastDailyAmmo": {
+    "$date": "2026-02-03T19:00:33.944Z"
+  },
+  "ownedWeapons": [
+    {
+      "weaponId": "starter",
+      "name": "Navaja de Mariposa",
+      "caliberLevel": 1,
+      "magazineLevel": 1,
+      "accessoryLevel": 1,
+      "skin": "default",
+      "firepower": 0.35,
+      "miningPower": 1,
+      "statusBonus": 5,
+      "image": "/assets/weapons/navaja.png"
+    }
+  ],
+  "isBanned": false,
+  "isAdmin": false,
+  "pvpHistory": [],
+  "pvpBattlesPlayed": 0,
+  "referrerBonusPaid": false,
+  "lastTicketDate": {
+    "$date": "2026-02-03T19:00:33.944Z"
+  },
+  "nameChanged": false,
+  "lastRaceDate": null,
+  "completedMissions": [],
+  "hasSeenGuide": false,
+  "lastEarningsUpdate": {
+    "$date": "2026-02-04T19:45:29.055Z"
+  },
+  "createdAt": {
+    "$date": "2026-02-03T19:00:34.128Z"
+  },
+  "updatedAt": {
+    "$date": "2026-02-04T19:45:29.055Z"
+  },
+  "__v": 0,
+  "dailyHeistsLeft": 5,
+  "lastHeistDate": {
+    "$date": "2026-02-03T20:26:56.326Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "698352db70112da88abd733d"
+  },
+  "telegramId": "7975052379",
+  "email": "henrycamposhdc@gmail.com",
+  "password": "Kazuto033",
+  "name": "HCFaux👑",
+  "rank": "Independiente",
+  "balance": 0.2,
+  "cwarsBalance": 0.04739055555555556,
+  "tonWithdrawn": 0,
+  "tickets": 1,
+  "referrals": 0,
+  "referredBy": "7096841895",
+  "basePower": 0,
+  "baseStatus": 0,
+  "totalPvPWon": 0,
+  "totalPvPLost": 0,
+  "totalReferralBonus": 0,
+  "inventory": {},
+  "ammo": 10,
+  "lastDailyAmmo": {
+    "$date": "2026-02-03T20:26:56.335Z"
+  },
+  "ownedWeapons": [
+    {
+      "weaponId": "starter",
+      "name": "Navaja de Mariposa",
+      "caliberLevel": 1,
+      "magazineLevel": 1,
+      "accessoryLevel": 1,
+      "skin": "default",
+      "firepower": 0.35,
+      "miningPower": 1,
+      "statusBonus": 5,
+      "image": "/assets/weapons/navaja.png"
+    }
+  ],
+  "isBanned": false,
+  "isAdmin": false,
+  "pvpHistory": [],
+  "pvpBattlesPlayed": 0,
+  "referrerBonusPaid": false,
+  "lastTicketDate": {
+    "$date": "2026-02-03T20:26:56.335Z"
+  },
+  "nameChanged": false,
+  "lastRaceDate": null,
+  "completedMissions": [],
+  "dailyHeistsLeft": 5,
+  "lastHeistDate": {
+    "$date": "2026-02-03T20:26:56.335Z"
+  },
+  "hasSeenGuide": false,
+  "lastEarningsUpdate": {
+    "$date": "2026-02-04T14:11:18.488Z"
+  },
+  "createdAt": {
+    "$date": "2026-02-04T14:08:27.882Z"
+  },
+  "updatedAt": {
+    "$date": "2026-02-04T14:11:18.489Z"
+  },
+  "__v": 0
+}]

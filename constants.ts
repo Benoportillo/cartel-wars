@@ -12,7 +12,7 @@ export const WEAPONS: Weapon[] = [
     protectionRate: 10, // ROI: Infinito (Gratis)
 
     firepower: 0.35,
-    miningPower: 1,
+    miningPower: 1, // 24/day
     statusBonus: 5,
     image: 'https://i.ibb.co/GQr1W2vH/1000521621-removebg-preview.png',
     description: 'Para encuentros cercanos. Silenciosa y mortal.',
@@ -24,10 +24,10 @@ export const WEAPONS: Weapon[] = [
     category: 'Pistola',
     level: 1,
     price: 1.5,
-    protectionRate: 125, // ROI: 31 Days
+    protectionRate: 64, // ROI: 40 Days
 
     firepower: 0.45,
-    miningPower: 3.5,
+    miningPower: 4, // 96/day
     statusBonus: 12,
     image: 'https://i.ibb.co/cc8ykq1G/Gemini-Generated-Image-704fwm704fwm704f-removebg-preview.png',
     description: 'El estandar de la calle. Fiable y compacta.'
@@ -38,10 +38,10 @@ export const WEAPONS: Weapon[] = [
     category: 'Revolver',
     level: 1,
     price: 2.0,
-    protectionRate: 180, // ROI: 27 Days
+    protectionRate: 72, // ROI: 36 Days
 
     firepower: 0.52,
-    miningPower: 5,
+    miningPower: 6, // 144/day
     statusBonus: 25,
     image: 'https://i.ibb.co/XZxm3H2M/Gemini-Generated-Image-ei522vei522vei52-removebg-preview.png',
     description: 'Poder puro en un tambor de acero.'
@@ -52,10 +52,10 @@ export const WEAPONS: Weapon[] = [
     category: 'Subfusil',
     level: 2,
     price: 6.5,
-    protectionRate: 650, // ROI: 27 Days
+    protectionRate: 81, // ROI: 32 Days
 
     firepower: 0.58,
-    miningPower: 18,
+    miningPower: 22, // 528/day
     statusBonus: 80,
     image: 'https://i.ibb.co/Zpr95hr2/Gemini-Generated-Image-frz2wzfrz2wzfrz2-removebg-preview.png',
     description: 'Cadencia infernal para control de multitudes.'
@@ -66,10 +66,10 @@ export const WEAPONS: Weapon[] = [
     category: 'Fusil',
     level: 3,
     price: 15.0,
-    protectionRate: 1600, // ROI: 26 Days
+    protectionRate: 91, // ROI: 28 Days
 
     firepower: 0.72,
-    miningPower: 45,
+    miningPower: 57, // 1368/day
     statusBonus: 250,
     image: 'https://i.ibb.co/W7CVQDy/Gemini-Generated-Image-x8tndox8tndox8tn-removebg-preview.png',
     description: 'El simbolo del poder absoluto en el cartel.'
@@ -80,10 +80,10 @@ export const WEAPONS: Weapon[] = [
     category: 'Francotirador',
     level: 4,
     price: 35.0,
-    protectionRate: 4000, // ROI: ~21 Days
+    protectionRate: 102, // ROI: 25 Days
 
     firepower: 0.85,
-    miningPower: 110,
+    miningPower: 150, // 3600/day
     statusBonus: 400,
     image: 'https://i.ibb.co/ZRHxGykr/Gemini-Generated-Image-n39pmdn39pmdn39p-removebg-preview.png',
     description: 'Si lo ves, ya es demasiado tarde.'
@@ -94,10 +94,10 @@ export const WEAPONS: Weapon[] = [
     category: 'Pesada',
     level: 4,
     price: 50.0,
-    protectionRate: 6000, // ROI: ~20 Days
+    protectionRate: 111, // ROI: 23 Days
 
     firepower: 0.92,
-    miningPower: 165,
+    miningPower: 232, // 5568/day
     statusBonus: 600,
     image: 'https://i.ibb.co/1YhPCYsT/Gemini-Generated-Image-ajl2viajl2viajl2-removebg-preview.png',
     description: 'Lluvia de plomo para los que no pagan la cuota.'
@@ -108,10 +108,10 @@ export const WEAPONS: Weapon[] = [
     category: 'Especial',
     level: 4,
     price: 80.0,
-    protectionRate: 11000, // ROI: 20 Days (Best Yield)
+    protectionRate: 128, // ROI: 20 Days (Efficient)
 
     firepower: 0.98,
-    miningPower: 300,
+    miningPower: 427, // 10248/day
     statusBonus: 1000,
     isLimited: true,
     image: 'https://i.ibb.co/bRWKpw8B/Gemini-Generated-Image-futp7nfutp7nfutp-removebg-preview.png',

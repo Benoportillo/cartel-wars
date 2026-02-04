@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { UserProfile, Weapon, Rank, BattleRecord, GlobalSettings, PremiumMission } from '../types';
-import { WEAPONS, HEIST_MISSIONS } from '../constants';
+import { WEAPONS, HEIST_MISSIONS, PVP_BOTS } from '../constants';
 import { getMafiaFlavor } from '../geminiService';
 import { useGame, useTranslation } from '../context/GameContext';
 import { useRouter } from 'next/navigation';
@@ -114,13 +114,16 @@ const PvP: React.FC = () => {
   const isIndie = (u: UserProfile) => !u.myGangId && !u.joinedGangId;
   const getCartelId = (u: UserProfile) => u.myGangId || u.joinedGangId;
 
+  // ... (inside component)
+
   const runPvPMission = async (missionId: string) => {
     if (user.isAdmin || user.completedMissions?.includes(missionId) || racing) return;
 
     const userCartelId = getCartelId(user);
     const userIsIndie = isIndie(user);
 
-    const rivals = globalUsers.filter(u => {
+    // 1. Get Real Players
+    const humanRivals = globalUsers.filter(u => {
       if (u.id === user.id || u.isAdmin) return false;
       const targetIsIndie = isIndie(u);
       const targetCartelId = getCartelId(u);
@@ -129,7 +132,22 @@ const PvP: React.FC = () => {
       return targetIsIndie || (targetCartelId !== userCartelId);
     });
 
-    if (rivals.length === 0) {
+    // 2. Mix with Bots (Always available targets)
+    // We map Bots to a compatible shape for the frontend to render correctly
+    const botRivals = PVP_BOTS.map(bot => ({
+      id: bot.id,
+      name: `[BOT] ${bot.name}`,
+      telegramId: bot.id, // Bots use their ID as "telegramId" for routing
+      firepower: bot.firepower,
+      balance: 0,
+      cwarsBalance: bot.cwarsBalance,
+      avatar: 'https://i.ibb.co/5X29d2Z/bot-avatar.png', // Placeholder
+      isAdmin: false
+    }));
+
+    const allRivals = [...humanRivals, ...botRivals];
+
+    if (allRivals.length === 0) {
       showCartelMessage(t.noRivalsFound, 'error');
       return;
     }
@@ -137,10 +155,10 @@ const PvP: React.FC = () => {
     setRacing(true);
     setResult(null);
 
-    const target = rivals[Math.floor(Math.random() * rivals.length)];
+    const target = allRivals[Math.floor(Math.random() * allRivals.length)];
 
     // Open Battle Prep Modal instead of direct attack
-    setBattlePrep({ rival: target });
+    setBattlePrep({ rival: target as any }); // Cast as any because Bot shape might lack some UserProfile props
     setSelectedBuffs([]); // Reset buffs
   };
 

@@ -20,23 +20,20 @@ export const Economy = {
 
         // Calculate Total Mining Power (CWARS/Hour)
         const totalMiningPower = user.ownedWeapons.reduce((total, instance) => {
-            // Priority: Snapshot > Constant > 0
+            // ALWAYS use the Definition from constants to ensure live balancing updates apply to everyone immediately.
+            // We ignore the snapshot 'miningPower' on the instance unless the weapon ID is custom/unknown.
+
+            // Try to find definition in current constants
+            const def = WEAPONS.find(w => w.id === instance.weaponId);
             let power = 0;
 
-            if (instance.miningPower !== undefined) {
-                power = instance.miningPower;
+            if (def && def.miningPower !== undefined) {
+                power = def.miningPower;
             } else {
-                // Fallback for old data using Constants
-                const def = WEAPONS.find(w => w.id === instance.weaponId);
-                // Map the requested table manually if constant doesn't have it explicitly yet, 
-                // or assume constant has it (we updated seed but maybe not constants.ts file itself).
-                // For safety, let's map the IDs to the user's requested table here if missing.
-                if (def) {
-                    // Check if we put miningPower in CONSTANTS? We didn't edit constants.ts to add miningPower valus.
-                    // So we must fallback to a lookup table here to be safe.
-                    power = getBaseMiningPower(instance.weaponId);
-                }
+                // Fallback for custom items or if not in constants (legacy behavior)
+                power = instance.miningPower || getBaseMiningPower(instance.weaponId);
             }
+
             return total + power;
         }, 0);
 
@@ -53,14 +50,14 @@ export const Economy = {
 // Fallback table matches user's request
 function getBaseMiningPower(weaponId: string): number {
     switch (weaponId) {
-        case 'starter': return 1.0;     // Navaja (Updated req: 1 cwar/h)
-        case 'glock': return 2.5;
-        case 'revolver': return 3.33;
-        case 'mp5': return 10.83;
-        case 'ak47': return 25.0;
-        case 'barrett': return 58.33;
-        case 'm249': return 83.33;
-        case 'bazooka': return 133.33;
+        case 'starter': return 1.0;
+        case 'glock': return 4.0;
+        case 'revolver': return 6.0;
+        case 'mp5': return 20.0;
+        case 'ak47': return 60.0;
+        case 'barrett': return 160.0;
+        case 'm249': return 250.0;
+        case 'bazooka': return 500.0;
         default: return 0;
     }
 }

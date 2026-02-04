@@ -140,6 +140,11 @@ const Shop: React.FC = () => {
                                 <h3 className="font-marker text-white text-xs uppercase text-center leading-tight">{weapon.name}</h3>
                                 <div className="flex items-center justify-center gap-2 text-[10px] text-zinc-400 w-full">
                                     <span title="Poder de Fuego">💀 {(weapon.firepower * 100).toFixed(0)}</span>
+                                    {weapon.miningPower > 0 && (
+                                        <span title="Producción CWARS" className="text-green-500 font-bold ml-1">
+                                            💰 {weapon.miningPower}/h
+                                        </span>
+                                    )}
 
                                 </div>
                                 <p className="text-xs font-bold text-blue-400">{Number.isInteger(weapon.price) ? weapon.price : weapon.price.toFixed(2)} TON</p>
