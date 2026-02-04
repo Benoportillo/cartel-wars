@@ -121,10 +121,13 @@ const PvP: React.FC = () => {
 
     const userCartelId = getCartelId(user);
     const userIsIndie = isIndie(user);
+    const myId = String(user.id || user.telegramId);
 
     // 1. Get Real Players
     const humanRivals = globalUsers.filter(u => {
-      if (u.id === user.id || u.isAdmin) return false;
+      const uId = String(u.id || u.telegramId);
+      if (uId === myId || u.isAdmin) return false;
+
       const targetIsIndie = isIndie(u);
       const targetCartelId = getCartelId(u);
 
@@ -155,7 +158,11 @@ const PvP: React.FC = () => {
     setRacing(true);
     setResult(null);
 
-    const target = allRivals[Math.floor(Math.random() * allRivals.length)];
+    // Prevent selecting self if somehow passed filter
+    let target = allRivals[Math.floor(Math.random() * allRivals.length)];
+    while (String(target.id) === myId && allRivals.length > 1) {
+      target = allRivals[Math.floor(Math.random() * allRivals.length)];
+    }
 
     // Open Battle Prep Modal instead of direct attack
     setBattlePrep({ rival: target as any }); // Cast as any because Bot shape might lack some UserProfile props
@@ -815,7 +822,7 @@ const PvP: React.FC = () => {
 
             <div className="bg-black/50 p-4 rounded-xl border border-zinc-800 mb-4 text-center">
               <p className="text-[9px] text-zinc-500 font-black uppercase tracking-widest">OBJETIVO</p>
-              <h4 className="text-xl font-marker text-red-500">{heistPrep.heist.title}</h4>
+              <h4 className="text-xl font-marker text-red-500">{heistPrep.heist.name}</h4>
               <p className="text-xs text-zinc-400">Dificultad: <span className="text-white font-bold">{heistPrep.heist.firepower} PF</span></p>
               <p className="text-[9px] text-yellow-500 mt-1">Recompensa: {heistPrep.heist.reward} CWARS</p>
             </div>

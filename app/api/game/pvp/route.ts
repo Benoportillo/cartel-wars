@@ -12,6 +12,10 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Missing IDs' }, { status: 400 });
         }
 
+        if (userId === rivalId && type !== 'heist') {
+            return NextResponse.json({ error: 'Cannot attack yourself' }, { status: 400 });
+        }
+
         let user = await User.findOne({ telegramId: userId });
 
         if (!user) {
