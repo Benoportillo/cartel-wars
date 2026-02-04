@@ -807,6 +807,120 @@ const PvP: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Heist Prep Modal */}
+      {heistPrep && (
+        <div className="fixed inset-0 z-[400] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-zinc-900 border border-zinc-800 w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl animate-in zoom-in duration-300 relative">
+            <h3 className="text-2xl font-marker text-white text-center uppercase mb-4">PLANIFICAR GOLPE</h3>
+
+            <div className="bg-black/50 p-4 rounded-xl border border-zinc-800 mb-4 text-center">
+              <p className="text-[9px] text-zinc-500 font-black uppercase tracking-widest">OBJETIVO</p>
+              <h4 className="text-xl font-marker text-red-500">{heistPrep.heist.title}</h4>
+              <p className="text-xs text-zinc-400">Dificultad: <span className="text-white font-bold">{heistPrep.heist.firepower} PF</span></p>
+              <p className="text-[9px] text-yellow-500 mt-1">Recompensa: {heistPrep.heist.reward} CWARS</p>
+            </div>
+
+            <div className="space-y-2 mb-6">
+              <p className="text-[9px] text-zinc-500 font-black uppercase tracking-widest ml-1">EQUIPO TÁCTICO</p>
+
+              {/* Oil Buff */}
+              <div
+                onClick={() => {
+                  if ((user.inventory?.['oil'] || 0) > 0) {
+                    setSelectedBuffs(prev => prev.includes('oil') ? prev.filter(b => b !== 'oil') : [...prev, 'oil']);
+                  }
+                }}
+                className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${selectedBuffs.includes('oil') ? 'bg-yellow-900/20 border-yellow-500' : 'bg-zinc-950 border-zinc-800'}`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">🛢️</span>
+                  <div>
+                    <p className="text-xs font-bold text-white uppercase">Aceite (+15% Éxito)</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className={`text-xs font-black ${user.inventory?.['oil'] > 0 ? 'text-green-500' : 'text-red-500'}`}>x{user.inventory?.['oil'] || 0}</p>
+                </div>
+              </div>
+
+              {/* Charm Buff */}
+              <div
+                onClick={() => {
+                  if ((user.inventory?.['charm'] || 0) > 0) {
+                    setSelectedBuffs(prev => prev.includes('charm') ? prev.filter(b => b !== 'charm') : [...prev, 'charm']);
+                  }
+                }}
+                className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${selectedBuffs.includes('charm') ? 'bg-purple-900/20 border-purple-500' : 'bg-zinc-950 border-zinc-800'}`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">💀</span>
+                  <div>
+                    <p className="text-xs font-bold text-white uppercase">Amuleto (+25% Loot)</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className={`text-xs font-black ${user.inventory?.['charm'] > 0 ? 'text-green-500' : 'text-red-500'}`}>x{user.inventory?.['charm'] || 0}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={executeAttack}
+                className="flex-1 py-4 bg-red-600 text-white rounded-2xl font-marker text-lg uppercase tracking-widest shadow-xl hover:bg-red-500 active:scale-95 transition-all"
+              >
+                EJECUTAR
+              </button>
+              <button
+                onClick={() => setHeistPrep(null)}
+                className="px-6 bg-zinc-800 text-zinc-400 rounded-2xl font-marker text-sm uppercase transition-all"
+              >
+                X
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Result Modal */}
+      {result && (
+        <div className="fixed inset-0 z-[500] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+          <div className={`bg-zinc-900 border ${result.won ? 'border-green-600' : 'border-red-600'} w-full max-w-sm rounded-[2.5rem] p-8 shadow-[0_0_50px_rgba(0,0,0,0.8)] animate-in zoom-in duration-300 relative overflow-hidden`}>
+
+            <div className={`absolute top-0 left-0 w-full h-2 ${result.won ? 'bg-gradient-to-r from-green-600 to-emerald-400' : 'bg-gradient-to-r from-red-600 to-orange-600'}`}></div>
+
+            <div className="text-center mb-6">
+              <span className="text-6xl mb-4 block animate-bounce">{result.won ? '🏆' : '☠️'}</span>
+              <h2 className={`font-marker text-4xl uppercase tracking-tighter ${result.won ? 'text-green-500' : 'text-red-500'}`}>
+                {result.won ? t.victory : t.defeat}
+              </h2>
+              <p className="text-xs text-zinc-500 font-black uppercase tracking-widest mt-1">
+                VS {result.rival}
+              </p>
+            </div>
+
+            <div className="bg-black/40 p-5 rounded-2xl border border-zinc-800/50 mb-6">
+              <p className="text-sm text-zinc-300 italic leading-relaxed">"{result.flavor}"</p>
+            </div>
+
+            {result.won && result.reward && result.reward > 0 && (
+              <div className="flex justify-center mb-6">
+                <div className="bg-yellow-900/20 border border-yellow-600/50 px-6 py-3 rounded-xl text-center">
+                  <p className="text-[9px] text-yellow-600 font-black uppercase tracking-widest">BOTÍN OBTENIDO</p>
+                  <p className="text-2xl font-marker text-yellow-500">+{result.reward} CWARS</p>
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={() => setResult(null)}
+              className={`w-full py-4 rounded-2xl font-marker text-xl uppercase tracking-widest shadow-xl active:scale-95 transition-all ${result.won ? 'bg-green-600 hover:bg-green-500 text-white' : 'bg-red-600 hover:bg-red-500 text-white'}`}
+            >
+              {t.continue}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
