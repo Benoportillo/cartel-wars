@@ -12,7 +12,14 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Missing IDs' }, { status: 400 });
         }
 
-        const user = await User.findOne({ telegramId: userId });
+        let user = await User.findOne({ telegramId: userId });
+
+        if (!user) {
+            // Fallback: Try finding by Object ID if the ID string looks like one
+            if (userId.match(/^[0-9a-fA-F]{24}$/)) {
+                user = await User.findOne({ _id: userId });
+            }
+        }
 
         if (!user) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });

@@ -174,7 +174,7 @@ const PvP: React.FC = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: user.telegramId,
+          userId: user.telegramId || user.id,
           rivalId: isHeist ? target.id : (target.telegramId || target.id || target._id),
           usedBuffs: selectedBuffs,
           type: isHeist ? 'heist' : 'pvp'
@@ -453,7 +453,14 @@ const PvP: React.FC = () => {
           </p>
           <button
             onClick={() => {
+              console.log("Searching for opponent...");
+              if (!HEIST_MISSIONS || HEIST_MISSIONS.length === 0) {
+                console.error("No heist missions defined!");
+                showCartelMessage("Error configurando misiones.", 'error');
+                return;
+              }
               const randomHeist = HEIST_MISSIONS[Math.floor(Math.random() * HEIST_MISSIONS.length)];
+              console.log("Selected target:", randomHeist);
               runHeistMission(randomHeist.id);
             }}
             disabled={user.isAdmin || user.dailyHeistsLeft <= 0 || user.balance < 0.02 || user.ownedWeapons.length === 0 || racing}
