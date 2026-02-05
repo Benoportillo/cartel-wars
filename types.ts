@@ -43,48 +43,11 @@ export interface WeaponInstance {
   statusBonus?: number;
 }
 
-export interface GangMember {
-  name: string;
-  rank: Rank;
-  joinedAt: Date;
-  paidFee: number;
-  warPowerContribution?: number;
-}
 
-export interface CartelWar {
-  id: string;
-  attackerId: string;
-  defenderId: string;
-  startTime: number;
-  endTime: number;
-  attackerPower: number;
-  defenderPower: number;
-  participants: Record<string, number>;
-  isProcessed: boolean;
-}
 
-export interface Gang {
-  id: string;
-  name: string;
-  owner: string;
-  entryFee: number;
-  membersCount: number;
-  membersList: GangMember[];
-  pendingApplications: GangMember[];
-  socialLink?: string;
-  logoUrl?: string;
-  linkChangeCount: number;
-  logoSet: boolean;
-  activeWarId?: string;
-}
 
-export interface BattleRecord {
-  won: boolean;
-  rival: string;
-  rivalId?: string; // Added for Revenge
-  powerDiff?: number;
-  timestamp: number;
-}
+
+
 
 export interface Transaction {
   id: string;
@@ -98,23 +61,13 @@ export interface Transaction {
   timestamp: number;
 }
 
-export interface PremiumMission {
-  id: string;
-  title: string;
-  logo: string;
-  link: string;
-  waitTime: number; // in seconds
-  reward: number;
-  maxUsers: number;
-  completedUserIds: string[];
-  ownerId?: string;
-}
+
 
 export interface GlobalSettings {
   swapEnabled: boolean;
   withdrawalEnabled: boolean;
   maintenanceMode: boolean;
-  premiumMissions: PremiumMission[];
+  premiumMissions: any[]; // Deprecated but kept for type safety if needed, or remove completely
   referralCommissionPercent: number; // Nuevo: Porcentaje configurable
   gangsterHours?: { start: number; end: number; bonus: number }[]; // 0-23 hours
   lastGangsterUpdate?: number; // Timestamp of last randomization
@@ -140,28 +93,18 @@ export interface UserProfile {
   lastEarningsUpdate?: Date; // For mining sync tracking
 
   language: Language;
-  basePower: number; // New: Stats gained/lost in battle
-  baseStatus: number; // New: Respect gained/lost in battle
 
-  firepower: number; // Total Combat Power (PVP)
   status: number; // Total Displayed Respect
   inventory: Record<string, number>; // New: Buffs & Consumables
-  ammo: number; // PvP Energy
-  lastDailyAmmo: Date; // For daily reset
-  dailyHeistsLeft: number; // Daily mission attempts
-  lastHeistDate: Date; // For daily heist reset
+
   myGangId?: string;
   joinedGangId?: string;
   appliedGangId?: string;
   pendingFeeLock?: number;
-  pvpHistory: BattleRecord[];
+
   isBanned?: boolean;
   isAdmin?: boolean;
-  lastMissionDate?: string;
-  completedMissions?: string[];
   hasSeenGuide?: boolean;
-  totalPvPWon?: number;
-  totalPvPLost?: number;
   totalReferralBonus?: number; // New: Tracks CWARS earned from referrals
 }
 

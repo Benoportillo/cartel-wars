@@ -144,33 +144,15 @@ export const INITIAL_USER: any = {
   ownedWeapons: [{ weaponId: 'starter', caliberLevel: 1, magazineLevel: 1, accessoryLevel: 1, skin: '#333333' }],
   lastTicketDate: new Date(),
 
-  basePower: 0,
-  baseStatus: 0,
-
-  firepower: 0,
   status: 5,
-  ammo: 10,
   inventory: {},
-  lastDailyAmmo: new Date(),
-  dailyHeistsLeft: 5,
-  lastHeistDate: new Date(),
-  pvpBattlesPlayed: 0,
-  pvpHistory: [],
+
+  isBanned: false,
+  isAdmin: false,
+  hasSeenGuide: false,
+  totalReferralBonus: 0,
   language: 'en'
 };
-
-export const TERRAINS = [
-  { id: 1, name: 'Callejón Oscuro', image: '/assets/terrains/alley.png', favoredWeapon: 'starter', description: 'Combate cerrado y sucio.' },
-  { id: 2, name: 'Estacionamiento', image: '/assets/terrains/parking.png', favoredWeapon: 'glock', description: 'Cobertura media entre autos.' },
-  { id: 3, name: 'Bar Clandestino', image: '/assets/terrains/bar.png', favoredWeapon: 'revolver', description: 'Espacios reducidos, alto impacto.' },
-  { id: 4, name: 'Metro Abandonado', image: '/assets/terrains/metro.png', favoredWeapon: 'mp5', description: 'Pasillos largos, fuego rápido.' },
-  { id: 5, name: 'Selva (Guerrilla)', image: '/assets/terrains/jungle.png', favoredWeapon: 'ak47', description: 'Terreno difícil, resistencia.' },
-  { id: 6, name: 'Azotea (Sniper)', image: '/assets/terrains/rooftop.png', favoredWeapon: 'barrett', description: 'Visión perfecta de larga distancia.' },
-  { id: 7, name: 'Puente Bloqueado', image: '/assets/terrains/bridge.png', favoredWeapon: 'm249', description: 'Fuego de supresión masivo.' },
-  { id: 8, name: 'Zona de Guerra', image: '/assets/terrains/warzone.png', favoredWeapon: 'bazooka', description: 'Destrucción de estructuras.' },
-  { id: 9, name: 'Autopista', image: '/assets/terrains/highway.png', favoredWeapon: ['barrett', 'bazooka'], description: 'Larga distancia + Vehículos.' },
-  { id: 10, name: 'Fortaleza', image: '/assets/terrains/fortress.png', favoredWeapon: ['m249', 'bazooka'], description: 'Asalto pesado a base enemiga.' }
-];
 
 export const SHOP_ITEMS = [
   { id: 'oil', name: 'Aceite de Arma', price: 0.5, image: '/assets/items/oil.png', description: 'Evita que el arma se trabe en combate.', type: 'BUFF' },
@@ -181,53 +163,4 @@ export const SHOP_ITEMS = [
 export const MASTER_WALLET_ADDRESS = "UQDZDP9qAdglpsThm7XFhSGKjFhx98nJj6IzGI0yh-rop7H7";
 export const WITHDRAWAL_WALLET_ADDRESS = "UQD-h3pdcJlGjyWqG9d7QZszZqjMz9IxRqdkSjaVOzqC5O01";
 
-export const HEIST_MISSIONS = [
-  {
-    id: 'heist-1',
-    name: 'Atraco a Licorería',
-    description: 'Un golpe rápido para empezar. Poco riesgo, botín sencillo.',
-    firepower: 25,
-    reward: 150,
-    flavor: 'El cajero ni siquiera opuso resistencia.'
-  },
-  {
-    id: 'heist-2',
-    name: 'Cobro de Protección',
-    description: 'Ve a recordarle a los comerciantes locales quién manda.',
-    firepower: 80,
-    reward: 300,
-    flavor: 'Pagaron con gusto después de ver tu hierro.'
-  },
-  {
-    id: 'heist-3',
-    name: 'Asalto a Camión Blindado',
-    description: 'Un transporte de efectivo sin escolta pesada. Dinero fácil.',
-    firepower: 250,
-    reward: 400,
-    flavor: 'Los guardias corrieron al primer disparo.'
-  },
-  {
-    id: 'heist-4',
-    name: 'Incursión a Almacén',
-    description: 'El cartel rival guarda mercancía valiosa aquí. Limpia el lugar.',
-    firepower: 600,
-    reward: 450,
-    flavor: 'Ahora saben que este territorio tiene dueño.'
-  },
-  {
-    id: 'heist-5',
-    name: 'Golpe a la Bóveda Central',
-    description: 'El mayor tesoro de la ciudad. Solo para los más audaces.',
-    firepower: 1200,
-    reward: 500,
-    flavor: '¡Historia pura! El nombre del cartel resonará por semanas.'
-  }
-];
 
-export const PVP_BOTS = [
-  { id: 'bot-1', name: 'Rata de Alcantarilla', firepower: 30, cwarsBalance: 50, isBot: true },
-  { id: 'bot-2', name: 'Matón Novato', firepower: 75, cwarsBalance: 150, isBot: true },
-  { id: 'bot-3', name: 'Sicario de Barrio', firepower: 150, cwarsBalance: 500, isBot: true },
-  { id: 'bot-4', name: 'Guardaespaldas Corrupto', firepower: 350, cwarsBalance: 1200, isBot: true },
-  { id: 'bot-5', name: 'Teniente del Cartel Rival', firepower: 800, cwarsBalance: 5000, isBot: true }
-];

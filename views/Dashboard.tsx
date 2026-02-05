@@ -284,23 +284,7 @@ const Dashboard: React.FC = () => {
 
   const isInGang = !!(user.myGangId || user.joinedGangId);
 
-  // New: Calculate total firepower from owned weapons for display
-  const calculateTotalFirepower = () => {
-    if (!user.ownedWeapons || user.ownedWeapons.length === 0) return 0;
-    return user.ownedWeapons.reduce((total, instance) => {
-      const weapon = WEAPONS.find(w => w.id === instance.weaponId);
-      if (!weapon) return total;
 
-      // Formula: (Base Firepower * 100) + (Upgrades * 8)
-      // Upgrades = caliber + magazine + accessory - 3 (base levels are 1)
-      const upgradeLevels = (instance.caliberLevel || 1) + (instance.magazineLevel || 1) + (instance.accessoryLevel || 1) - 3;
-      const weaponPower = (weapon.firepower * 100) + (upgradeLevels * 8);
-
-      return total + weaponPower;
-    }, 0);
-  };
-
-  const totalCalculatedFirepower = calculateTotalFirepower();
 
 
 
@@ -406,8 +390,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <StatBox label={t.power} value={totalCalculatedFirepower.toFixed(0)} color="text-red-500" icon="💀" />
+        <div className="grid grid-cols-1 gap-3">
           <StatBox label="Mafiosos" value={user.referrals.toString()} color="text-zinc-400" icon="👥" />
         </div>
 
@@ -467,16 +450,9 @@ const Dashboard: React.FC = () => {
 
         <div className="grid grid-cols-2 gap-4">
 
-          <div className="bg-black/40 p-3 rounded-xl border border-zinc-800/50">
+          <div className="bg-black/40 p-3 rounded-xl border border-zinc-800/50 col-span-2">
             <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">MISIONES (CWARS)</p>
             <p className="text-lg font-marker text-purple-500">+{user.cwarsBalance?.toFixed(0) || '0'}</p>
-          </div>
-          <div className="bg-black/40 p-3 rounded-xl border border-zinc-800/50">
-            <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">ROBOS (PVP)</p>
-            <p className="text-lg font-marker text-green-500">+{user.totalPvPWon?.toLocaleString(undefined, { maximumFractionDigits: 2 }) || 0}</p>
-          </div>
-          <div className="bg-black/40 p-3 rounded-xl border border-zinc-800/50">
-            <p className="text-lg font-marker text-red-500">-{user.totalPvPLost?.toLocaleString(undefined, { maximumFractionDigits: 2 }) || 0}</p>
           </div>
           <div className="bg-black/40 p-3 rounded-xl border border-zinc-800/50 col-span-2">
             <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">GANANCIAS REFERIDOS (CWARS)</p>
@@ -484,16 +460,11 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-4 pt-4 border-t border-zinc-800 flex justify-between items-center">
-          <p className="text-[9px] text-zinc-500 font-black uppercase tracking-widest">NET PROFIT (CWARS)</p>
-          <p className={`text-xl font-marker ${(user.totalPvPWon || 0) - (user.totalPvPLost || 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-            {((user.totalPvPWon || 0) - (user.totalPvPLost || 0)).toLocaleString(undefined, { maximumFractionDigits: 2 })}
-          </p>
-        </div>
+
 
         {/* ACTIVE GANGSTERS (REFERRAL TRACKING) - MOVED INSIDE FINANCIAL REPORT */}
         <div className="mt-6 pt-6 border-t border-zinc-800/50">
-          <h2 className="text-zinc-500 text-[9px] font-black uppercase tracking-[0.3em] mb-4">DESCENDIENTES (10 BATALLAS PARA COBRAR)</h2>
+          <h2 className="text-zinc-500 text-[9px] font-black uppercase tracking-[0.3em] mb-4">DESCENDIENTES (COMISIONES)</h2>
 
           {loadingReferrals ? (
             <p className="text-zinc-500 text-xs text-center animate-pulse">Cargando red de sicarios...</p>
@@ -507,7 +478,7 @@ const Dashboard: React.FC = () => {
                     <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs">👤</div>
                     <div>
                       <p className="text-zinc-300 text-[10px] font-bold uppercase">{ref.name}</p>
-                      <p className="text-[8px] text-zinc-600">{ref.rank} • {ref.pvpBattlesPlayed || 0}/10 Batallas</p>
+                      <p className="text-[8px] text-zinc-600">{ref.rank}</p>
                     </div>
                   </div>
                   {ref.referrerBonusPaid ? (
@@ -515,13 +486,12 @@ const Dashboard: React.FC = () => {
                   ) : (
                     <button
                       onClick={() => claimReferralBonus(ref.telegramId)}
-                      disabled={(ref.pvpBattlesPlayed || 0) < 10}
-                      className={`px-3 py-1.5 rounded text-[8px] font-black uppercase transition-all ${(ref.pvpBattlesPlayed || 0) >= 10
+                      className={`px-3 py-1.5 rounded text-[8px] font-black uppercase transition-all ${(ref.pvpBattlesPlayed || 0) >= 0
                         ? 'bg-yellow-600 text-black hover:bg-yellow-500 shadow-lg animate-pulse'
                         : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
                         }`}
                     >
-                      {(ref.pvpBattlesPlayed || 0) >= 10 ? 'RECLAMAR 5000' : 'EN PROGRESO'}
+                      {(ref.pvpBattlesPlayed || 0) >= 0 ? 'RECLAMAR 5000' : 'EN PROGRESO'}
                     </button>
                   )}
                 </div>
@@ -636,16 +606,7 @@ const Dashboard: React.FC = () => {
               const displayName = instance.name || baseWeapon?.name || 'Arma Desconocida';
               const displayImage = instance.image || baseWeapon?.image || '/assets/weapons/default.png';
 
-              // Resolve Stats (Snapshot > Constant)
-              const baseFirepower = instance.firepower ?? baseWeapon?.firepower ?? 0;
-              const baseStatus = instance.statusBonus ?? baseWeapon?.statusBonus ?? 0;
 
-              // Calculate Totals including upgrades
-              // Note: Formula might need adjustment if using raw numbers now, but keeping consistent structure
-              // Assuming firepower is small float (0.35 etc) -> x100 convention for UI? 
-              // Previous: (weapon.firepower * 100)
-              const totalPower = (baseFirepower * 100) + (instance.caliberLevel + instance.magazineLevel + instance.accessoryLevel - 3) * 8;
-              const totalRespect = baseStatus + (instance.caliberLevel + instance.magazineLevel + instance.accessoryLevel - 3) * 5;
 
               return (
                 <div key={idx} className="bg-zinc-950 border border-zinc-800 rounded-2xl p-5 flex gap-6 items-center hover:border-red-600 transition-colors">
@@ -653,8 +614,7 @@ const Dashboard: React.FC = () => {
                   <div className="flex-1">
                     <h4 className="font-marker text-zinc-100 text-xl uppercase tracking-tighter">{displayName}</h4>
                     <div className="flex flex-col gap-1 mt-1">
-                      <p className="text-red-500 font-bold text-xs flex items-center gap-1">💀 {totalPower.toFixed(2)} <span className="text-[8px] opacity-60 uppercase">{t.power}</span></p>
-                      <p className="text-blue-500 font-bold text-xs flex items-center gap-1">👑 {totalRespect.toFixed(0)} <span className="text-[8px] opacity-60 uppercase">{t.status}</span></p>
+
 
                     </div>
                   </div>

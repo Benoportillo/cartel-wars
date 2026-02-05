@@ -188,7 +188,7 @@ export async function POST(req: Request) {
         if (won) {
             const lootPercentage = 0.10;
             const baseLoot = Math.floor((rival.cwarsBalance || 0) * lootPercentage);
-            const winnerShare = Math.floor(baseLoot * 0.80);
+            const winnerShare = baseLoot; // Winner gets full 10% deducted from Loser
 
             if (!isBot && typeof rival.save === 'function') {
                 rival.cwarsBalance = Math.max(0, (rival.cwarsBalance || 0) - baseLoot);
