@@ -231,6 +231,26 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         localStorage.setItem('cartel_user', JSON.stringify(finalUser));
     }, [updateGlobalUser]);
 
+    const refreshUser = useCallback(async () => {
+        if (!user.telegramId) return;
+        try {
+            const res = await fetch('/api/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ telegramId: user.telegramId, checkOnly: true })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                if (data.user) {
+                    setUser(data.user);
+                }
+            }
+        } catch (err) {
+            console.error("Manual Refresh Failed:", err);
+        }
+    }, [user.telegramId, setUser]);
+
 
 
     const logout = () => {
