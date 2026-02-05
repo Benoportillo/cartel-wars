@@ -26,6 +26,7 @@ const Empire = () => {
 
     // Staff Market Modal State
     const [showStaffMarket, setShowStaffMarket] = useState<{ type: 'vices' | 'chems', slotIndex: number } | null>(null);
+    const [viewImage, setViewImage] = useState<string | null>(null);
 
     // Fetch Empire State (Energy, synced balances, etc)
     const syncEmpire = useCallback(async () => {
@@ -385,7 +386,8 @@ const Empire = () => {
                                     <img
                                         src={staff.image || '/assets/placeholder.png'}
                                         alt={staff.name}
-                                        className="w-full h-full object-cover relative z-10"
+                                        className="w-full h-full object-cover object-top relative z-10 cursor-pointer transition-transform hover:scale-105"
+                                        onClick={() => setViewImage(staff.image || null)}
                                         onError={(e) => {
                                             (e.target as HTMLImageElement).src = 'https://placehold.co/600x400/1a1a1a/white?text=' + staff.name;
                                         }}
@@ -394,9 +396,9 @@ const Empire = () => {
                                     <div className="absolute bottom-2 left-3 z-30">
                                         <h4 className="font-bold text-white text-xl shadow-black drop-shadow-md">{staff.name}</h4>
                                         <span className={`text-[10px] px-2 py-0.5 rounded border backdrop-blur-sm ${staff.rarity === 'LEGENDARY' ? 'bg-yellow-500/20 border-yellow-500 text-yellow-500' :
-                                                staff.rarity === 'EPIC' ? 'bg-purple-500/20 border-purple-500 text-purple-400' :
-                                                    staff.rarity === 'RARE' ? 'bg-blue-500/20 border-blue-500 text-blue-400' :
-                                                        'bg-gray-500/20 border-gray-500 text-gray-300'
+                                            staff.rarity === 'EPIC' ? 'bg-purple-500/20 border-purple-500 text-purple-400' :
+                                                staff.rarity === 'RARE' ? 'bg-blue-500/20 border-blue-500 text-blue-400' :
+                                                    'bg-gray-500/20 border-gray-500 text-gray-300'
                                             }`}>
                                             {staff.rarity}
                                         </span>
@@ -503,6 +505,28 @@ const Empire = () => {
             )}
 
             {renderStaffMarket()}
+
+            {/* FULL SCREEN IMAGE MODAL */}
+            {viewImage && (
+                <div
+                    className="fixed inset-0 z-[60] bg-black/95 flex items-center justify-center p-4 animate-in fade-in cursor-pointer"
+                    onClick={() => setViewImage(null)}
+                >
+                    <div className="relative max-w-full max-h-full">
+                        <button
+                            onClick={() => setViewImage(null)}
+                            className="absolute -top-12 right-0 text-white/50 hover:text-white p-2"
+                        >
+                            ✕ CLOSE
+                        </button>
+                        <img
+                            src={viewImage}
+                            alt="Full View"
+                            className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl shadow-purple-900/20"
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
