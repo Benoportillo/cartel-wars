@@ -57,7 +57,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         swapEnabled: true,
         withdrawalEnabled: true,
         maintenanceMode: false,
-        premiumMissions: [],
+
         referralCommissionPercent: 10
     });
 

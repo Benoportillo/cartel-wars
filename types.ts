@@ -67,7 +67,7 @@ export interface GlobalSettings {
   swapEnabled: boolean;
   withdrawalEnabled: boolean;
   maintenanceMode: boolean;
-  premiumMissions: any[]; // Deprecated but kept for type safety if needed, or remove completely
+
   referralCommissionPercent: number; // Nuevo: Porcentaje configurable
   gangsterHours?: { start: number; end: number; bonus: number }[]; // 0-23 hours
   lastGangsterUpdate?: number; // Timestamp of last randomization
