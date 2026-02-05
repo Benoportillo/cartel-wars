@@ -107,6 +107,66 @@ export interface UserProfile {
   hasSeenGuide?: boolean;
   totalReferralBonus?: number; // New: Tracks CWARS earned from referrals
 
+  // EMPIRE UPDATE
+  reputation: number;
+  energy: number;
+  maxEnergy: number;
+  lastEnergyUpdate: Date;
+  shockUntil?: Date; // If present and future, user is in SHOCK (paralyzed)
+  buildings: Record<string, number>; // Building ID -> Level
+  staff: ActiveStaff[]; // Active employees
+}
+
+export interface ActiveStaff {
+  instanceId: string;
+  staffId: string; // Ref to constant
+  buildingId: string; // Where are they assigned?
+  slotIndex: number;
+  expiresAt: Date;
+}
+
+export interface EmpireBuilding {
+  id: string;
+  name: string;
+  type: 'VICE' | 'CHEM';
+  levels: {
+    level: number;
+    cost: number;
+    slots: number;
+    image: string;
+  }[];
+}
+
+export interface StaffTemplate {
+  id: string;
+  name: string;
+  type: 'VICE' | 'CHEM';
+  cost: number; // CWARS
+  durationHours: number;
+  productionRate: number; // Amount per hour
+  productionType: 'CWARS' | 'POLVO';
+  image: string;
+  rarity: 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY';
+}
+
+export interface Mission {
+  id: string;
+  title: string;
+  description: string;
+  tier: 'STREET' | 'PRO' | 'CARTEL';
+  costEnergy: number;
+  costCwars: number;
+  successRate: number; // 0-1
+  rewards: {
+    cwars: number;
+    reputation: number;
+  };
+  penalty: {
+    cwars: number;
+    energy: number;
+    shock: boolean; // 6h paralysis
+    text: string;
+  };
 }
 
 export interface RouletteResult {

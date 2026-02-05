@@ -8,6 +8,10 @@ export const translations = {
 
     roulette: "Ruleta Rusa",
     syndicate: "Cartel",
+    empire: "Imperio",
+    missions: "Misiones",
+    business: "Negocios (Vicios/Química)",
+    stockExchange: "Bolsa (Polvo)",
 
     swapTitle: "Mercado Negro (Swap)",
     swapNotice: "Cambia tus CWARS por USDT reales.",
@@ -175,6 +179,10 @@ export const translations = {
 
     roulette: "Deadly Spin",
     syndicate: "Cartel",
+    empire: "Empire",
+    missions: "Missions",
+    business: "Business",
+    stockExchange: "Stock Exchange",
 
     swapTitle: "Black Market (Swap)",
     swapNotice: "Exchange your CWARS for real USDT.",
@@ -342,6 +350,10 @@ export const translations = {
 
     roulette: "Русская рулетка",
     syndicate: "Картель",
+    empire: "Империя",
+    missions: "Миссии",
+    business: "Бизнес",
+    stockExchange: "Биржа",
 
     swapTitle: "Черный рынок (Обмен)",
     swapNotice: "Обменяйте свои CWARS на реальные USDT.",
@@ -510,6 +522,10 @@ export const translations = {
 
     roulette: "الروليت الروسية",
     syndicate: "الكارتل",
+    empire: "الإمبراطورية",
+    missions: "مهمات",
+    business: "أعمال",
+    stockExchange: "البورصة",
 
     swapTitle: "السوق السوداء (المقايضة)",
     swapNotice: "استبدل عملات CWARS الخاصة بك بـ USDT حقيقي.",

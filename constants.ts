@@ -163,6 +163,179 @@ export const SHOP_ITEMS = [
 export const MASTER_WALLET_ADDRESS = "UQDZDP9qAdglpsThm7XFhSGKjFhx98nJj6IzGI0yh-rop7H7";
 export const WITHDRAWAL_WALLET_ADDRESS = "UQD-h3pdcJlGjyWqG9d7QZszZqjMz9IxRqdkSjaVOzqC5O01";
 
+// --- EMPIRE UPDATE CONSTANTS ---
+
+export const EMPIRE_CONSTANTS = {
+  MAX_ENERGY: 10,
+  ENERGY_REFILL_MS: 8640000, // 2.4 Hours (144 min)
+  SHOCK_DURATION_MS: 21600000, // 6 Hours
+  RENEW_MISSIONS_COST: 0.1, // TON
+};
+
+// EDIFICIOS (Solo datos estáticos de niveles)
+export const BUILDINGS_DATA = {
+  vices: {
+    id: 'vices',
+    name: 'Red de Vicios',
+    type: 'VICE',
+    levels: [
+      { level: 1, name: 'Punto de Esquina', cost: 1000, slots: 1, image: '/assets/empire/vices_1.png' },
+      { level: 2, name: 'Casa de Citas', cost: 5000, slots: 2, image: '/assets/empire/vices_2.png' },
+      { level: 3, name: 'Club Privado', cost: 20000, slots: 3, image: '/assets/empire/vices_3.png' },
+      { level: 4, name: 'Agencia de Modelos', cost: 100000, slots: 4, image: '/assets/empire/vices_4.png' },
+      { level: 5, name: 'Casino Royale', cost: 500000, slots: 5, image: '/assets/empire/vices_5.png' }
+    ]
+  },
+  chems: {
+    id: 'chems',
+    name: 'Laboratorios',
+    type: 'CHEM',
+    levels: [
+      { level: 1, name: 'Dealer de Barrio', cost: 1000, slots: 1, image: '/assets/empire/chems_1.png' },
+      { level: 2, name: 'Cocina Casera', cost: 5000, slots: 2, image: '/assets/empire/chems_2.png' },
+      { level: 3, name: 'Laboratorio Móvil', cost: 20000, slots: 3, image: '/assets/empire/chems_3.png' },
+      { level: 4, name: 'Centro de Distribución', cost: 100000, slots: 4, image: '/assets/empire/chems_4.png' },
+      { level: 5, name: 'Superlaboratorio', cost: 500000, slots: 5, image: '/assets/empire/chems_5.png' }
+    ]
+  }
+};
+
+// CATALOGO DE PERSONAL// 5. STAFF CATLOG
+export const STAFF_CATALOG = [
+  // VICIOS (CWARS)
+  { id: 'novice', name: 'La Novata', type: 'VICE', cost: 300, durationHours: 24, productionRate: 20, productionType: 'CWARS', rarity: 'COMMON', description: 'A basic street dealer.' },
+  { id: 'dancer', name: 'Bailarina Exótica', type: 'VICE', cost: 1500, durationHours: 24, productionRate: 100, productionType: 'CWARS', rarity: 'RARE', description: 'Attracts high-paying clients.' },
+  { id: 'scort', name: 'Scort VIP', type: 'VICE', cost: 5000, durationHours: 48, productionRate: 350, productionType: 'CWARS', rarity: 'EPIC', description: 'Provides exclusive services.' },
+  { id: 'influencer', name: 'Influencer', type: 'VICE', cost: 25000, durationHours: 24, productionRate: 1500, productionType: 'CWARS', rarity: 'LEGENDARY', description: 'Leverages social media reach.' },
+  { id: 'madame', name: 'La Madame', type: 'VICE', cost: 50000, durationHours: 168, productionRate: 400, productionType: 'CWARS', rarity: 'EPIC', description: 'Manages a network of escorts.' },
+
+  // QUIMICOS (POLVO)
+  { id: 'dealer', name: 'Jíbaro', type: 'CHEM', cost: 400, durationHours: 24, productionRate: 2, productionType: 'POLVO', rarity: 'COMMON', description: 'Street level distributor.' },
+  { id: 'cook', name: 'Cocinero', type: 'CHEM', cost: 2000, durationHours: 24, productionRate: 12, productionType: 'POLVO', rarity: 'RARE', description: 'Knows the basic recipe.' },
+  { id: 'chemist', name: 'Químico', type: 'CHEM', cost: 8000, durationHours: 48, productionRate: 40, productionType: 'POLVO', rarity: 'EPIC', description: 'Professional grade production.' },
+  { id: 'transporter', name: 'Transportista', type: 'CHEM', cost: 20000, durationHours: 24, productionRate: 200, productionType: 'POLVO', rarity: 'EPIC', description: 'Moves product across borders.' },
+  { id: 'heisenberg', name: 'Heisenberg', type: 'CHEM', cost: 100000, durationHours: 48, productionRate: 1000, productionType: 'POLVO', rarity: 'LEGENDARY', description: 'The one who knocks.' },
+];
+
+// MISIONES (POOL DE 10)
+export const MISSIONS_POOL = [
+  // TIER 1: CALLE (70% Win)
+  {
+    id: 'm_visit',
+    title: 'Cobro de Piso',
+    description: 'La pizzería de Tony no pagó la protección.',
+    tier: 'STREET',
+    costEnergy: 2,
+    costCwars: 20,
+    successRate: 0.7,
+    rewards: { cwars: 50, reputation: 10 },
+    penalty: { cwars: 20, energy: 0, shock: false, text: 'Tony llamó a la policía antes de que entraras.' }
+  },
+  {
+    id: 'm_delivery',
+    title: 'Entrega Rápida',
+    description: 'Lleva el paquete al punto B en moto sin preguntas.',
+    tier: 'STREET',
+    costEnergy: 2,
+    costCwars: 20,
+    successRate: 0.7,
+    rewards: { cwars: 60, reputation: 10 },
+    penalty: { cwars: 20, energy: 0, shock: false, text: 'Te caíste de la moto y perdiste la carga.' }
+  },
+  {
+    id: 'm_spy',
+    title: 'Vigilancia',
+    description: 'Sigue a la esposa del Concejal y toma fotos.',
+    tier: 'STREET',
+    costEnergy: 2,
+    costCwars: 20,
+    successRate: 0.7,
+    rewards: { cwars: 50, reputation: 10 },
+    penalty: { cwars: 20, energy: -2, shock: false, text: 'Te descubrieron los guardaespaldas y te dieron una paliza.' }
+  },
+
+  // TIER 2: PRO (60% Win)
+  {
+    id: 'm_route66',
+    title: 'Ruta 66',
+    description: 'Cruza la frontera estatal con el camión cargado.',
+    tier: 'PRO',
+    costEnergy: 3,
+    costCwars: 150,
+    successRate: 0.6,
+    rewards: { cwars: 350, reputation: 35 },
+    penalty: { cwars: 150, energy: -1, shock: false, text: 'Control de aduanas sorpresa. Incautaron todo.' }
+  },
+  {
+    id: 'm_arson',
+    title: 'Quema de Inventario',
+    description: 'El rival abrió un almacén nuevo. Hazlo cenizas.',
+    tier: 'PRO',
+    costEnergy: 3,
+    costCwars: 150,
+    successRate: 0.6,
+    rewards: { cwars: 400, reputation: 35 },
+    penalty: { cwars: 150, energy: -1, shock: false, text: 'Quedaste atrapado en el fuego al huir.' }
+  },
+  {
+    id: 'm_bribe',
+    title: 'Soborno Judicial',
+    description: 'Compra al fiscal principal antes del juicio del lunes.',
+    tier: 'PRO',
+    costEnergy: 3,
+    costCwars: 150,
+    successRate: 0.6,
+    rewards: { cwars: 450, reputation: 35 },
+    penalty: { cwars: 150, energy: -1, shock: false, text: 'El fiscal grabó la conversación. Tuviste que huir.' }
+  },
+
+  // TIER 3: CARTEL (60% Win, Alto Riesgo SHOCK)
+  {
+    id: 'm_train',
+    title: 'Asalto al Tren Blindado',
+    description: 'Vuela las vías y roba la carga de oro del gobierno.',
+    tier: 'CARTEL',
+    costEnergy: 4,
+    costCwars: 500,
+    successRate: 0.6,
+    rewards: { cwars: 1500, reputation: 100 },
+    penalty: { cwars: 500, energy: -10, shock: true, text: 'Emboscada militar. Estás gravemente herido.' }
+  },
+  {
+    id: 'm_kidnap',
+    title: 'Secuestro Express',
+    description: 'Tomamos al hijo del banquero central. Rápido y limpio.',
+    tier: 'CARTEL',
+    costEnergy: 4,
+    costCwars: 500,
+    successRate: 0.6,
+    rewards: { cwars: 1800, reputation: 120 },
+    penalty: { cwars: 500, energy: -10, shock: true, text: 'Era una trampa con señuelo. Casi no sales vivo.' }
+  },
+  {
+    id: 'm_coup',
+    title: 'Golpe de Estado',
+    description: 'Asalto frontal a la mansión del Cartel Rival. Todo o nada.',
+    tier: 'CARTEL',
+    costEnergy: 4,
+    costCwars: 500,
+    successRate: 0.6,
+    rewards: { cwars: 2500, reputation: 200 },
+    penalty: { cwars: 500, energy: -10, shock: true, text: 'Te superaron en número. Batalla perdida y humillante.' }
+  },
+  {
+    id: 'm_sub',
+    title: 'Narcosubmarino',
+    description: 'Pilota el sumergible con 4 toneladas hasta la costa.',
+    tier: 'CARTEL',
+    costEnergy: 4,
+    costCwars: 500,
+    successRate: 0.6,
+    rewards: { cwars: 3000, reputation: 250 },
+    penalty: { cwars: 500, energy: -10, shock: true, text: 'Fallo de motor. El submarino se hundió contido dentro.' }
+  }
+];
+
 
 
 

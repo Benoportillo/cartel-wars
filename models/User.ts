@@ -17,7 +17,7 @@ export interface IUser extends Document {
     basePower: number;
     baseStatus: number;
 
-    inventory: Record<string, number>;
+    inventory: Map<string, number>;
     ownedWeapons: WeaponInstance[]; // Define stricter schema if needed
     createdAt: Date;
     lastLogin: Date;
@@ -40,6 +40,20 @@ export interface IUser extends Document {
     lastMissionDate?: Date;
     completedMissions?: string[];
     hasSeenGuide?: boolean;
+
+    // Empire Fields
+    reputation: number;
+    energy: number;
+    lastEnergyUpdate?: Date;
+    shockUntil?: Date;
+    buildings: Map<string, number>;
+    staff?: {
+        instanceId: string;
+        staffId: string;
+        buildingId: string;
+        slotIndex: number;
+        expiresAt: Date;
+    }[];
 }
 
 const UserSchema: Schema = new Schema({
@@ -82,8 +96,24 @@ const UserSchema: Schema = new Schema({
     pendingFeeLock: { type: Number },
     lastMissionDate: { type: Date },
     completedMissions: { type: [String], default: [] },
+    hasSeenGuide: { type: Boolean, default: false },
 
-    hasSeenGuide: { type: Boolean, default: false }
+    // Empire Implementation
+    reputation: { type: Number, default: 0 },
+    energy: { type: Number, default: 10 },
+    lastEnergyUpdate: { type: Date, default: Date.now },
+    shockUntil: { type: Date }, // Nullable
+    buildings: { type: Map, of: Number, default: { 'vices': 1, 'chems': 0 } }, // Start with Vices lvl 1 (Street Corner)
+    staff: {
+        type: [{
+            instanceId: String,
+            staffId: String,
+            buildingId: String,
+            slotIndex: Number,
+            expiresAt: Date
+        }],
+        default: []
+    }
 }, { timestamps: true });
 
 // Prevent recompilation of model in development

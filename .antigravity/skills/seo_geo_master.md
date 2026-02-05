@@ -4,7 +4,10 @@
 ## ⚖️ REGLAS DE ESTRUCTURA (SEO)
 1. **[SEMANTIC_HIERARCHY]**: Uso estricto de una sola etiqueta `<h1>` por página. Los `<h2>` y `<h3>` deben contener palabras clave relevantes (ej: "Academia de fútbol infantil", "Entrenamiento deportivo").
 2. **[META_MANAGEMENT]**: El @programador debe configurar Meta-tags dinámicos, Open Graph (para que se vea bien en WhatsApp/Facebook) y Twitter Cards.
-3. **[ALT_TEXT_MANDATE]**: Toda imagen debe tener un atributo `alt` descriptivo. No usar "imagen1", usar "Niños entrenando fútbol en Pacifico Sport".
+3. **[ALT_TEXT_MANDATE]**: Toda imagen debe tener un atributo `alt` descriptivo. No usar "imagen1", ejemplo : "Niños entrenando fútbol en Pacifico Sport".
+4. **[GEO_LOCALIZATION]**: Si es una empresa física, inyectar coordenadas en los Meta-tags y Schema.org.
+5. **[SOCIAL_GRAPH]**: Implementar etiquetas `og:image:width` y `height` para que los links compartidos en redes de juegos se vean perfectos instantáneamente.
+
 
 ## 🤖 REGLAS DE OPTIMIZACIÓN PARA IA (GEO)
 1. **[STRUCTURED_DATA]**: Implementar Schema.org (JSON-LD) para que la IA entienda que somos una "SportsOrganization", con horarios, dirección y número de contacto reales.

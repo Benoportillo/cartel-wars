@@ -111,6 +111,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
                 <NavItem to="/garage" icon="⚔️" label={t.garage} active={pathname === '/garage'} />
 
                 <NavItem to="/roulette" icon="🎰" label={t.roulette} active={pathname === '/roulette'} />
+                <NavItem to="/empire" icon="🏰" label={t.empire} active={pathname === '/empire'} />
                 <NavItem to="/shop" icon="🛒" label="Shop" active={pathname === '/shop'} />
 
             </nav>
