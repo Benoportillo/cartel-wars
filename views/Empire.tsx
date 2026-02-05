@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useGame, useTranslation } from '../context/GameContext'; // Adjust path if needed
 import { useToast } from '../context/ToastContext'; // Adjust path
