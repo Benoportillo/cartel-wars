@@ -99,8 +99,6 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setIsLoaded(true);
     }, []);
 
-
-
     // Telegram Auth Check
     useEffect(() => {
         const checkTelegramAuth = async () => {
@@ -250,8 +248,6 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             console.error("Manual Refresh Failed:", err);
         }
     }, [user.telegramId, setUser]);
-
-
 
     const logout = () => {
         localStorage.removeItem('cartel_user');
