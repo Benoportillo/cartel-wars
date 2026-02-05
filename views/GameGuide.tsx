@@ -30,12 +30,7 @@ const GameGuide: React.FC<Props> = ({ onFinish }) => {
       icon: "⚔️",
       accent: "from-blue-600 to-blue-900"
     },
-    {
-      title: t.guideWarfare,
-      text: t.guideWarfareText,
-      icon: "💀",
-      accent: "from-zinc-600 to-zinc-900"
-    },
+
 
   ];
 

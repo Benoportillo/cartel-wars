@@ -68,17 +68,6 @@ export async function POST(req: Request) {
 
             // Production Power / user.power updates REMOVED
 
-        } else if (item.type === 'AMMO') {
-            // Parse amount from name/desc or assume ID mapping if 'amount' field is not on helper items yet. 
-            // Better to assume fixed amounts based on ID for now or use description parsing?
-            // Seed script didn't explicitly put helper 'amount' locally.
-            // Let's hardcode IDs for safety until schema is richer.
-            let ammoAmount = 5;
-            if (itemId === 'ammo_20') ammoAmount = 20;
-            if (itemId === 'ammo_50') ammoAmount = 50;
-
-            user.ammo = (user.ammo || 0) + ammoAmount;
-
         } else if (item.type === 'BUFF' || item.type === 'ITEM') {
             if (!user.inventory) user.inventory = {};
             user.inventory[itemId] = (user.inventory[itemId] || 0) + 1;
@@ -93,7 +82,7 @@ export async function POST(req: Request) {
             newCwars: user.cwarsBalance,
             newWeapons: user.ownedWeapons,
             newInventory: user.inventory,
-            newAmmo: user.ammo,
+
             message: `¡Compraste ${item.name}!`
         });
 

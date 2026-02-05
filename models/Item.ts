@@ -3,7 +3,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export interface IItem extends Document {
     id: string; // Unique string ID (e.g., 'glock', 'ammo_5')
     name: string;
-    type: 'WEAPON' | 'AMMO' | 'BUFF';
+    type: 'WEAPON' | 'BUFF';
     category?: string; // 'Pistola', 'Fusil', etc.
     level?: number;
     price: number;
@@ -21,7 +21,7 @@ export interface IItem extends Document {
 const ItemSchema: Schema = new Schema({
     id: { type: String, required: true, unique: true },
     name: { type: String, required: true },
-    type: { type: String, required: true, enum: ['WEAPON', 'AMMO', 'BUFF'] },
+    type: { type: String, required: true, enum: ['WEAPON', 'BUFF'] },
     category: { type: String },
     level: { type: Number },
     price: { type: Number, required: true },

@@ -289,7 +289,7 @@ const Dashboard: React.FC = () => {
 
 
   // REFERRAL & SYNC LOGIC
-  const [referrals, setReferrals] = useState<{ telegramId: string, name: string, rank: string, pvpBattlesPlayed: number, referrerBonusPaid: boolean }[]>([]);
+  const [referrals, setReferrals] = useState<{ telegramId: string, name: string, rank: string, referrerBonusPaid: boolean }[]>([]);
   const [loadingReferrals, setLoadingReferrals] = useState(false);
 
   useEffect(() => {
@@ -486,12 +486,9 @@ const Dashboard: React.FC = () => {
                   ) : (
                     <button
                       onClick={() => claimReferralBonus(ref.telegramId)}
-                      className={`px-3 py-1.5 rounded text-[8px] font-black uppercase transition-all ${(ref.pvpBattlesPlayed || 0) >= 0
-                        ? 'bg-yellow-600 text-black hover:bg-yellow-500 shadow-lg animate-pulse'
-                        : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
-                        }`}
+                      className="px-3 py-1.5 rounded text-[8px] font-black uppercase transition-all bg-yellow-600 text-black hover:bg-yellow-500 shadow-lg animate-pulse"
                     >
-                      {(ref.pvpBattlesPlayed || 0) >= 0 ? 'RECLAMAR 5000' : 'EN PROGRESO'}
+                      RECLAMAR 5000
                     </button>
                   )}
                 </div>

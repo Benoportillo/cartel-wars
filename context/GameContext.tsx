@@ -82,9 +82,8 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 ...parsed,
                 lastTicketDate: parsed.lastTicketDate ? new Date(parsed.lastTicketDate) : new Date(Date.now() - 86400000),
                 language: parsed.language || 'en',
-                pvpHistory: parsed.pvpHistory || [],
-                basePower: parsed.basePower ?? 0,
-                baseStatus: parsed.baseStatus ?? 0,
+
+
                 hasSeenGuide: parsed.hasSeenGuide ?? true
             });
         }
@@ -209,8 +208,8 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const { weaponStatus, weaponFirepower } = calculateWeaponBonuses(updatedUser);
 
         // Firepower calculation: Base (0) + Weapons
-        const finalFirepower = (updatedUser.basePower ?? 0) + weaponFirepower;
-        const finalStatus = (updatedUser.baseStatus ?? 0) + weaponStatus;
+        const finalFirepower = weaponFirepower;
+        const finalStatus = weaponStatus;
 
         let finalRank = updatedUser.rank;
         if (!updatedUser.myGangId && !updatedUser.joinedGangId && !updatedUser.isAdmin) {
@@ -229,13 +228,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         localStorage.setItem('cartel_user', JSON.stringify(finalUser));
     }, [updateGlobalUser]);
 
-    useEffect(() => {
-        if (!isLoaded || !user.id) return;
-        const today = new Date().toISOString().split('T')[0];
-        if (user.lastMissionDate !== today) {
-            setUser({ ...user, lastMissionDate: today, completedMissions: [] });
-        }
-    }, [user.id, user.lastMissionDate, setUser, isLoaded]);
+
 
     const logout = () => {
         localStorage.removeItem('cartel_user');

@@ -28,9 +28,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Bonus already paid' }, { status: 400 });
         }
 
-        if ((referral.pvpBattlesPlayed || 0) < 10) {
-            return NextResponse.json({ error: 'Referral has not completed 10 PvP battles' }, { status: 400 });
-        }
+
 
         // Calculate Bonus Tier
         // Count how many referrals have already been paid for this user

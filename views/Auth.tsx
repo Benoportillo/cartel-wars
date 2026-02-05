@@ -273,18 +273,8 @@ const Auth: React.FC<Props> = ({ lang, globalUsers, onComplete }) => {
           ownedWeapons: [],
           lastTicketDate: new Date(),
           language: lang,
-          basePower: 1000,
-          baseStatus: 1000,
-          firepower: 1000,
           status: 1000,
-          pvpHistory: [],
-          isAdmin: true,
           inventory: {},
-          ammo: 10,
-          lastDailyAmmo: new Date(),
-          dailyHeistsLeft: 5,
-          lastHeistDate: new Date(),
-          isBanned: false
         } as UserProfile);
         setIsLoading(false);
       }, 1000);

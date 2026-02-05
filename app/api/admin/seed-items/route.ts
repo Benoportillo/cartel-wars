@@ -72,22 +72,6 @@ export async function GET() {
             count++;
         }
 
-        // 2. Seed Ammo
-        for (const a of AMMO_PACKS) {
-            const itemData = {
-                id: a.id,
-                name: a.name,
-                type: 'AMMO',
-                price: a.price,
-                currency: a.currency,
-                image: a.image,
-                description: `Recarga ${a.amount} municiones para atacar.`,
-                order: 100
-            };
-            await Item.findOneAndUpdate({ id: a.id }, itemData, { upsert: true, new: true });
-            count++;
-        }
-
         // 3. Seed Buffs
         const BUFF_PRICES: Record<string, number> = { 'oil': 500, 'charm': 1000, 'kevlar': 2000 };
 

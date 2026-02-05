@@ -11,7 +11,7 @@ const Shop: React.FC = () => {
     const { user, setUser } = useGame();
     const { showToast } = useToast();
     const [loading, setLoading] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState<'WEAPONS' | 'AMMO' | 'BLACK_MARKET'>('WEAPONS');
+    const [activeTab, setActiveTab] = useState<'WEAPONS' | 'BLACK_MARKET'>('WEAPONS');
 
     const [items, setItems] = useState<any[]>([]);
     const [loadingItems, setLoadingItems] = useState(true);
@@ -34,7 +34,7 @@ const Shop: React.FC = () => {
     }, []);
 
     const weapons = items.filter(i => i.type === 'WEAPON');
-    const ammoPacks = items.filter(i => i.type === 'AMMO');
+
     const blackMarket = items.filter(i => i.type === 'BUFF');
 
     const handleBuy = async (item: any, type: 'WEAPON' | 'AMMO' | 'ITEM') => {
@@ -82,7 +82,6 @@ const Shop: React.FC = () => {
                 cwarsBalance: data.newCwars,
                 ownedWeapons: data.newWeapons || user.ownedWeapons,
                 inventory: data.newInventory || user.inventory,
-                ammo: data.newAmmo !== undefined ? data.newAmmo : user.ammo
             });
 
             showToast(`¡Compra exitosa! Has recibido ${item.name}`, 'success');
@@ -105,7 +104,7 @@ const Shop: React.FC = () => {
 
             {/* Tabs */}
             <div className="flex justify-center gap-2 bg-black/40 p-1 rounded-xl border border-zinc-800 backdrop-blur-sm">
-                {['WEAPONS', 'AMMO', 'BLACK_MARKET'].map((tab) => (
+                {['WEAPONS', 'BLACK_MARKET'].map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab as any)}
@@ -114,7 +113,7 @@ const Shop: React.FC = () => {
                             : 'text-zinc-500 hover:text-zinc-300'
                             }`}
                     >
-                        {tab === 'WEAPONS' ? 'Armería' : tab === 'AMMO' ? 'Munición' : 'Items'}
+                        {tab === 'WEAPONS' ? 'Armería' : 'Items'}
                     </button>
                 ))}
             </div>
@@ -162,27 +161,7 @@ const Shop: React.FC = () => {
                         );
                     })}
 
-                    {/* AMMO TAB */}
-                    {activeTab === 'AMMO' && ammoPacks.map((pack) => {
-                        const canAfford = pack.currency === 'TON' ? user.balance >= pack.price : user.cwarsBalance >= pack.price;
-                        return (
-                            <div key={pack.id} className="bg-zinc-900/80 border border-zinc-800 p-4 rounded-xl flex flex-col items-center gap-3 shadow-lg">
-                                <div className="w-20 h-20 text-4xl animate-pulse">
-                                    <img src={pack.image} alt={pack.name} className="w-full h-full object-contain" />
-                                </div>
-                                <h3 className="font-marker text-white text-sm uppercase text-center">{pack.name}</h3>
-                                <p className="text-xs font-bold text-yellow-500">{Number.isInteger(pack.price) ? pack.price : pack.price.toFixed(2)} {pack.currency}</p>
-                                <button
-                                    onClick={() => handleBuy(pack, 'AMMO')}
-                                    disabled={!!loading || !canAfford}
-                                    className={`w-full py-2 rounded-lg font-marker text-xs uppercase tracking-widest transition-all ${canAfford ? 'bg-yellow-600 hover:bg-yellow-500 text-black shadow-[0_0_10px_rgba(234,179,8,0.4)]' : 'bg-zinc-800 text-zinc-600'
-                                        }`}
-                                >
-                                    COMPRAR
-                                </button>
-                            </div>
-                        );
-                    })}
+
 
                     {/* BLACK MARKET TAB */}
                     {activeTab === 'BLACK_MARKET' && blackMarket.map((item) => {

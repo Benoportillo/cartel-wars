@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { Rank } from '../types.js';
-import type { WeaponInstance, BattleRecord } from '../types.js';
+import type { WeaponInstance } from '../types.js';
 
 export interface IUser extends Document {
     telegramId: string;
@@ -16,25 +16,19 @@ export interface IUser extends Document {
     referredBy?: string;
     basePower: number;
     baseStatus: number;
-    dailyHeistsLeft: number;
-    lastHeistDate: Date;
 
-    ammo: number;
-    lastDailyAmmo: Date;
     inventory: Record<string, number>;
     ownedWeapons: WeaponInstance[]; // Define stricter schema if needed
     createdAt: Date;
     lastLogin: Date;
     lastEarningsUpdate: Date;
 
-    totalPvPWon: number;
-    totalPvPLost: number;
+
 
     totalReferralBonus: number; // New: Tracks CWARS earned from referrals
     isBanned: boolean;
     isAdmin: boolean;
-    pvpHistory: BattleRecord[];
-    pvpBattlesPlayed?: number; // New: Track battles for referral requirement
+
     referrerBonusPaid?: boolean; // New: Track if referrer has been paid
     lastTicketDate?: Date;
     nameChanged?: boolean;
@@ -66,21 +60,18 @@ const UserSchema: Schema = new Schema({
 
     // Stats for Dashboard
 
-    totalPvPWon: { type: Number, default: 0 },
-    totalPvPLost: { type: Number, default: 0 },
+
     totalReferralBonus: { type: Number, default: 0 },
 
     // Anti-Fraud & Referral System
 
     inventory: { type: Map, of: Number, default: {} },
-    ammo: { type: Number, default: 10 },
-    lastDailyAmmo: { type: Date, default: Date.now },
+
     lastEarningsUpdate: { type: Date, default: Date.now },
     ownedWeapons: { type: Array, default: [] },
     isBanned: { type: Boolean, default: false },
     isAdmin: { type: Boolean, default: false },
-    pvpHistory: { type: Array, default: [] },
-    pvpBattlesPlayed: { type: Number, default: 0 },
+
     referrerBonusPaid: { type: Boolean, default: false },
     lastTicketDate: { type: Date },
     nameChanged: { type: Boolean, default: false },
@@ -91,8 +82,7 @@ const UserSchema: Schema = new Schema({
     pendingFeeLock: { type: Number },
     lastMissionDate: { type: Date },
     completedMissions: { type: [String], default: [] },
-    dailyHeistsLeft: { type: Number, default: 5 },
-    lastHeistDate: { type: Date, default: Date.now },
+
     hasSeenGuide: { type: Boolean, default: false }
 }, { timestamps: true });
 

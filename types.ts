@@ -106,6 +106,7 @@ export interface UserProfile {
   isAdmin?: boolean;
   hasSeenGuide?: boolean;
   totalReferralBonus?: number; // New: Tracks CWARS earned from referrals
+
 }
 
 export interface RouletteResult {

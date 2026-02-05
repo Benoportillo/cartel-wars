@@ -13,7 +13,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Missing telegramId' }, { status: 400 });
         }
 
-        const referrals = await User.find({ referredBy: telegramId }).select('name rank telegramId pvpBattlesPlayed referrerBonusPaid');
+        const referrals = await User.find({ referredBy: telegramId }).select('name rank telegramId referrerBonusPaid');
 
         return NextResponse.json({
             success: true,

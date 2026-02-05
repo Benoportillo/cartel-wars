@@ -109,7 +109,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <nav className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-md border-t border-red-900/30 flex justify-around items-center py-2 z-50 h-16" dir="ltr">
                 <NavItem to="/" icon="🏚️" label={t.dashboard} active={pathname === '/'} />
                 <NavItem to="/garage" icon="⚔️" label={t.garage} active={pathname === '/garage'} />
-                <NavItem to="/pvp" icon="💀" label={t.pvp} active={pathname === '/pvp'} />
+
                 <NavItem to="/roulette" icon="🎰" label={t.roulette} active={pathname === '/roulette'} />
                 <NavItem to="/shop" icon="🛒" label="Shop" active={pathname === '/shop'} />
                 {user.isAdmin && <NavItem to="/admin" icon="🛠️" label="Admin" active={pathname === '/admin'} />}

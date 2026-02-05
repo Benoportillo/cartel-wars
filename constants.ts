@@ -124,7 +124,7 @@ export const ROULETTE_ITEMS: RouletteResult[] = [
   { id: '1', label: '1 TON', value: 1, type: 'TON', probability: 0.02 }, // 2% Big Win
   { id: '2', label: '0.2 TON', value: 0.2, type: 'TON', probability: 0.15 }, // 15% Win
   { id: '3', label: 'Aceite', value: 'oil', type: 'BUFF', probability: 0.20 }, // 20% Consolation
-  { id: '4', label: 'Munición', value: 'ammo', type: 'BUFF', probability: 0.20 }, // 20% Consolation (Visual only for now, or mapped to something)
+  { id: '4', label: 'Suministros', value: 'oil', type: 'BUFF', probability: 0.20 }, // Replaces Ammo with Oil
   { id: '5', label: 'Nada', value: 0, type: 'MISS', probability: 0.428 }, // 42.8% Loss
 ];
 
@@ -162,5 +162,7 @@ export const SHOP_ITEMS = [
 
 export const MASTER_WALLET_ADDRESS = "UQDZDP9qAdglpsThm7XFhSGKjFhx98nJj6IzGI0yh-rop7H7";
 export const WITHDRAWAL_WALLET_ADDRESS = "UQD-h3pdcJlGjyWqG9d7QZszZqjMz9IxRqdkSjaVOzqC5O01";
+
+
 
 
