@@ -69,9 +69,10 @@ export async function POST(req: Request) {
             // Production Power / user.power updates REMOVED
 
         } else if (item.type === 'BUFF' || item.type === 'ITEM') {
-            if (!user.inventory) user.inventory = {};
-            user.inventory[itemId] = (user.inventory[itemId] || 0) + 1;
-            user.markModified('inventory');
+            if (!user.inventory) user.inventory = new Map();
+            const currentQty = user.inventory.get(itemId) || 0;
+            user.inventory.set(itemId, currentQty + 1);
+            // user.markModified('inventory'); // Not strictly needed for Map operations but good practice if mixed usage
         }
 
         await user.save();
