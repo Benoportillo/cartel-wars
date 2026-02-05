@@ -41,14 +41,15 @@ export async function POST(req: Request) {
         if (selectedItem.type === 'TON') {
             user.balance += Number(selectedItem.value);
         } else if (selectedItem.type === 'BUFF') {
-            if (!user.inventory) user.inventory = {};
-            const buffId = selectedItem.value === 'oil' ? 'oil' : 'charm'; // Map 'ammo' to 'charm' or similar if needed
-            // For now, let's say 'ammo' gives you a 'charm' or we add 'ammo' to inventory if supported.
-            // Let's map 'ammo' to 'charm' for simplicity or add 'ammo' logic later.
-            // Actually, let's just use the value as the key.
+            if (!user.inventory) user.inventory = new Map();
+            const buffId = selectedItem.value === 'oil' ? 'oil' : 'charm';
+
             const key = String(selectedItem.value);
-            user.inventory[key] = (user.inventory[key] || 0) + 1;
-            user.markModified('inventory');
+            const currentVal = user.inventory.get(key) || 0;
+            user.inventory.set(key, currentVal + 1);
+
+            // Mongoose Map change tracking
+            // user.markModified('inventory'); // Not strictly needed for Map if we use .set(), but good for safety
         } else if (selectedItem.type === 'WEAPON') {
             // Add weapon instance
             user.ownedWeapons.push({
