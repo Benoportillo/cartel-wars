@@ -203,18 +203,18 @@ export const BUILDINGS_DATA = {
 // CATALOGO DE PERSONAL// 5. STAFF CATLOG
 export const STAFF_CATALOG = [
   // VICIOS (CWARS)
-  { id: 'novice', name: 'La Novata', type: 'VICE', cost: 300, durationHours: 24, productionRate: 20, productionType: 'CWARS', rarity: 'COMMON', description: 'A basic street dealer.' },
-  { id: 'dancer', name: 'Bailarina Exótica', type: 'VICE', cost: 1500, durationHours: 24, productionRate: 100, productionType: 'CWARS', rarity: 'RARE', description: 'Attracts high-paying clients.' },
-  { id: 'scort', name: 'Scort VIP', type: 'VICE', cost: 5000, durationHours: 48, productionRate: 350, productionType: 'CWARS', rarity: 'EPIC', description: 'Provides exclusive services.' },
-  { id: 'influencer', name: 'Influencer', type: 'VICE', cost: 25000, durationHours: 24, productionRate: 1500, productionType: 'CWARS', rarity: 'LEGENDARY', description: 'Leverages social media reach.' },
-  { id: 'madame', name: 'La Madame', type: 'VICE', cost: 50000, durationHours: 168, productionRate: 400, productionType: 'CWARS', rarity: 'EPIC', description: 'Manages a network of escorts.' },
+  { id: 'novice', name: 'La Novata', type: 'VICE', cost: 300, durationHours: 24, productionRate: 20, productionType: 'CWARS', rarity: 'COMMON', description: 'A basic street dealer.', image: '/assets/scort/lanovata.jpg' },
+  { id: 'dancer', name: 'Bailarina Exótica', type: 'VICE', cost: 1500, durationHours: 24, productionRate: 100, productionType: 'CWARS', rarity: 'RARE', description: 'Attracts high-paying clients.', image: '/assets/scort/bailarina.jpg' },
+  { id: 'scort', name: 'Scort VIP', type: 'VICE', cost: 5000, durationHours: 48, productionRate: 350, productionType: 'CWARS', rarity: 'EPIC', description: 'Provides exclusive services.', image: '/assets/scort/vip.jpg' },
+  { id: 'influencer', name: 'Influencer', type: 'VICE', cost: 25000, durationHours: 24, productionRate: 1500, productionType: 'CWARS', rarity: 'LEGENDARY', description: 'Leverages social media reach.', image: '/assets/scort/influencer.jpg' },
+  { id: 'madame', name: 'La Madame', type: 'VICE', cost: 50000, durationHours: 168, productionRate: 400, productionType: 'CWARS', rarity: 'EPIC', description: 'Manages a network of escorts.', image: '/assets/scort/madam.jpg' },
 
   // QUIMICOS (POLVO)
-  { id: 'dealer', name: 'Jíbaro', type: 'CHEM', cost: 400, durationHours: 24, productionRate: 2, productionType: 'POLVO', rarity: 'COMMON', description: 'Street level distributor.' },
-  { id: 'cook', name: 'Cocinero', type: 'CHEM', cost: 2000, durationHours: 24, productionRate: 12, productionType: 'POLVO', rarity: 'RARE', description: 'Knows the basic recipe.' },
-  { id: 'chemist', name: 'Químico', type: 'CHEM', cost: 8000, durationHours: 48, productionRate: 40, productionType: 'POLVO', rarity: 'EPIC', description: 'Professional grade production.' },
-  { id: 'transporter', name: 'Transportista', type: 'CHEM', cost: 20000, durationHours: 24, productionRate: 200, productionType: 'POLVO', rarity: 'EPIC', description: 'Moves product across borders.' },
-  { id: 'heisenberg', name: 'Heisenberg', type: 'CHEM', cost: 100000, durationHours: 48, productionRate: 1000, productionType: 'POLVO', rarity: 'LEGENDARY', description: 'The one who knocks.' },
+  { id: 'dealer', name: 'Jíbaro', type: 'CHEM', cost: 400, durationHours: 24, productionRate: 2, productionType: 'POLVO', rarity: 'COMMON', description: 'Street level distributor.', image: '/assets/empire/dealer.png' },
+  { id: 'cook', name: 'Cocinero', type: 'CHEM', cost: 2000, durationHours: 24, productionRate: 12, productionType: 'POLVO', rarity: 'RARE', description: 'Knows the basic recipe.', image: '/assets/empire/cook.png' },
+  { id: 'chemist', name: 'Químico', type: 'CHEM', cost: 8000, durationHours: 48, productionRate: 40, productionType: 'POLVO', rarity: 'EPIC', description: 'Professional grade production.', image: '/assets/empire/chemist.png' },
+  { id: 'transporter', name: 'Transportista', type: 'CHEM', cost: 20000, durationHours: 24, productionRate: 200, productionType: 'POLVO', rarity: 'EPIC', description: 'Moves product across borders.', image: '/assets/empire/transporter.png' },
+  { id: 'heisenberg', name: 'Heisenberg', type: 'CHEM', cost: 100000, durationHours: 48, productionRate: 1000, productionType: 'POLVO', rarity: 'LEGENDARY', description: 'The one who knocks.', image: '/assets/empire/heisenberg.png' },
 ];
 
 // MISIONES (POOL DE 10)

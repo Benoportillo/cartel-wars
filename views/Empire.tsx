@@ -362,37 +362,73 @@ const Empire = () => {
 
         return (
             <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
-                <div className="bg-gray-900 border border-gray-700 w-full max-w-md rounded-2xl p-6 relative">
-                    <button
-                        onClick={() => setShowStaffMarket(null)}
-                        className="absolute top-4 right-4 text-gray-400 hover:text-white"
-                    >
-                        ✕
-                    </button>
-                    <h3 className="text-xl font-bold text-white mb-1">Hire Staff</h3>
-                    <p className="text-gray-400 text-sm mb-4">Slot {showStaffMarket.slotIndex + 1} • {showStaffMarket.type.toUpperCase()}</p>
+                <div className="bg-gray-900 border border-gray-700 w-full max-w-md rounded-2xl p-6 relative flex flex-col max-h-[90vh]">
+                    <div className="flex justify-between items-center mb-4">
+                        <div>
+                            <h3 className="text-xl font-bold text-white">Hire Staff</h3>
+                            <p className="text-gray-400 text-sm">Slot {showStaffMarket.slotIndex + 1} • {showStaffMarket.type.toUpperCase()}</p>
+                        </div>
+                        <button
+                            onClick={() => setShowStaffMarket(null)}
+                            className="text-gray-400 hover:text-white bg-gray-800 p-2 rounded-full"
+                        >
+                            ✕
+                        </button>
+                    </div>
 
-                    <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+                    <div className="space-y-4 overflow-y-auto pr-1 pb-24 flex-1">
                         {availableStaff.map(staff => (
-                            <div key={staff.id} className="bg-gray-800 p-3 rounded-xl border border-gray-700 flex justify-between items-center">
-                                <div>
-                                    <h4 className="font-bold text-white">{staff.name}</h4>
-                                    <p className="text-xs text-gray-400">{staff.description}</p>
-                                    <div className="flex gap-2 mt-1">
-                                        <span className="text-xs bg-black/40 px-2 py-0.5 rounded text-blue-300">
-                                            {ICONS.Clock} {staff.durationHours}h
-                                        </span>
-                                        <span className="text-xs bg-black/40 px-2 py-0.5 rounded text-green-300">
-                                            Prod: {staff.productionRate} {staff.type === 'VICE' ? '$/h' : 'g/h'}
+                            <div key={staff.id} className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden group hover:border-gray-500 transition-colors">
+                                {/* Image Area */}
+                                <div className="h-48 w-full relative">
+                                    <div className="absolute inset-0 bg-gray-700 animate-pulse" /> {/* Placeholder */}
+                                    <img
+                                        src={staff.image || '/assets/placeholder.png'}
+                                        alt={staff.name}
+                                        className="w-full h-full object-cover relative z-10"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = 'https://placehold.co/600x400/1a1a1a/white?text=' + staff.name;
+                                        }}
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent z-20"></div>
+                                    <div className="absolute bottom-2 left-3 z-30">
+                                        <h4 className="font-bold text-white text-xl shadow-black drop-shadow-md">{staff.name}</h4>
+                                        <span className={`text-[10px] px-2 py-0.5 rounded border backdrop-blur-sm ${staff.rarity === 'LEGENDARY' ? 'bg-yellow-500/20 border-yellow-500 text-yellow-500' :
+                                                staff.rarity === 'EPIC' ? 'bg-purple-500/20 border-purple-500 text-purple-400' :
+                                                    staff.rarity === 'RARE' ? 'bg-blue-500/20 border-blue-500 text-blue-400' :
+                                                        'bg-gray-500/20 border-gray-500 text-gray-300'
+                                            }`}>
+                                            {staff.rarity}
                                         </span>
                                     </div>
                                 </div>
-                                <button
-                                    onClick={() => hireStaff(staff.id)}
-                                    className="bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold"
-                                >
-                                    {staff.cost} {ICONS.CWARS}
-                                </button>
+
+                                <div className="p-4">
+                                    <p className="text-sm text-gray-400 mb-4 min-h-[2.5rem]">{staff.description}</p>
+
+                                    <div className="grid grid-cols-2 gap-2 mb-4">
+                                        <div className="bg-black/30 p-2 rounded flex flex-col items-center">
+                                            <span className="text-[10px] text-gray-500 uppercase tracking-wider">Production</span>
+                                            <span className="text-green-400 font-mono font-bold text-lg">
+                                                +{staff.productionRate} <span className="text-[10px] text-gray-400">{staff.type === 'VICE' ? '$/h' : 'g/h'}</span>
+                                            </span>
+                                        </div>
+                                        <div className="bg-black/30 p-2 rounded flex flex-col items-center">
+                                            <span className="text-[10px] text-gray-500 uppercase tracking-wider">Duration</span>
+                                            <span className="text-blue-300 font-mono font-bold text-lg">{staff.durationHours}h</span>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        onClick={() => hireStaff(staff.id)}
+                                        className="w-full bg-gradient-to-r from-green-700 to-green-600 hover:from-green-600 hover:to-green-500 text-white py-3 rounded-lg font-bold uppercase tracking-wide shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2"
+                                    >
+                                        <span>HIRE</span>
+                                        <span className="bg-black/20 px-2 py-0.5 rounded text-xs">
+                                            {staff.cost} {ICONS.CWARS}
+                                        </span>
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>
